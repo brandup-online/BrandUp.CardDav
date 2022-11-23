@@ -1,7 +1,8 @@
-﻿using BrandUp.CardDav.Client.Options;
+﻿using BrandUp.CardDav.Client.Client;
+using BrandUp.CardDav.Client.Options;
 using Microsoft.Extensions.Logging;
 
-namespace BrandUp.CardDav.Client
+namespace BrandUp.CardDav.Client.Factory
 {
     public class CardDavClientFactory : ICardDavClientFactory
     {
@@ -16,14 +17,11 @@ namespace BrandUp.CardDav.Client
 
         #region ICardDavClientFactory
 
-        public CardDavClient CreateClientWithAccessToken(CardDavOAuthOptions options)
+        public CardDavClient CreateClient(CardDavOptions options)
         {
-            throw new NotImplementedException();
-        }
+            var client = httpClientFactory.CreateClient();
 
-        public CardDavClient CreateClientWithCredentials(CardDavCredentialsOptions options)
-        {
-            throw new NotImplementedException();
+            return new CardDavClient(client, logger, options);
         }
 
         #endregion
@@ -31,7 +29,6 @@ namespace BrandUp.CardDav.Client
 
     public interface ICardDavClientFactory
     {
-        CardDavClient CreateClientWithCredentials(CardDavCredentialsOptions options);
-        CardDavClient CreateClientWithAccessToken(CardDavOAuthOptions options);
+        CardDavClient CreateClient(CardDavOptions options);
     }
 }
