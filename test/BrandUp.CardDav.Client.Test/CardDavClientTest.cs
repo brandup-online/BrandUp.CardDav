@@ -1,10 +1,10 @@
-using BrandUp.CardDav.Client.Extensions;
-using BrandUp.CardDav.Client.Factory;
+using BrandUp.Carddav.Client.Extensions;
+using BrandUp.Carddav.Client.Factory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit.Abstractions;
 
-namespace BrandUp.CardDav.Client.Test
+namespace BrandUp.Carddav.Client.Test
 {
     public class CardDavClientTest : IAsyncLifetime
     {
@@ -62,16 +62,18 @@ namespace BrandUp.CardDav.Client.Test
 
             var response = await client.OptionsAsync(CancellationToken.None);
 
-            output.WriteLine(response);
+            Assert.True(response.IsSuccess);
 
-            response = await client.PropfindAsync("/addressbook/dmitryschashev@yandex.ru/addressbook/", new Models.CarddavRequest { Depth = "0" }, CancellationToken.None);
-            output.WriteLine(response);
+            response = await client.PropfindAsync($"/addressbook/{userName}/", new Models.CarddavRequest { Depth = "1" }, CancellationToken.None);
 
-            response = await client.PropfindAsync("/addressbook/dmitryschashev@yandex.ru/addressbook/", new Models.CarddavRequest { Depth = "1" }, CancellationToken.None);
-            output.WriteLine(response);
+            Assert.True(response.IsSuccess);
+            Assert.Equal(2, response.addressBooks.Count);
 
-            response = await client.GetAsync("/addressbook/dmitryschashev@yandex.ru/addressbook/YA-1", CancellationToken.None);
-            output.WriteLine(response);
+            response = await client.PropfindAsync(response.addressBooks[1].Endpoint, new Models.CarddavRequest { Depth = "1" }, CancellationToken.None);
+
+            Assert.True(response.IsSuccess);
+            Assert.Equal(1, response.addressBooks.Count);
+            Assert.Equal(5, response.vCards.Count);
         }
 
         #region I think this is be useful later

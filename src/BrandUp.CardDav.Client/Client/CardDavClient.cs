@@ -1,8 +1,9 @@
-﻿using BrandUp.CardDav.Client.Models;
-using BrandUp.CardDav.Client.Options;
+﻿using BrandUp.Carddav.Client.Models;
+using BrandUp.Carddav.Client.Options;
+using BrandUp.Carddav.Client.Xml;
 using Microsoft.Extensions.Logging;
 
-namespace BrandUp.CardDav.Client.Client
+namespace BrandUp.Carddav.Client.Client
 {
     public class CardDavClient : ICardDavClient
     {
@@ -19,33 +20,33 @@ namespace BrandUp.CardDav.Client.Client
 
         #region ICardDavClient members
 
-        public Task<string> OptionsAsync(CancellationToken cancellationToken)
+        public Task<CarddavResponse> OptionsAsync(CancellationToken cancellationToken)
             => ExecuteAsync("", HttpMethod.Options, cancellationToken);
 
         // Must be vcard adress
-        public Task<string> GetAsync(string endpoint, CancellationToken cancellationToken)
+        public Task<CarddavResponse> GetAsync(string endpoint, CancellationToken cancellationToken)
             => ExecuteAsync(endpoint, HttpMethod.Get, cancellationToken);
 
-        public Task<string> PropfindAsync(string endpoint, CarddavRequest request, CancellationToken cancellationToken)
+        public Task<CarddavResponse> PropfindAsync(string endpoint, CarddavRequest request, CancellationToken cancellationToken)
              => ExecuteAsync(endpoint, new HttpMethod("PROPFIND"), request, cancellationToken);
 
-        public Task<string> ReportAsync(string endpoint, CarddavRequest request, CancellationToken cancellationToken)
+        public Task<CarddavResponse> ReportAsync(string endpoint, CarddavRequest request, CancellationToken cancellationToken)
              => ExecuteAsync(endpoint, new HttpMethod("REPORT"), request, cancellationToken);
 
-        public Task<string> AddContactAsync(string endpoint, string vCard, CancellationToken cancellationToken)
+        public Task<CarddavResponse> AddContactAsync(string endpoint, string vCard, CancellationToken cancellationToken)
             => ExecuteAsync(endpoint, HttpMethod.Put, vCard, cancellationToken);
 
-        public Task<string> DeleteContactAsync(string endpoint, string vCard, CancellationToken cancellationToken)
+        public Task<CarddavResponse> DeleteContactAsync(string endpoint, string vCard, CancellationToken cancellationToken)
             => ExecuteAsync(endpoint, HttpMethod.Put, vCard, cancellationToken);
 
-        public Task<string> UpdateContactAsync(string endpoint, string vCard, CancellationToken cancellationToken)
+        public Task<CarddavResponse> UpdateContactAsync(string endpoint, string vCard, CancellationToken cancellationToken)
             => ExecuteAsync(endpoint, HttpMethod.Put, vCard, cancellationToken);
 
         #endregion
 
         #region Helpers
 
-        private async Task<string> ExecuteAsync(string endpoint, HttpMethod method, CarddavRequest request, CancellationToken cancellationToken)
+        private async Task<CarddavResponse> ExecuteAsync(string endpoint, HttpMethod method, CarddavRequest request, CancellationToken cancellationToken)
         {
             using var requestMessage = new HttpRequestMessage(method, endpoint);
             if (request != null)
@@ -55,14 +56,10 @@ namespace BrandUp.CardDav.Client.Client
                 requestMessage.Content.Headers.Add("Depth", request.Depth);
             }
 
-            using var response = await httpClient.SendAsync(requestMessage, cancellationToken);
-
-            if (response.Content.Headers.ContentLength != 0)
-                return await response.Content.ReadAsStringAsync(cancellationToken);
-            else return response.Headers.ToString();
+            return await ExecuteAsync(requestMessage, cancellationToken);
         }
 
-        private async Task<string> ExecuteAsync(string endpoint, HttpMethod method, string vCard, CancellationToken cancellationToken)
+        private async Task<CarddavResponse> ExecuteAsync(string endpoint, HttpMethod method, string vCard, CancellationToken cancellationToken)
         {
             using var requestMessage = new HttpRequestMessage(method, endpoint);
             if (vCard != null)
@@ -71,22 +68,34 @@ namespace BrandUp.CardDav.Client.Client
                 requestMessage.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/vcard");
             }
 
-            using var response = await httpClient.SendAsync(requestMessage, cancellationToken);
-
-            if (response.Content.Headers.ContentLength != 0)
-                return await response.Content.ReadAsStringAsync(cancellationToken);
-            else return response.Headers.ToString();
+            return await ExecuteAsync(requestMessage, cancellationToken);
         }
 
-        private async Task<string> ExecuteAsync(string endpoint, HttpMethod method, CancellationToken cancellationToken)
+        private async Task<CarddavResponse> ExecuteAsync(string endpoint, HttpMethod method, CancellationToken cancellationToken)
         {
             using var requestMessage = new HttpRequestMessage(method, endpoint);
 
+            return await ExecuteAsync(requestMessage, cancellationToken);
+        }
+
+        private async Task<CarddavResponse> ExecuteAsync(HttpRequestMessage requestMessage, CancellationToken cancellationToken)
+        {
             using var response = await httpClient.SendAsync(requestMessage, cancellationToken);
 
             if (response.Content.Headers.ContentLength != 0)
-                return await response.Content.ReadAsStringAsync(cancellationToken);
-            else return response.Headers.ToString();
+            {
+                var parser = new XmlParser(await response.Content.ReadAsStreamAsync(cancellationToken));
+                return parser.GenerateCarddavResponse();
+            }
+            else
+            {
+                return new CarddavResponse
+                {
+                    IsSuccess = response.IsSuccessStatusCode,
+                    StatusCode = response.StatusCode.ToString()
+
+                };
+            }
         }
 
         private void SetOptions(CardDavOptions options)

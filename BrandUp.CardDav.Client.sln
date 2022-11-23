@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33103.184
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Client", "src\BrandUp.CardDav.Client\BrandUp.CardDav.Client.csproj", "{7CC76984-0528-494E-BD8E-052DA1899174}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.Carddav.Client", "src\BrandUp.CardDav.Client\BrandUp.Carddav.Client.csproj", "{7CC76984-0528-494E-BD8E-052DA1899174}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{6DDD5B1D-8134-4C07-98A2-0554CA30A404}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{8DBD6145-DB83-4FFC-BEF6-1FEC26862D17}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrandUp.CardDav.Client.Test", "test\BrandUp.CardDav.Client.Test\BrandUp.CardDav.Client.Test.csproj", "{B11DC985-4F39-44E9-90D8-200C5C9BEA44}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Client.Test", "test\BrandUp.CardDav.Client.Test\BrandUp.CardDav.Client.Test.csproj", "{B11DC985-4F39-44E9-90D8-200C5C9BEA44}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

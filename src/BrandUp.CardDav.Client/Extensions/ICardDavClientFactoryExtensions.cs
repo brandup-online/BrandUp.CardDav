@@ -1,8 +1,8 @@
-﻿using BrandUp.CardDav.Client.Client;
-using BrandUp.CardDav.Client.Factory;
-using BrandUp.CardDav.Client.Options;
+﻿using BrandUp.Carddav.Client.Client;
+using BrandUp.Carddav.Client.Factory;
+using BrandUp.Carddav.Client.Options;
 
-namespace BrandUp.CardDav.Client.Extensions
+namespace BrandUp.Carddav.Client.Extensions
 {
     public static class ICardDavClientFactoryExtensions
     {

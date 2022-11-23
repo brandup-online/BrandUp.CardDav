@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\BrandUp.CardDav.Client\BrandUp.CardDav.Client.csproj" />
+    <ProjectReference Include="..\..\src\BrandUp.Carddav.Client\BrandUp.Carddav.Client.csproj" />
   </ItemGroup>
 
 </Project>
