@@ -1,3 +1,4 @@
+using BrandUp.Carddav.Client.Builders;
 using BrandUp.Carddav.Client.Extensions;
 using BrandUp.Carddav.Client.Factory;
 using BrandUp.Carddav.Client.Models.Requests;
@@ -57,7 +58,7 @@ namespace BrandUp.Carddav.Client.Test
         #endregion
 
         [Fact]
-        public async void Success_Yandex()
+        public async Task Success_Yandex_Basic()
         {
             var client = cardDavClientFactory.CreateClientWithCredentials("https://carddav.yandex.ru/", userName, password);
 
@@ -77,7 +78,33 @@ namespace BrandUp.Carddav.Client.Test
             Assert.Equal(5, response.vCardLinks.Count);
 
             response = await client.GetAsync(response.vCardLinks[0].Endpoint, CancellationToken.None);
+            Assert.True(response.IsSuccess);
             Assert.Single(response.vCards);
+        }
+
+        [Fact]
+        public async Task Success_Yandex_CRUD()
+        {
+            var client = cardDavClientFactory.CreateClientWithCredentials("https://carddav.yandex.ru/", userName, password);
+
+            var response = await client.OptionsAsync(CancellationToken.None);
+
+            Assert.True(response.IsSuccess);
+
+            var testPerson = "BEGIN:VCARD\r\nVERSION:3.0\r\nN:Doe;John;;;\r\nFN:John Doe\r\nORG:Example.com Inc.;\r\nTITLE:Imaginary test person\r\nEMAIL;type=INTERNET;type=WORK;type=pref:johnDoe@example.org\r\nTEL;type=WORK;type=pref:+1 617 555 1212\r\nTEL;type=WORK:+1 (617) 555-1234\r\nTEL;type=CELL:+1 781 555 1212\r\nTEL;type=HOME:+1 202 555 1212\r\nEND:VCARD\r\n";
+
+            var vCard = VCardBuilder.Create(testPerson).Build();
+
+            response = await client.AddContactAsync($"/addressbook/{userName}/addressbook/new", vCard, CancellationToken.None);
+            Assert.True(response.IsSuccess);
+
+            response = await client.DeleteContactAsync($"/addressbook/{userName}/addressbook/new", CancellationToken.None);
+            Assert.True(response.IsSuccess);
+
+            response = await client.PropfindAsync($"/addressbook/{userName}/addressbook", new CarddavRequest { Depth = "1" }, CancellationToken.None);
+
+            Assert.True(response.IsSuccess);
+            Assert.Equal(5, response.vCardLinks.Count);
         }
 
         #region I think this is be useful later

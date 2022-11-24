@@ -40,11 +40,17 @@ namespace BrandUp.Carddav.Client.Parsers
             return await ParseAsync(new StringReader(vCardRaw), vCard, cancellationToken);
         }
 
+        public static VCard Parse(string vCardRaw)
+        {
+            VCard vCard = new(vCardRaw);
+
+            return ParseAsync(new StringReader(vCardRaw), vCard, CancellationToken.None).Result;
+        }
+
         #region Helpers 
 
         private static async Task<VCard> ParseAsync(TextReader reader, VCard vCard, CancellationToken cancellationToken)
         {
-
             while (true)
             {
                 var line = await reader.ReadLineAsync(cancellationToken);
@@ -60,7 +66,7 @@ namespace BrandUp.Carddav.Client.Parsers
                     line = await reader.ReadLineAsync(cancellationToken);
                     if (line == null)
                         return vCard;
-                    else if (string.Equals(await reader.ReadLineAsync(cancellationToken), "BEGIN:VCARD", StringComparison.InvariantCultureIgnoreCase))
+                    else if (string.Equals(line, "BEGIN:VCARD", StringComparison.InvariantCultureIgnoreCase))
                         throw new NotSupportedException("vCard with some contacts in one file.");
                 }
 

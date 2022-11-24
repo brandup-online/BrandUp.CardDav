@@ -1,4 +1,5 @@
-﻿using BrandUp.Carddav.Client.Models.Requests;
+﻿using BrandUp.Carddav.Client.Models;
+using BrandUp.Carddav.Client.Models.Requests;
 using BrandUp.Carddav.Client.Models.Responses;
 using BrandUp.Carddav.Client.Options;
 using BrandUp.Carddav.Client.Parsers;
@@ -35,13 +36,13 @@ namespace BrandUp.Carddav.Client.Client
         public Task<CarddavResponse> ReportAsync(string endpoint, CarddavRequest request, CancellationToken cancellationToken)
              => ExecuteAsync(endpoint, new HttpMethod("REPORT"), request, cancellationToken);
 
-        public Task<CarddavResponse> AddContactAsync(string endpoint, string vCard, CancellationToken cancellationToken)
+        public Task<CarddavResponse> AddContactAsync(string endpoint, VCard vCard, CancellationToken cancellationToken)
             => ExecuteAsync(endpoint, HttpMethod.Put, vCard, cancellationToken);
 
-        public Task<CarddavResponse> DeleteContactAsync(string endpoint, string vCard, CancellationToken cancellationToken)
-            => ExecuteAsync(endpoint, HttpMethod.Put, vCard, cancellationToken);
+        public Task<CarddavResponse> DeleteContactAsync(string endpoint, CancellationToken cancellationToken)
+            => ExecuteAsync(endpoint, HttpMethod.Delete, cancellationToken);
 
-        public Task<CarddavResponse> UpdateContactAsync(string endpoint, string vCard, CancellationToken cancellationToken)
+        public Task<CarddavResponse> UpdateContactAsync(string endpoint, VCard vCard, CancellationToken cancellationToken)
             => ExecuteAsync(endpoint, HttpMethod.Put, vCard, cancellationToken);
 
         #endregion
@@ -61,12 +62,12 @@ namespace BrandUp.Carddav.Client.Client
             return await ExecuteAsync(requestMessage, cancellationToken);
         }
 
-        private async Task<CarddavResponse> ExecuteAsync(string endpoint, HttpMethod method, string vCard, CancellationToken cancellationToken)
+        private async Task<CarddavResponse> ExecuteAsync(string endpoint, HttpMethod method, VCard vCard, CancellationToken cancellationToken)
         {
             using var requestMessage = new HttpRequestMessage(method, endpoint);
             if (vCard != null)
             {
-                requestMessage.Content = new StringContent(vCard);
+                requestMessage.Content = new StringContent(vCard.Raw);
                 requestMessage.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/vcard");
             }
 

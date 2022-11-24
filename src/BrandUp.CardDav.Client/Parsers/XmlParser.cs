@@ -1,5 +1,6 @@
 ﻿using BrandUp.Carddav.Client.Models;
 using BrandUp.Carddav.Client.Models.Responses;
+using BrandUp.Carddav.Client.Parsers;
 using System.Xml;
 
 namespace BrandUp.Carddav.Client.Xml
@@ -24,7 +25,6 @@ namespace BrandUp.Carddav.Client.Xml
             var d = mainNode.GetPrefixOfNamespace(mainNode.NamespaceURI);
 
             nsmgr.AddNamespace(d, "DAV:");
-            nsmgr.AddNamespace("e", "urn:ietf:params:xml:ns:carddav");
 
             foreach (XmlNode node in xmlDocument["multistatus", "DAV:"].ChildNodes)
             {
@@ -37,9 +37,17 @@ namespace BrandUp.Carddav.Client.Xml
                 }
                 if (node.SelectSingleNode($"{d}:propstat/{d}:prop/{d}:resourcetype", nsmgr).HasChildNodes)
                 {
-                    //address book 
+                    //address book
+
                     var name = node.SelectSingleNode($"{d}:propstat/{d}:prop/{d}:displayname", nsmgr).InnerText;
                     response.addressBooks.Add(new AddressBookResponse { Etag = eTag, Endpoint = href, DisplayName = name });
+                }
+                else if (node.SelectSingleNode($"{d}:propstat/{d}:prop", nsmgr)["address-data", "urn:ietf:params:xml:ns:carddav"] != null)
+                {
+                    //vcard data
+
+                    var vCard = node.SelectSingleNode($"{d}:propstat/{d}:prop", nsmgr)["address-data", "urn:ietf:params:xml:ns:carddav"].InnerText;
+                    response.vCards.Add(VCardParser.Parse(vCard));
                 }
                 else
                 {
