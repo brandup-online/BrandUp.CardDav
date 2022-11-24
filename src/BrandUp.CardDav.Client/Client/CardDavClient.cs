@@ -1,5 +1,7 @@
-﻿using BrandUp.Carddav.Client.Models;
+﻿using BrandUp.Carddav.Client.Models.Requests;
+using BrandUp.Carddav.Client.Models.Responses;
 using BrandUp.Carddav.Client.Options;
+using BrandUp.Carddav.Client.Parsers;
 using BrandUp.Carddav.Client.Xml;
 using Microsoft.Extensions.Logging;
 
@@ -84,8 +86,22 @@ namespace BrandUp.Carddav.Client.Client
 
             if (response.Content.Headers.ContentLength != 0)
             {
-                var parser = new XmlParser(await response.Content.ReadAsStreamAsync(cancellationToken));
-                return parser.GenerateCarddavResponse();
+                if (response.Content.Headers.ContentType.MediaType.Contains("xml"))
+                {
+                    var parser = new XmlParser(await response.Content.ReadAsStreamAsync(cancellationToken));
+                    return parser.GenerateCarddavResponse();
+                }
+                else if (response.Content.Headers.ContentType.MediaType.Contains("card"))
+                {
+                    var cardavResponse = new CarddavResponse
+                    {
+                        IsSuccess = response.IsSuccessStatusCode,
+                        StatusCode = response.StatusCode.ToString(),
+                    };
+                    cardavResponse.vCards.Add(await VCardParser.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken));
+                    return cardavResponse;
+                }
+                else throw new NotSupportedException("Unsupported content type");
             }
             else
             {

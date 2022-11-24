@@ -1,4 +1,5 @@
 ﻿using BrandUp.Carddav.Client.Models;
+using BrandUp.Carddav.Client.Models.Responses;
 using System.Xml;
 
 namespace BrandUp.Carddav.Client.Xml
@@ -44,7 +45,7 @@ namespace BrandUp.Carddav.Client.Xml
                 {
                     //vcard
 
-                    response.vCards.Add(new VCardResponse { Etag = eTag, Endpoint = href });
+                    response.vCardLinks.Add(new VCardResponse { Etag = eTag, Endpoint = href });
                 }
             }
 

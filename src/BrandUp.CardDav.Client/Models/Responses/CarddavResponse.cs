@@ -1,9 +1,10 @@
-﻿namespace BrandUp.Carddav.Client.Models
+﻿namespace BrandUp.Carddav.Client.Models.Responses
 {
     public class CarddavResponse
     {
         public IList<AddressBookResponse> addressBooks { get; set; } = new List<AddressBookResponse>();
-        public IList<VCardResponse> vCards { get; set; } = new List<VCardResponse>();
+        public IList<VCardResponse> vCardLinks { get; set; } = new List<VCardResponse>();
+        public IList<VCard> vCards { get; set; } = new List<VCard>();
 
         public string SyncToken { get; set; }
 

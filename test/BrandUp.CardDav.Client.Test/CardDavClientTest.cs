@@ -1,5 +1,6 @@
 using BrandUp.Carddav.Client.Extensions;
 using BrandUp.Carddav.Client.Factory;
+using BrandUp.Carddav.Client.Models.Requests;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit.Abstractions;
@@ -64,16 +65,19 @@ namespace BrandUp.Carddav.Client.Test
 
             Assert.True(response.IsSuccess);
 
-            response = await client.PropfindAsync($"/addressbook/{userName}/", new Models.CarddavRequest { Depth = "1" }, CancellationToken.None);
+            response = await client.PropfindAsync($"/addressbook/{userName}/", new CarddavRequest { Depth = "1" }, CancellationToken.None);
 
             Assert.True(response.IsSuccess);
             Assert.Equal(2, response.addressBooks.Count);
 
-            response = await client.PropfindAsync(response.addressBooks[1].Endpoint, new Models.CarddavRequest { Depth = "1" }, CancellationToken.None);
+            response = await client.PropfindAsync(response.addressBooks[1].Endpoint, new CarddavRequest { Depth = "1" }, CancellationToken.None);
 
             Assert.True(response.IsSuccess);
             Assert.Equal(1, response.addressBooks.Count);
-            Assert.Equal(5, response.vCards.Count);
+            Assert.Equal(5, response.vCardLinks.Count);
+
+            response = await client.GetAsync(response.vCardLinks[0].Endpoint, CancellationToken.None);
+            Assert.Single(response.vCards);
         }
 
         #region I think this is be useful later

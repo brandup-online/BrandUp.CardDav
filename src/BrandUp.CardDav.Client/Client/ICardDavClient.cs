@@ -1,4 +1,5 @@
-﻿using BrandUp.Carddav.Client.Models;
+﻿using BrandUp.Carddav.Client.Models.Requests;
+using BrandUp.Carddav.Client.Models.Responses;
 
 namespace BrandUp.Carddav.Client.Client
 {
