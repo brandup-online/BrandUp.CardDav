@@ -12,6 +12,7 @@ namespace BrandUp.Carddav.Client.Builders
         private string version = "VERSION:4.0\r\n";
         private string emails = string.Empty;
         private string phones = string.Empty;
+        private string uId = string.Empty;
         private string fullName = string.Empty;
         private string name = string.Empty;
 
@@ -59,9 +60,11 @@ namespace BrandUp.Carddav.Client.Builders
             return new VCardBuilder(raw);
         }
 
-        public IVCardBuilder AddEmail(string email, Kind type)
+        public IVCardBuilder AddUId(string uId)
         {
-            emails += $"EMAIL;type={type.ToString().ToUpper()}:{email}\r\n";
+            if (this.uId != string.Empty)
+                throw new ArgumentException("Cannot add two FN properties to one vcard");
+            this.uId = $"UID:{uId}\r\n";
 
             return this;
         }
@@ -70,7 +73,7 @@ namespace BrandUp.Carddav.Client.Builders
         {
             if (fullName != string.Empty)
                 throw new ArgumentException("Cannot add two FN properties to one vcard");
-            fullName = $"FN:{Name}";
+            fullName = $"FN:{Name}\r\n";
 
             return this;
         }
@@ -79,7 +82,14 @@ namespace BrandUp.Carddav.Client.Builders
         {
             if (fullName != string.Empty)
                 throw new ArgumentException("Cannot add two N properties to one vcard");
-            fullName = "N:" + string.Join(';', familyNames, givenNames, additionalNames, honorificPrefixes, honorificSuffixes);
+            fullName = "N:" + string.Join(';', familyNames, givenNames, additionalNames, honorificPrefixes, honorificSuffixes) + "\r\n";
+
+            return this;
+        }
+
+        public IVCardBuilder AddEmail(string email, Kind type)
+        {
+            emails += $"EMAIL;type={type.ToString().ToUpper()}:{email}\r\n";
 
             return this;
         }
@@ -93,7 +103,7 @@ namespace BrandUp.Carddav.Client.Builders
 
         public VCard Build()
         {
-            rawVCard = begin + version + name + fullName + phones + emails + end;
+            rawVCard = begin + version + uId + name + fullName + phones + emails + end;
 
             return VCardParser.Parse(rawVCard);
         }
@@ -107,6 +117,7 @@ namespace BrandUp.Carddav.Client.Builders
         static abstract IVCardBuilder Create(string rawVCard);
         static abstract IVCardBuilder CreateFromFile(string filepath);
         static abstract IVCardBuilder CreateFromStream(Stream stream);
+        IVCardBuilder AddUId(string uId);
         IVCardBuilder AddFullName(string Name);
         IVCardBuilder AddName(string familyNames, string givenNames, string additionalNames, string honorificPrefixes, string honorificSuffixes);
         IVCardBuilder AddPhone(string phone, Kind type);
