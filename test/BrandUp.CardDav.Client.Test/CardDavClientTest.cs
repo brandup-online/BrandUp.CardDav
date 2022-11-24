@@ -113,6 +113,14 @@ namespace BrandUp.Carddav.Client.Test
             Assert.Equal(vCard.Phones, responseVCard.Phones, new PhonesEqualityComparer());
             Assert.Equal(vCard.Emails, responseVCard.Emails, new EmailsEqualityComparer());
 
+            var updateVCard = VCardBuilder.Create("BEGIN:VCARD\r\nVERSION:3.0\r\nUID:2312133421324668575897435\r\nN:Doe;John;;;\r\nFN:John Doe\r\nEMAIL:test@test.org\r\nTEL;type=WORK;type=pref:+1 617 555 1212\r\nEND:VCARD\r\n").Build();
+            response = await client.UpdateContactAsync($"/addressbook/{userName}/addressbook/new", vCard, new CarddavRequest { ETag = response.eTag }, CancellationToken.None);
+            Assert.True(response.IsSuccess);
+
+            response = await client.GetAsync($"/addressbook/{userName}/addressbook/new", CancellationToken.None);
+            Assert.True(response.IsSuccess);
+            Assert.Equal("test@test.org", response.vCards.First().Emails.First().Email);
+
             response = await client.DeleteContactAsync($"/addressbook/{userName}/addressbook/new", CancellationToken.None);
             Assert.True(response.IsSuccess);
 

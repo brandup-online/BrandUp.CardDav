@@ -7,6 +7,7 @@
         public IList<VCard> vCards { get; set; } = new List<VCard>();
 
         public string SyncToken { get; set; }
+        public string eTag { get; set; }
 
         public bool IsSuccess { get; set; } = true;
 

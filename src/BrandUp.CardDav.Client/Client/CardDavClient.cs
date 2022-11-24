@@ -37,13 +37,13 @@ namespace BrandUp.Carddav.Client.Client
              => ExecuteAsync(endpoint, new HttpMethod("REPORT"), request, cancellationToken);
 
         public Task<CarddavResponse> AddContactAsync(string endpoint, VCard vCard, CancellationToken cancellationToken)
-            => ExecuteAsync(endpoint, HttpMethod.Put, vCard, cancellationToken);
+            => ExecuteAsync(endpoint, HttpMethod.Put, vCard, null, cancellationToken);
 
         public Task<CarddavResponse> DeleteContactAsync(string endpoint, CancellationToken cancellationToken)
             => ExecuteAsync(endpoint, HttpMethod.Delete, cancellationToken);
 
-        public Task<CarddavResponse> UpdateContactAsync(string endpoint, VCard vCard, CancellationToken cancellationToken)
-            => ExecuteAsync(endpoint, HttpMethod.Put, vCard, cancellationToken);
+        public Task<CarddavResponse> UpdateContactAsync(string endpoint, VCard vCard, CarddavRequest request, CancellationToken cancellationToken)
+            => ExecuteAsync(endpoint, HttpMethod.Put, vCard, request.ETag, cancellationToken);
 
         #endregion
 
@@ -62,12 +62,14 @@ namespace BrandUp.Carddav.Client.Client
             return await ExecuteAsync(requestMessage, cancellationToken);
         }
 
-        private async Task<CarddavResponse> ExecuteAsync(string endpoint, HttpMethod method, VCard vCard, CancellationToken cancellationToken)
+        private async Task<CarddavResponse> ExecuteAsync(string endpoint, HttpMethod method, VCard vCard, string eTag = null, CancellationToken cancellationToken = default)
         {
             using var requestMessage = new HttpRequestMessage(method, endpoint);
             if (vCard != null)
             {
                 requestMessage.Content = new StringContent(vCard.Raw);
+                if (eTag != null)
+                    requestMessage.Headers.Add("If-Match", eTag);
                 requestMessage.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/vcard");
             }
 
@@ -98,19 +100,22 @@ namespace BrandUp.Carddav.Client.Client
                     {
                         IsSuccess = response.IsSuccessStatusCode,
                         StatusCode = response.StatusCode.ToString(),
+                        eTag = response.Headers.ETag.Tag
                     };
                     cardavResponse.vCards.Add(await VCardParser.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken));
                     return cardavResponse;
                 }
                 else throw new NotSupportedException("Unsupported content type");
+
+
             }
             else
             {
                 return new CarddavResponse
                 {
                     IsSuccess = response.IsSuccessStatusCode,
-                    StatusCode = response.StatusCode.ToString()
-
+                    StatusCode = response.StatusCode.ToString(),
+                    eTag = response.Headers.ETag?.Tag
                 };
             }
         }

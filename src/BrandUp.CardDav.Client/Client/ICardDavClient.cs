@@ -12,6 +12,6 @@ namespace BrandUp.Carddav.Client.Client
         public Task<CarddavResponse> GetAsync(string endpoint, CancellationToken cancellationToken);
         public Task<CarddavResponse> AddContactAsync(string endpoint, VCard vCard, CancellationToken cancellationToken);
         public Task<CarddavResponse> DeleteContactAsync(string endpoint, CancellationToken cancellationToken);
-        public Task<CarddavResponse> UpdateContactAsync(string endpoint, VCard vCard, CancellationToken cancellationToken);
+        public Task<CarddavResponse> UpdateContactAsync(string endpoint, VCard vCard, CarddavRequest request, CancellationToken cancellationToken);
     }
 }

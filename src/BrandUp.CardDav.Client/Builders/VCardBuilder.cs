@@ -26,11 +26,21 @@ namespace BrandUp.Carddav.Client.Builders
         {
             var array = rawVCard.Split("\r\n");
 
-            version = array.Where(s => s.StartsWith("VERSION")).Single() + "\r\n";
-            fullName = array.Where(s => s.StartsWith("FN:")).Single() + "\r\n";
-            name = array.Where(s => s.StartsWith("N:")).Single() + "\r\n";
-            phones = string.Join("\r\n", array.Where(s => s.StartsWith("TEL"))) + "\r\n";
-            emails = string.Join("\r\n", array.Where(s => s.StartsWith("EMAIL"))) + "\r\n";
+            version = array.Where(s => s.StartsWith("VERSION")).SingleOrDefault();
+            if (version != null)
+                version += "\r\n";
+            fullName = array.Where(s => s.StartsWith("FN:")).SingleOrDefault();
+            if (fullName != null)
+                fullName += "\r\n";
+            name = array.Where(s => s.StartsWith("N:")).SingleOrDefault();
+            if (name != null)
+                name += "\r\n";
+            phones = string.Join("\r\n", array.Where(s => s.StartsWith("TEL")));
+            if (phones != null)
+                phones += "\r\n";
+            emails = string.Join("\r\n", array.Where(s => s.StartsWith("EMAIL")));
+            if (emails != null)
+                emails += "\r\n";
         }
 
         #region IVCardBuilder members

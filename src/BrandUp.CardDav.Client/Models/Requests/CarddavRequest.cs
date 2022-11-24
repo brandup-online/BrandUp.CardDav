@@ -6,6 +6,8 @@
         //0, 1, infinity
         public string Depth { get; set; }
 
+        public string ETag { get; set; }
+
         public string XmlContent { get; set; }
     }
 }
