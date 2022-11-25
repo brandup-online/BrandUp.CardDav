@@ -2,8 +2,9 @@
 
 namespace BrandUp.Carddav.Client.Models
 {
-    public class AddressBookResponse : BaseResponse
+    public class ResourceResponse : BaseResponse
     {
-        public string DisplayName { get; set; }
     }
+
+
 }

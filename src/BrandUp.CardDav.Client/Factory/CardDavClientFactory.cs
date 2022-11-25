@@ -19,7 +19,7 @@ namespace BrandUp.Carddav.Client.Factory
 
         public CardDavClient CreateClient(CardDavOptions options)
         {
-            var client = httpClientFactory.CreateClient();
+            var client = httpClientFactory.CreateClient("carddav");
 
             return new CardDavClient(client, logger, options);
         }

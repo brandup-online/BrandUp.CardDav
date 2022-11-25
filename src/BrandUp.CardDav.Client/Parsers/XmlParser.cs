@@ -18,7 +18,8 @@ namespace BrandUp.Carddav.Client.Xml
 
         public CarddavResponse GenerateCarddavResponse()
         {
-            CarddavResponse response = new();
+            CarddavResponse response = new() { RawXml = xmlDocument.OuterXml };
+
 
             var mainNode = xmlDocument["multistatus", "DAV:"];
             var nsmgr = new XmlNamespaceManager(mainNode.CreateNavigator().NameTable);
@@ -26,34 +27,34 @@ namespace BrandUp.Carddav.Client.Xml
 
             nsmgr.AddNamespace(d, "DAV:");
 
-            foreach (XmlNode node in xmlDocument["multistatus", "DAV:"].ChildNodes)
+            foreach (XmlNode responseNode in xmlDocument["multistatus", "DAV:"].ChildNodes)
             {
-                var href = node["href"]?.InnerText;
-                var eTag = node.SelectSingleNode($"{d}:propstat/{d}:prop/{d}:getetag", nsmgr)?.InnerText;
-                if (node.Name.Contains("sync-token"))
+                var href = responseNode["href"]?.InnerText ?? responseNode["href", "DAV:"]?.InnerText;
+                var eTag = responseNode.SelectSingleNode($"{d}:propstat/{d}:prop/{d}:getetag", nsmgr)?.InnerText;
+                if (responseNode.Name.Contains("sync-token"))
                 {
-                    response.SyncToken = node.Name;
+                    response.SyncToken = responseNode.Name;
                     continue;
                 }
-                if (node.SelectSingleNode($"{d}:propstat/{d}:prop/{d}:resourcetype", nsmgr).HasChildNodes)
-                {
-                    //address book
-
-                    var name = node.SelectSingleNode($"{d}:propstat/{d}:prop/{d}:displayname", nsmgr).InnerText;
-                    response.addressBooks.Add(new AddressBookResponse { Etag = eTag, Endpoint = href, DisplayName = name });
-                }
-                else if (node.SelectSingleNode($"{d}:propstat/{d}:prop", nsmgr)["address-data", "urn:ietf:params:xml:ns:carddav"] != null)
+                var propNode = responseNode.SelectSingleNode($"{d}:propstat/{d}:prop", nsmgr);
+                if (propNode["address-data", "urn:ietf:params:xml:ns:carddav"] != null)
                 {
                     //vcard data
 
-                    var vCard = node.SelectSingleNode($"{d}:propstat/{d}:prop", nsmgr)["address-data", "urn:ietf:params:xml:ns:carddav"].InnerText;
-                    response.vCards.Add(VCardParser.Parse(vCard));
+                    var vCard = responseNode.SelectSingleNode($"{d}:propstat/{d}:prop", nsmgr)["address-data", "urn:ietf:params:xml:ns:carddav"].InnerText;
+                    response.VCardResponse.Add(new() { Etag = eTag, Endpoint = href, VCard = VCardParser.Parse(vCard) });
+                }
+                if (propNode["resourcetype", "DAV:"] != null && propNode["resourcetype", "DAV:"].InnerXml != "")
+                {
+                    //address book
+
+                    var name = propNode["resourcetype", "DAV:"]?.InnerText;
+                    response.AddressBooks.Add(new AddressBookResponse { Etag = eTag, Endpoint = href, DisplayName = name });
+
                 }
                 else
                 {
-                    //vcard
-
-                    response.vCardLinks.Add(new VCardResponse { Etag = eTag, Endpoint = href });
+                    response.ResourceEndpoints.Add(new ResourceResponse { Etag = eTag, Endpoint = href });
                 }
             }
 

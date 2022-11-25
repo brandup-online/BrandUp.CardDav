@@ -21,6 +21,8 @@ namespace BrandUp.Carddav.Client.Test
 
         private string userName;
         private string password;
+        private string token;
+        private string gmail;
 
         public CardDavClientTest(ITestOutputHelper output)
         {
@@ -28,7 +30,11 @@ namespace BrandUp.Carddav.Client.Test
 
             var services = new ServiceCollection();
 
-            services.AddHttpClient();
+            services.AddHttpClient("carddav").ConfigurePrimaryHttpMessageHandler(() =>
+            new HttpClientHandler()
+            {
+                AllowAutoRedirect = true,
+            });
             services.AddLogging();
 
             services.AddScoped<ICardDavClientFactory, CardDavClientFactory>();
@@ -40,6 +46,8 @@ namespace BrandUp.Carddav.Client.Test
 
             userName = configuration.GetSection("Cred:UserName").Get<string>();
             password = configuration.GetSection("Cred:Password").Get<string>();
+            token = configuration.GetSection("Google:Token").Get<string>();
+            gmail = configuration.GetSection("Google:Login").Get<string>();
 
             cardDavClientFactory = scope.ServiceProvider.GetRequiredService<ICardDavClientFactory>();
         }
@@ -71,17 +79,17 @@ namespace BrandUp.Carddav.Client.Test
             response = await client.PropfindAsync($"/addressbook/{userName}/", new CarddavRequest { Depth = "1" }, CancellationToken.None);
 
             Assert.True(response.IsSuccess);
-            Assert.Equal(2, response.addressBooks.Count);
+            Assert.Equal(2, response.AddressBooks.Count);
 
-            response = await client.PropfindAsync(response.addressBooks[1].Endpoint, new CarddavRequest { Depth = "1" }, CancellationToken.None);
+            response = await client.PropfindAsync(response.AddressBooks[1].Endpoint, new CarddavRequest { Depth = "1" }, CancellationToken.None);
 
             Assert.True(response.IsSuccess);
-            Assert.Equal(1, response.addressBooks.Count);
-            Assert.Equal(5, response.vCardLinks.Count);
+            Assert.Equal(1, response.AddressBooks.Count);
+            Assert.Equal(5, response.ResourceEndpoints.Count);
 
-            response = await client.GetAsync(response.vCardLinks[0].Endpoint, CancellationToken.None);
+            response = await client.GetAsync(response.ResourceEndpoints[0].Endpoint, CancellationToken.None);
             Assert.True(response.IsSuccess);
-            Assert.Single(response.vCards);
+            Assert.Single(response.VCardResponse);
         }
 
         [Fact]
@@ -103,23 +111,24 @@ namespace BrandUp.Carddav.Client.Test
             response = await client.GetAsync($"/addressbook/{userName}/addressbook/new", CancellationToken.None);
             Assert.True(response.IsSuccess);
 
-            var responseVCard = response.vCards[0];
-            Assert.Equal(vCard.Name.FamilyNames, responseVCard.Name.FamilyNames);
-            Assert.Equal(vCard.Name.GivenNames, responseVCard.Name.GivenNames);
-            Assert.Equal(vCard.Name.AdditionalNames, responseVCard.Name.AdditionalNames);
-            Assert.Equal(vCard.Name.HonorificPrefixes, responseVCard.Name.HonorificPrefixes);
-            Assert.Equal(vCard.Name.HonorificSuffixes, responseVCard.Name.HonorificSuffixes);
-            Assert.Equal(vCard.FullName, responseVCard.FullName);
-            Assert.Equal(vCard.Phones, responseVCard.Phones, new PhonesEqualityComparer());
-            Assert.Equal(vCard.Emails, responseVCard.Emails, new EmailsEqualityComparer());
+            var responseVCard = response.VCardResponse[0];
+            Assert.Equal(vCard.Name.FamilyNames, responseVCard.VCard.Name.FamilyNames);
+            Assert.Equal(vCard.Name.GivenNames, responseVCard.VCard.Name.GivenNames);
+            Assert.Equal(vCard.Name.AdditionalNames, responseVCard.VCard.Name.AdditionalNames);
+            Assert.Equal(vCard.Name.HonorificPrefixes, responseVCard.VCard.Name.HonorificPrefixes);
+            Assert.Equal(vCard.Name.HonorificSuffixes, responseVCard.VCard.Name.HonorificSuffixes);
+            Assert.Equal(vCard.FullName, responseVCard.VCard.FullName);
+            Assert.Equal(vCard.Phones, responseVCard.VCard.Phones, new PhonesEqualityComparer());
+            Assert.Equal(vCard.Emails, responseVCard.VCard.Emails, new EmailsEqualityComparer());
 
-            var updateVCard = VCardBuilder.Create("BEGIN:VCARD\r\nVERSION:3.0\r\nUID:2312133421324668575897435\r\nN:Doe;John;;;\r\nFN:John Doe\r\nEMAIL:test@test.org\r\nTEL;type=WORK;type=pref:+1 617 555 1212\r\nEND:VCARD\r\n").Build();
-            response = await client.UpdateContactAsync($"/addressbook/{userName}/addressbook/new", vCard, new CarddavRequest { ETag = response.eTag }, CancellationToken.None);
-            Assert.True(response.IsSuccess);
+            //у яндекса багнутый апдейт
+            //var updateVCard = VCardBuilder.Create("BEGIN:VCARD\r\nVERSION:3.0\r\nUID:2312133421324668575897435\r\nN:Doe;John;;;\r\nFN:John Doe\r\nEMAIL:test@test.org\r\nTEL;type=WORK;type=pref:+1 617 555 1212\r\nEND:VCARD\r\n").Build();
+            //response = await client.UpdateContactAsync($"/addressbook/{userName}/addressbook/new", updateVCard, new CarddavRequest { ETag = response.eTag }, CancellationToken.None);
+            //Assert.True(response.IsSuccess);
 
-            response = await client.GetAsync($"/addressbook/{userName}/addressbook/new", CancellationToken.None);
-            Assert.True(response.IsSuccess);
-            Assert.Equal("test@test.org", response.vCards.First().Emails.First().Email);
+            //response = await client.GetAsync($"/addressbook/{userName}/addressbook/new", CancellationToken.None);
+            //Assert.True(response.IsSuccess);
+            //Assert.Equal("test@test.org", response.vCards.First().Emails.First().Email);
 
             response = await client.DeleteContactAsync($"/addressbook/{userName}/addressbook/new", CancellationToken.None);
             Assert.True(response.IsSuccess);
@@ -127,8 +136,108 @@ namespace BrandUp.Carddav.Client.Test
             response = await client.PropfindAsync($"/addressbook/{userName}/addressbook", new CarddavRequest { Depth = "1" }, CancellationToken.None);
 
             Assert.True(response.IsSuccess);
-            Assert.Equal(5, response.vCardLinks.Count);
+            Assert.Equal(5, response.ResourceEndpoints.Count);
         }
+
+        //For google test work you need to get somewhere valid access token
+        [Fact]
+        public async Task Success_Google_Basic()
+        {
+            var client = cardDavClientFactory.CreateClientWithAccessToken("https://www.googleapis.com/", token);
+
+            var response = await client.PropfindAsync(".well-known/carddav", new CarddavRequest { Depth = "1" }, CancellationToken.None);
+
+            var content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
+                " <A:propfind xmlns:A=\"DAV:\">\r\n " +
+                   " <A:prop>\r\n  " +
+                   " <A:current-user-principal/>\r\n " +
+                   " <A:principal-URL/>\r\n   " +
+                   " <A:resourcetype></A:resourcetype>\r\n " +
+                   " <A:getctag />\r\n " +
+                   " </A:prop>\r\n" +
+                " </A:propfind>\r\n";
+
+            response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default", new CarddavRequest { Depth = "1", XmlContent = content }, CancellationToken.None);
+
+            Assert.True(response.IsSuccess);
+
+            var report = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n" +
+            "  <C:addressbook-query xmlns:D=\"DAV:\"\n          " +
+            "           xmlns:C=\"urn:ietf:params:xml:ns:carddav\">\n   " +
+            "  <D:prop>\n  " +
+            "     <D:getetag/>\n     " +
+            "  <C:address-data>\n      " +
+            "     </C:address-data>\n " +
+            "    </D:prop>\n    " +
+            "<C:filter>\r\n    <C:prop-filter name=\"FN\">\r\n    </C:prop-filter>    \r\n</C:filter>" +
+            "</C:addressbook-query>";
+
+
+            response = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists/default", new CarddavRequest { Depth = "1", XmlContent = report }, CancellationToken.None);
+
+            Assert.True(response.IsSuccess);
+        }
+
+        [Fact]
+        public async Task Success_Google_CRUD()
+        {
+            var client = cardDavClientFactory.CreateClientWithAccessToken("https://www.googleapis.com/", token);
+
+            var response = await client.PropfindAsync(".well-known/carddav", new CarddavRequest { Depth = "1" }, CancellationToken.None);
+
+            var content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
+                " <A:propfind xmlns:A=\"DAV:\">\r\n " +
+                   " <A:prop>\r\n  " +
+                   " <A:current-user-principal/>\r\n " +
+                   " <A:principal-URL/>\r\n   " +
+                   " <A:resourcetype></A:resourcetype>\r\n " +
+                   " <A:getctag />\r\n " +
+                   " </A:prop>\r\n" +
+                " </A:propfind>\r\n";
+
+            response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default", new CarddavRequest { Depth = "1", XmlContent = content }, CancellationToken.None);
+
+            Assert.True(response.IsSuccess);
+
+            var testPerson = "BEGIN:VCARD\r\nVERSION:3.0\r\nN:Doe;John;;;\r\nFN:John Doe\r\nORG:Example.com Inc.;\r\nTITLE:Imaginary test person\r\nEMAIL;type=INTERNET;type=WORK;type=pref:johnDoe@example.org\r\nTEL;type=WORK;type=pref:+1 617 555 1212\r\nTEL;type=WORK:+1 (617) 555-1234\r\nTEL;type=CELL:+1 781 555 1212\r\nTEL;type=HOME:+1 202 555 1212\r\nEND:VCARD\r\n";
+
+            var vCard = VCardBuilder.Create(testPerson).AddUId("2312133421324668575897435").Build();
+
+            response = await client.AddContactAsync($"carddav/v1/principals/{gmail}/lists/default/new", vCard, CancellationToken.None);
+
+            Assert.True(response.IsSuccess);
+
+            var eTagRequest = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
+                " <A:propfind xmlns:A=\"DAV:\">\r\n " +
+                " <A:prop>\r\n" +
+                " <A:getetag />\r\n " +
+                " <A:getcontenttype />\r\n " +
+                " <A:resourcetype />\r\n " +
+                " </A:prop>\r\n" +
+                 " </A:propfind>\r\n";
+
+            response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default/new", new() { Depth = "1", XmlContent = eTagRequest }, CancellationToken.None);
+
+            var updateVCard = VCardBuilder.Create("BEGIN:VCARD\r\nVERSION:3.0\r\nUID:2312133421324668575897435\r\nN:Doe;John;;;\r\nFN:John Doe\r\nEMAIL:test@test.org\r\nTEL;type=WORK;type=pref:+1 617 555 1212\r\nEND:VCARD\r\n").Build();
+            var endpoint = response.ResourceEndpoints.First().Endpoint;
+            var etag = response.ResourceEndpoints.First().Etag;
+            response = await client.UpdateContactAsync(endpoint, updateVCard, new CarddavRequest { ETag = etag }, CancellationToken.None);
+            Assert.True(response.IsSuccess);
+
+            response = await client.GetAsync($"carddav/v1/principals/{gmail}/lists/default/new", CancellationToken.None);
+            Assert.True(response.IsSuccess);
+            Assert.Equal("test@test.org", response.VCardResponse.First().VCard.Emails.First().Email);
+
+            response = await client.DeleteContactAsync(endpoint, CancellationToken.None);
+            Assert.True(response.IsSuccess);
+
+            response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default/", new() { Depth = "1", XmlContent = eTagRequest }, CancellationToken.None);
+
+            Assert.True(response.IsSuccess);
+            Assert.Equal(4, response.ResourceEndpoints.Count);
+
+        }
+        #region Helpers
 
         public class PhonesEqualityComparer : IEqualityComparer<VCardPhone>
         {
@@ -156,15 +265,16 @@ namespace BrandUp.Carddav.Client.Test
             }
         }
 
+        #endregion
+
         #region I think this is will useful later
         //propfind
         //var content = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n" +
         //"<d:propfind xmlns:d=\"DAV:\" xmlns:cs=\"http://calendarserver.org/ns/\">\r\n  " +
         //"<d:prop>\r\n    " +
-        //" <d:displayname />\r\n    " +
-        //" <cs:getctag />\r\n " +
-        //" <d:sync-token />\r\n" +
-        //" </d:prop>\r\n</d:propfind>";
+        //" <d:current-user-principal />\r\n" +
+        //" </d:prop>\r\n" +
+        //"</ d:propfind>";
 
         //report
         //        var content = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n" +

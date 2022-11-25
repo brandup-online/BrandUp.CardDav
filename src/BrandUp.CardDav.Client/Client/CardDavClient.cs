@@ -80,11 +80,13 @@ namespace BrandUp.Carddav.Client.Client
         {
             using var requestMessage = new HttpRequestMessage(method, endpoint);
 
+
             return await ExecuteAsync(requestMessage, cancellationToken);
         }
 
         private async Task<CarddavResponse> ExecuteAsync(HttpRequestMessage requestMessage, CancellationToken cancellationToken)
         {
+            requestMessage.Headers.Authorization = httpClient.DefaultRequestHeaders.Authorization;
             using var response = await httpClient.SendAsync(requestMessage, cancellationToken);
 
             if (response.Content.Headers.ContentLength != 0)
@@ -100,10 +102,18 @@ namespace BrandUp.Carddav.Client.Client
                     {
                         IsSuccess = response.IsSuccessStatusCode,
                         StatusCode = response.StatusCode.ToString(),
-                        eTag = response.Headers.ETag.Tag
+
                     };
-                    cardavResponse.vCards.Add(await VCardParser.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken));
+                    cardavResponse.VCardResponse.Add(new() { Etag = response.Headers.ETag.Tag, Endpoint = requestMessage.RequestUri.ToString(), VCard = await VCardParser.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken) });
                     return cardavResponse;
+                }
+                else if (!response.IsSuccessStatusCode)
+                {
+                    return new CarddavResponse
+                    {
+                        IsSuccess = response.IsSuccessStatusCode,
+                        StatusCode = response.StatusCode.ToString(),
+                    };
                 }
                 else throw new NotSupportedException("Unsupported content type");
 
@@ -115,7 +125,7 @@ namespace BrandUp.Carddav.Client.Client
                 {
                     IsSuccess = response.IsSuccessStatusCode,
                     StatusCode = response.StatusCode.ToString(),
-                    eTag = response.Headers.ETag?.Tag
+                    ETag = response.Headers.ETag?.Tag
                 };
             }
         }
@@ -127,12 +137,12 @@ namespace BrandUp.Carddav.Client.Client
             if (options is CardDavOAuthOptions)
             {
                 var oauth = (CardDavOAuthOptions)options;
-                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {oauth.AccessToken}");
+                httpClient.DefaultRequestHeaders.Authorization = new($"Bearer", oauth.AccessToken);
             }
             else if (options is CardDavCredentialsOptions)
             {
                 var cred = (CardDavCredentialsOptions)options;
-                httpClient.DefaultRequestHeaders.Add("Authorization", "Basic " + Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes(string.Format("{0}:{1}", cred.Login, cred.Password))));
+                httpClient.DefaultRequestHeaders.Authorization = new($"Basic", Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes(string.Format("{0}:{1}", cred.Login, cred.Password))));
             }
         }
 
