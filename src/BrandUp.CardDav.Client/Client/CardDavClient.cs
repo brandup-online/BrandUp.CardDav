@@ -1,5 +1,4 @@
 ﻿using BrandUp.Carddav.Client.Models;
-using BrandUp.Carddav.Client.Models.Requests;
 using BrandUp.Carddav.Client.Models.Responses;
 using BrandUp.Carddav.Client.Options;
 using BrandUp.Carddav.Client.Parsers;
@@ -30,11 +29,11 @@ namespace BrandUp.Carddav.Client.Client
         public Task<CarddavResponse> GetAsync(string endpoint, CancellationToken cancellationToken)
             => ExecuteAsync(endpoint, HttpMethod.Get, cancellationToken);
 
-        public Task<CarddavResponse> PropfindAsync(string endpoint, CarddavRequest request, CancellationToken cancellationToken)
-             => ExecuteAsync(endpoint, new HttpMethod("PROPFIND"), request, cancellationToken);
+        public Task<CarddavResponse> PropfindAsync(string endpoint, string xmlRequest, string depth = "0", CancellationToken cancellationToken = default)
+             => ExecuteAsync(endpoint, new HttpMethod("PROPFIND"), xmlRequest, new() { { "Depth", depth } }, cancellationToken);
 
-        public Task<CarddavResponse> ReportAsync(string endpoint, CarddavRequest request, CancellationToken cancellationToken)
-             => ExecuteAsync(endpoint, new HttpMethod("REPORT"), request, cancellationToken);
+        public Task<CarddavResponse> ReportAsync(string endpoint, string xmlRequest, string depth = "0", CancellationToken cancellationToken = default)
+             => ExecuteAsync(endpoint, new HttpMethod("REPORT"), xmlRequest, new() { { "Depth", depth } }, cancellationToken);
 
         public Task<CarddavResponse> AddContactAsync(string endpoint, VCard vCard, CancellationToken cancellationToken)
             => ExecuteAsync(endpoint, HttpMethod.Put, vCard, null, cancellationToken);
@@ -42,21 +41,23 @@ namespace BrandUp.Carddav.Client.Client
         public Task<CarddavResponse> DeleteContactAsync(string endpoint, CancellationToken cancellationToken)
             => ExecuteAsync(endpoint, HttpMethod.Delete, cancellationToken);
 
-        public Task<CarddavResponse> UpdateContactAsync(string endpoint, VCard vCard, CarddavRequest request, CancellationToken cancellationToken)
-            => ExecuteAsync(endpoint, HttpMethod.Put, vCard, request.ETag, cancellationToken);
+        public Task<CarddavResponse> UpdateContactAsync(string endpoint, VCard vCard, string ETag, CancellationToken cancellationToken)
+            => ExecuteAsync(endpoint, HttpMethod.Put, vCard, ETag, cancellationToken);
 
         #endregion
 
         #region Helpers
 
-        private async Task<CarddavResponse> ExecuteAsync(string endpoint, HttpMethod method, CarddavRequest request, CancellationToken cancellationToken)
+        private async Task<CarddavResponse> ExecuteAsync(string endpoint, HttpMethod method, string request, Dictionary<string, string> headers, CancellationToken cancellationToken)
         {
             using var requestMessage = new HttpRequestMessage(method, endpoint);
             if (request != null)
             {
-                requestMessage.Content = new StringContent(request.XmlContent ?? "");
+                requestMessage.Content = new StringContent(request);
                 requestMessage.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/xml");
-                requestMessage.Content.Headers.Add("Depth", request.Depth);
+
+                foreach (var header in headers)
+                    requestMessage.Content.Headers.Add(header.Key, header.Value);
             }
 
             return await ExecuteAsync(requestMessage, cancellationToken);
@@ -116,8 +117,6 @@ namespace BrandUp.Carddav.Client.Client
                     };
                 }
                 else throw new NotSupportedException("Unsupported content type");
-
-
             }
             else
             {

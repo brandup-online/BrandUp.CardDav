@@ -1,6 +1,7 @@
 using BrandUp.Carddav.Client.Builders;
 using BrandUp.Carddav.Client.Extensions;
 using BrandUp.Carddav.Client.Factory;
+using BrandUp.Carddav.Client.Helpers;
 using BrandUp.Carddav.Client.Models;
 using BrandUp.Carddav.Client.Models.Requests;
 using Microsoft.Extensions.Configuration;
@@ -76,12 +77,12 @@ namespace BrandUp.Carddav.Client.Test
 
             Assert.True(response.IsSuccess);
 
-            response = await client.PropfindAsync($"/addressbook/{userName}/", new CarddavRequest { Depth = "1" }, CancellationToken.None);
+            response = await client.PropfindAsync($"/addressbook/{userName}/", string.Empty, Depth.One, CancellationToken.None);
 
             Assert.True(response.IsSuccess);
             Assert.Equal(2, response.AddressBooks.Count);
 
-            response = await client.PropfindAsync(response.AddressBooks[1].Endpoint, new CarddavRequest { Depth = "1" }, CancellationToken.None);
+            response = await client.PropfindAsync(response.AddressBooks[1].Endpoint, string.Empty, Depth.One, CancellationToken.None);
 
             Assert.True(response.IsSuccess);
             Assert.Equal(1, response.AddressBooks.Count);
@@ -133,7 +134,7 @@ namespace BrandUp.Carddav.Client.Test
             response = await client.DeleteContactAsync($"/addressbook/{userName}/addressbook/new", CancellationToken.None);
             Assert.True(response.IsSuccess);
 
-            response = await client.PropfindAsync($"/addressbook/{userName}/addressbook", new CarddavRequest { Depth = "1" }, CancellationToken.None);
+            response = await client.PropfindAsync($"/addressbook/{userName}/addressbook", string.Empty, Depth.One, CancellationToken.None);
 
             Assert.True(response.IsSuccess);
             Assert.Equal(5, response.ResourceEndpoints.Count);
@@ -145,35 +146,17 @@ namespace BrandUp.Carddav.Client.Test
         {
             var client = cardDavClientFactory.CreateClientWithAccessToken("https://www.googleapis.com/", token);
 
-            var response = await client.PropfindAsync(".well-known/carddav", new CarddavRequest { Depth = "1" }, CancellationToken.None);
+            var response = await client.PropfindAsync(".well-known/carddav", string.Empty, Depth.One, CancellationToken.None);
 
-            var content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
-                " <A:propfind xmlns:A=\"DAV:\">\r\n " +
-                   " <A:prop>\r\n  " +
-                   " <A:current-user-principal/>\r\n " +
-                   " <A:principal-URL/>\r\n   " +
-                   " <A:resourcetype></A:resourcetype>\r\n " +
-                   " <A:getctag />\r\n " +
-                   " </A:prop>\r\n" +
-                " </A:propfind>\r\n";
+            var content = XmlQueryHelper.Propfind("prop", "current-user-principal", "getctag");
 
-            response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default", new CarddavRequest { Depth = "1", XmlContent = content }, CancellationToken.None);
 
+            response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default", content, Depth.One, CancellationToken.None);
             Assert.True(response.IsSuccess);
 
-            var report = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n" +
-            "  <C:addressbook-query xmlns:D=\"DAV:\"\n          " +
-            "           xmlns:C=\"urn:ietf:params:xml:ns:carddav\">\n   " +
-            "  <D:prop>\n  " +
-            "     <D:getetag/>\n     " +
-            "  <C:address-data>\n      " +
-            "     </C:address-data>\n " +
-            "    </D:prop>\n    " +
-            "<C:filter>\r\n    <C:prop-filter name=\"FN\">\r\n    </C:prop-filter>    \r\n</C:filter>" +
-            "</C:addressbook-query>";
+            var report = XmlQueryHelper.AddressCollection();
 
-
-            response = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists/default", new CarddavRequest { Depth = "1", XmlContent = report }, CancellationToken.None);
+            response = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists/default", report, Depth.One, CancellationToken.None);
 
             Assert.True(response.IsSuccess);
         }
@@ -183,19 +166,11 @@ namespace BrandUp.Carddav.Client.Test
         {
             var client = cardDavClientFactory.CreateClientWithAccessToken("https://www.googleapis.com/", token);
 
-            var response = await client.PropfindAsync(".well-known/carddav", new CarddavRequest { Depth = "1" }, CancellationToken.None);
+            var response = await client.PropfindAsync(".well-known/carddav", string.Empty, Depth.One, CancellationToken.None);
 
-            var content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
-                " <A:propfind xmlns:A=\"DAV:\">\r\n " +
-                   " <A:prop>\r\n  " +
-                   " <A:current-user-principal/>\r\n " +
-                   " <A:principal-URL/>\r\n   " +
-                   " <A:resourcetype></A:resourcetype>\r\n " +
-                   " <A:getctag />\r\n " +
-                   " </A:prop>\r\n" +
-                " </A:propfind>\r\n";
+            var content = XmlQueryHelper.Propfind("prop", "current-user-principal", "principal-URL", "getctag");
 
-            response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default", new CarddavRequest { Depth = "1", XmlContent = content }, CancellationToken.None);
+            response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default", content, Depth.One, CancellationToken.None);
 
             Assert.True(response.IsSuccess);
 
@@ -207,21 +182,14 @@ namespace BrandUp.Carddav.Client.Test
 
             Assert.True(response.IsSuccess);
 
-            var eTagRequest = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
-                " <A:propfind xmlns:A=\"DAV:\">\r\n " +
-                " <A:prop>\r\n" +
-                " <A:getetag />\r\n " +
-                " <A:getcontenttype />\r\n " +
-                " <A:resourcetype />\r\n " +
-                " </A:prop>\r\n" +
-                 " </A:propfind>\r\n";
+            var eTagRequest = XmlQueryHelper.Propfind("prop", "getetag", "getcontenttype", "resourcetype");
 
-            response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default/new", new() { Depth = "1", XmlContent = eTagRequest }, CancellationToken.None);
+            response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default/new", eTagRequest, Depth.One, CancellationToken.None);
 
             var updateVCard = VCardBuilder.Create("BEGIN:VCARD\r\nVERSION:3.0\r\nUID:2312133421324668575897435\r\nN:Doe;John;;;\r\nFN:John Doe\r\nEMAIL:test@test.org\r\nTEL;type=WORK;type=pref:+1 617 555 1212\r\nEND:VCARD\r\n").Build();
             var endpoint = response.ResourceEndpoints.First().Endpoint;
             var etag = response.ResourceEndpoints.First().Etag;
-            response = await client.UpdateContactAsync(endpoint, updateVCard, new CarddavRequest { ETag = etag }, CancellationToken.None);
+            response = await client.UpdateContactAsync(endpoint, updateVCard, etag, CancellationToken.None);
             Assert.True(response.IsSuccess);
 
             response = await client.GetAsync($"carddav/v1/principals/{gmail}/lists/default/new", CancellationToken.None);
@@ -231,7 +199,7 @@ namespace BrandUp.Carddav.Client.Test
             response = await client.DeleteContactAsync(endpoint, CancellationToken.None);
             Assert.True(response.IsSuccess);
 
-            response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default/", new() { Depth = "1", XmlContent = eTagRequest }, CancellationToken.None);
+            response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default/", eTagRequest, Depth.One, CancellationToken.None);
 
             Assert.True(response.IsSuccess);
             Assert.Equal(4, response.ResourceEndpoints.Count);
@@ -287,6 +255,47 @@ namespace BrandUp.Carddav.Client.Test
         //"    </D:prop>\n    " +
         //"<C:filter>\r\n    <C:prop-filter name=\"FN\">\r\n    </C:prop-filter>    \r\n</C:filter>" +
         //"</C:addressbook-query>";
+
+        //"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
+        //" <A:propfind xmlns:A=\"DAV:\">\r\n " +
+        //   " <A:prop>\r\n  " +
+        //   " <A:current-user-principal/>\r\n " +
+        //   " <A:principal-URL/>\r\n   " +
+        //   " <A:resourcetype></A:resourcetype>\r\n " +
+        //   " <A:getctag />\r\n " +
+        //   " </A:prop>\r\n" +
+        //" </A:propfind>\r\n";
+
+        //"<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n" +
+        //"  <C:addressbook-query xmlns:D=\"DAV:\"\n          " +
+        //"           xmlns:C=\"urn:ietf:params:xml:ns:carddav\">\n   " +
+        //"  <D:prop>\n  " +
+        //"     <D:getetag/>\n     " +
+        //"   <C:address-data>\n      " +
+        //"     </C:address-data>\n " +
+        //"    </D:prop>\n    " +
+        //"<C:filter>\r\n    <C:prop-filter name=\"FN\">\r\n    </C:prop-filter>    \r\n</C:filter>" +
+        //"</C:addressbook-query>";
+
+        //"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
+        //    " <A:propfind xmlns:A=\"DAV:\">\r\n " +
+        //    " <A:prop>\r\n" +
+        //    " <A:getetag />\r\n " +
+        //    " <A:getcontenttype />\r\n " +
+        //    " <A:resourcetype />\r\n " +
+        //    " </A:prop>\r\n" +
+        //     " </A:propfind>\r\n";
+
+        //"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
+        //    " <A:propfind xmlns:A=\"DAV:\">\r\n " +
+        //       " <A:prop>\r\n  " +
+        //       " <A:current-user-principal/>\r\n " +
+        //       " <A:principal-URL/>\r\n   " +
+        //       " <A:resourcetype></A:resourcetype>\r\n " +
+        //       " <A:getctag />\r\n " +
+        //       " </A:prop>\r\n" +
+        //    " </A:propfind>\r\n";
+
         #endregion
     }
 }
