@@ -105,7 +105,12 @@ namespace BrandUp.Carddav.Client.Client
                         StatusCode = response.StatusCode.ToString(),
 
                     };
-                    cardavResponse.VCardResponse.Add(new() { Etag = response.Headers.ETag.Tag, Endpoint = requestMessage.RequestUri.ToString(), VCard = await VCardParser.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken) });
+                    cardavResponse.VCardResponse.Add(new()
+                    {
+                        Etag = response.Headers.ETag.Tag,
+                        Endpoint = requestMessage.RequestUri.ToString(),
+                        VCard = await VCardParser.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken)
+                    });
                     return cardavResponse;
                 }
                 else if (!response.IsSuccessStatusCode)

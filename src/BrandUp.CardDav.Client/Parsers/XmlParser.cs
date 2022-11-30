@@ -31,12 +31,13 @@ namespace BrandUp.Carddav.Client.Xml
             {
                 var href = responseNode["href"]?.InnerText ?? responseNode["href", "DAV:"]?.InnerText;
                 var eTag = responseNode.SelectSingleNode($"{d}:propstat/{d}:prop/{d}:getetag", nsmgr)?.InnerText;
-                if (responseNode.Name.Contains("sync-token"))
-                {
-                    response.SyncToken = responseNode.Name;
-                    continue;
-                }
                 var propNode = responseNode.SelectSingleNode($"{d}:propstat/{d}:prop", nsmgr);
+
+                if (propNode["sync-token", "DAV:"] != null)
+                {
+                    response.SyncToken = propNode["sync-token", "DAV:"].InnerText;
+
+                }
                 if (propNode["address-data", "urn:ietf:params:xml:ns:carddav"] != null)
                 {
                     //vcard data
