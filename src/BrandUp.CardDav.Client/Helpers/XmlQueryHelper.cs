@@ -27,12 +27,11 @@
                 "  <D:sync-collection xmlns:D=\"DAV:\">\r\n   " +
                 $"   <D:sync-token>{token}</D:sync-token>\r\n   " +
                     "<D:sync-level>1</D:sync-level>\r\n" +
-                "  <D:prop>\r\n    " +
+                    "  <D:prop>\r\n    " +
                         " <D:displayname />\r\n     " +
                         "<D:current-user-principal />\r\n    " +
                         " <D:principal-URL />\r\n " +
                     " </D:prop>\r\n" +
-                //"  <D:sync-level>1</D:sync-level>\r\n" +
                 " </D:sync-collection>\r\n";
 
         #region Helpers
