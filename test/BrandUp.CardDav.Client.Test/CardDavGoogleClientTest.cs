@@ -1,7 +1,7 @@
-﻿using BrandUp.Carddav.Client.Builders;
-using BrandUp.Carddav.Client.Extensions;
-using BrandUp.Carddav.Client.Helpers;
-using BrandUp.Carddav.Client.Models.Requests;
+﻿using BrandUp.CardDav.Client.Extensions;
+using BrandUp.CardDav.Client.Helpers;
+using BrandUp.CardDav.Client.Models.Requests;
+using BrandUp.VCard.Builders;
 using Microsoft.Extensions.Configuration;
 using Xunit.Abstractions;
 
@@ -26,12 +26,13 @@ namespace BrandUp.CardDav.Client.Test
 
             var response = await client.PropfindAsync(".well-known/carddav", string.Empty, Depth.One, CancellationToken.None);
 
-            var content = XmlQueryHelper.Propfind("prop", "current-user-principal", "getctag");
+            var content = XmlQueryHelper.Propfind("current-user-principal", "getetag", "getctag");
 
             response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default", content, Depth.One, CancellationToken.None);
+
             Assert.True(response.IsSuccess);
 
-            var report = XmlQueryHelper.AddressCollection();
+            var report = XmlQueryHelper.AddressCollection(true);
 
             response = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists/default", report, Depth.One, CancellationToken.None);
 
@@ -45,15 +46,13 @@ namespace BrandUp.CardDav.Client.Test
 
             var response = await client.PropfindAsync(".well-known/carddav", string.Empty, Depth.One, CancellationToken.None);
 
-            var content = XmlQueryHelper.Propfind("prop", "current-user-principal", "principal-URL", "getctag");
+            var content = XmlQueryHelper.Propfind("current-user-principal", "principal-URL", "getctag");
 
             response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default", content, Depth.One, CancellationToken.None);
 
             Assert.True(response.IsSuccess);
 
-            var testPerson = "BEGIN:VCARD\r\nVERSION:3.0\r\nN:Doe;John;;;\r\nFN:John Doe\r\nORG:Example.com Inc.;\r\nTITLE:Imaginary test person\r\nEMAIL;type=INTERNET;type=WORK;type=pref:johnDoe@example.org\r\nTEL;type=WORK;type=pref:+1 617 555 1212\r\nTEL;type=WORK:+1 (617) 555-1234\r\nTEL;type=CELL:+1 781 555 1212\r\nTEL;type=HOME:+1 202 555 1212\r\nEND:VCARD\r\n";
-
-            var vCard = VCardBuilder.Create(testPerson).AddUId("2312133421324668575897435").Build();
+            var vCard = VCardBuilder.Create(testPerson).SetUId("2312133421324668575897435").Build();
 
             response = await client.AddContactAsync($"carddav/v1/principals/{gmail}/lists/default/new", vCard, CancellationToken.None);
 
@@ -62,6 +61,8 @@ namespace BrandUp.CardDav.Client.Test
             var eTagRequest = XmlQueryHelper.Propfind("prop", "getetag", "getcontenttype", "resourcetype");
 
             response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default/new", eTagRequest, Depth.One, CancellationToken.None);
+
+            Assert.True(response.IsSuccess);
 
             var updateVCard = VCardBuilder.Create("BEGIN:VCARD\r\nVERSION:3.0\r\nUID:2312133421324668575897435\r\nN:Doe;John;;;\r\nFN:John Doe\r\nEMAIL:test@test.org\r\nTEL;type=WORK;type=pref:+1 617 555 1212\r\nEND:VCARD\r\n").Build();
             var endpoint = response.ResourceEndpoints.First().Endpoint;
@@ -100,10 +101,13 @@ namespace BrandUp.CardDav.Client.Test
             response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default", propfind, Depth.One, CancellationToken.None);
 
             Assert.True(response.IsSuccess);
+            var syncRequest0 = XmlQueryHelper.SyncCollection();
 
-            var syncRequest = XmlQueryHelper.SyncCollection(response.SyncToken);
+            response = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists/default", syncRequest0, Depth.One, CancellationToken.None);
 
-            response = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists/default", syncRequest, null, CancellationToken.None);
+            var syncRequest = XmlQueryHelper.SyncCollection(response.SyncToken, "infinite");
+
+            response = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists/default", syncRequest, Depth.One, CancellationToken.None);
 
             //Assert.True(response.IsSuccess);
         }

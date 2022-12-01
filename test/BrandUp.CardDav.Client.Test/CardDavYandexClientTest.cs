@@ -1,13 +1,12 @@
-using BrandUp.Carddav.Client.Builders;
-using BrandUp.Carddav.Client.Extensions;
-using BrandUp.Carddav.Client.Models;
-using BrandUp.Carddav.Client.Models.Requests;
-using BrandUp.CardDav.Client.Test;
+using BrandUp.CardDav.Client.Extensions;
+using BrandUp.CardDav.Client.Models.Requests;
+using BrandUp.VCard;
+using BrandUp.VCard.Builders;
 using Microsoft.Extensions.Configuration;
 using System.Diagnostics.CodeAnalysis;
 using Xunit.Abstractions;
 
-namespace BrandUp.Carddav.Client.Test
+namespace BrandUp.CardDav.Client.Test
 {
     public class CardDavYandexClientTest : TestBase
     {
@@ -54,9 +53,7 @@ namespace BrandUp.Carddav.Client.Test
 
             Assert.True(response.IsSuccess);
 
-            var testPerson = "BEGIN:VCARD\r\nVERSION:3.0\r\nN:Doe;John;;;\r\nFN:John Doe\r\nORG:Example.com Inc.;\r\nTITLE:Imaginary test person\r\nEMAIL;type=INTERNET;type=WORK;type=pref:johnDoe@example.org\r\nTEL;type=WORK;type=pref:+1 617 555 1212\r\nTEL;type=WORK:+1 (617) 555-1234\r\nTEL;type=CELL:+1 781 555 1212\r\nTEL;type=HOME:+1 202 555 1212\r\nEND:VCARD\r\n";
-
-            var vCard = VCardBuilder.Create(testPerson).AddUId("2312133421324668575897435").Build();
+            var vCard = VCardBuilder.Create(testPerson).SetUId("2312133421324668575897435").Build();
 
             response = await client.AddContactAsync($"/addressbook/{userName}/addressbook/new", vCard, CancellationToken.None);
             Assert.True(response.IsSuccess);
@@ -70,7 +67,7 @@ namespace BrandUp.Carddav.Client.Test
             Assert.Equal(vCard.Name.AdditionalNames, responseVCard.VCard.Name.AdditionalNames);
             Assert.Equal(vCard.Name.HonorificPrefixes, responseVCard.VCard.Name.HonorificPrefixes);
             Assert.Equal(vCard.Name.HonorificSuffixes, responseVCard.VCard.Name.HonorificSuffixes);
-            Assert.Equal(vCard.FullName, responseVCard.VCard.FullName);
+            Assert.Equal(vCard.FormattedName, responseVCard.VCard.FormattedName);
             Assert.Equal(vCard.Phones, responseVCard.VCard.Phones, new PhonesEqualityComparer());
             Assert.Equal(vCard.Emails, responseVCard.VCard.Emails, new EmailsEqualityComparer());
 

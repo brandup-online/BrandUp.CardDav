@@ -1,7 +1,7 @@
-﻿using BrandUp.Carddav.Client.Factory;
+﻿using BrandUp.CardDav.Client.Factory;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace BrandUp.Carddav.Client.Extensions
+namespace BrandUp.CardDav.Client.Extensions
 {
     public static class IServiceCollectionExtensions
     {

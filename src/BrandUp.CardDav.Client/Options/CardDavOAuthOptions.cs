@@ -1,4 +1,4 @@
-﻿namespace BrandUp.Carddav.Client.Options
+﻿namespace BrandUp.CardDav.Client.Options
 {
     public class CardDavOAuthOptions : CardDavOptions
     {

@@ -1,4 +1,4 @@
-﻿namespace BrandUp.Carddav.Client.Models.Responses
+﻿namespace BrandUp.CardDav.Client.Models.Responses
 {
     public class CarddavResponse
     {
@@ -9,6 +9,7 @@
         public string SyncToken { get; set; }
 
         public string ETag { get; set; }
+        public string CTag { get; set; }
 
         public bool IsSuccess { get; set; } = true;
 

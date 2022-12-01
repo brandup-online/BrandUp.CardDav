@@ -1,8 +1,8 @@
-﻿using BrandUp.Carddav.Client.Client;
-using BrandUp.Carddav.Client.Options;
+﻿using BrandUp.CardDav.Client.Client;
+using BrandUp.CardDav.Client.Options;
 using Microsoft.Extensions.Logging;
 
-namespace BrandUp.Carddav.Client.Factory
+namespace BrandUp.CardDav.Client.Factory
 {
     public class CardDavClientFactory : ICardDavClientFactory
     {

@@ -1,4 +1,4 @@
-﻿namespace BrandUp.Carddav.Client.Models.Requests
+﻿namespace BrandUp.CardDav.Client.Models.Requests
 {
     public class CarddavRequest
     {

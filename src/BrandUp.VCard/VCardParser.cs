@@ -1,7 +1,6 @@
-﻿using BrandUp.Carddav.Client.Models;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
-namespace BrandUp.Carddav.Client.Parsers
+namespace BrandUp.VCard
 {
     internal static class VCardParser
     {
@@ -15,6 +14,7 @@ namespace BrandUp.Carddav.Client.Parsers
                 { new(@".*TEL.*:(.+)$", RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled), AddPhone},
                 { new(@".*EMAIL.*:(.+)$", RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled), AddEmail},
                 { new(@"^UID:(.+)$", RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled), AddUid},
+                { new(@"^VERSION:(.+)$", RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled), AddVersion},
             };
 
         }
@@ -26,7 +26,7 @@ namespace BrandUp.Carddav.Client.Parsers
         public static async Task<VCard> ParseAsync(Stream responseStream, CancellationToken cancellationToken)
         {
             using var reader = new StreamReader(responseStream);
-            VCard vCard = new(reader.ReadToEnd());
+            VCard vCard = new();
 
             reader.BaseStream.Position = 0;
 
@@ -35,14 +35,14 @@ namespace BrandUp.Carddav.Client.Parsers
 
         public static async Task<VCard> ParseAsync(string vCardRaw, CancellationToken cancellationToken)
         {
-            VCard vCard = new(vCardRaw);
+            VCard vCard = new();
 
             return await ParseAsync(new StringReader(vCardRaw), vCard, cancellationToken);
         }
 
         public static VCard Parse(string vCardRaw)
         {
-            VCard vCard = new(vCardRaw);
+            VCard vCard = new();
 
             return ParseAsync(new StringReader(vCardRaw), vCard, CancellationToken.None).Result;
         }
@@ -70,16 +70,24 @@ namespace BrandUp.Carddav.Client.Parsers
                         throw new NotSupportedException("vCard with some contacts in one file.");
                 }
 
+                bool flag = true;
                 foreach (var pair in RegexDictionary)
                 {
                     var nameMatch = pair.Key.Match(line);
                     if (nameMatch.Success)
                     {
                         pair.Value(vCard, line);
+                        flag = false;
                         break;
                     }
-                    else continue;
                 }
+                if (flag)
+                {
+                    var split = line.Split(':');
+
+                    vCard.AdditionalFields.Add(split[0], split[1]);
+                }
+
             }
             return vCard;
         }
@@ -93,7 +101,7 @@ namespace BrandUp.Carddav.Client.Parsers
             if (hasFullName)
                 throw new NotSupportedException("cannot work with vcard that have two FN property");
             var name = line.Split(':')[1];
-            vCard.FullName = name.Trim();
+            vCard.FormattedName = name.Trim();
         }
 
 
@@ -134,6 +142,7 @@ namespace BrandUp.Carddav.Client.Parsers
             var phone = new VCardPhone();
             var phoneArr = line.Split(':');
             phone.Phone = phoneArr[1].Trim();
+            List<string> additionalTypes = new();
 
             var phoneProperties = phoneArr[0].Split(";");
             if (phoneProperties.Length > 1)
@@ -146,16 +155,19 @@ namespace BrandUp.Carddav.Client.Parsers
                         if (string.Equals(kind, "work", StringComparison.InvariantCultureIgnoreCase))
                         {
                             phone.Kind = Kind.Work;
-                            break;
                         }
                         else if (string.Equals(kind, "home", StringComparison.InvariantCultureIgnoreCase))
                         {
                             phone.Kind = Kind.Home;
-                            break;
+                        }
+                        else
+                        {
+                            additionalTypes.Add(kind);
                         }
                     }
                 }
 
+            phone.Types = additionalTypes.ToArray();
             vCard.Phones.Add(phone);
         }
 
@@ -164,6 +176,7 @@ namespace BrandUp.Carddav.Client.Parsers
             var email = new VCardEmail();
             var emailArr = line.Split(':');
             email.Email = emailArr[1].Trim();
+            List<string> additionalTypes = new();
 
             var emailProperties = emailArr[0].Split(";");
             if (emailProperties.Length > 1)
@@ -176,16 +189,19 @@ namespace BrandUp.Carddav.Client.Parsers
                         if (string.Equals(kind, "work", StringComparison.InvariantCultureIgnoreCase))
                         {
                             email.Kind = Kind.Work;
-                            break;
                         }
                         else if (string.Equals(kind, "home", StringComparison.InvariantCultureIgnoreCase))
                         {
                             email.Kind = Kind.Home;
-                            break;
+                        }
+                        else
+                        {
+                            additionalTypes.Add(kind);
                         }
                     }
                 }
 
+            email.Types = additionalTypes.ToArray();
             vCard.Emails.Add(email);
         }
 
@@ -196,6 +212,22 @@ namespace BrandUp.Carddav.Client.Parsers
 
             var uid = line.Replace("UID:", "");
             vCard.UId = uid.Trim();
+        }
+
+        private static void AddVersion(VCard vCard, string line)
+        {
+            if (hasUid)
+                throw new NotSupportedException("cannot work with vcard that have two UID property");
+
+            var uid = line.Replace("VERSION:", "");
+            vCard.Version = uid.Trim() switch
+            {
+                "1.0" => Version.VCard1,
+                "2.0" => Version.VCard2,
+                "3.0" => Version.VCard3,
+                "4.0" => Version.VCard4,
+                _ => throw new ArgumentException()
+            };
         }
 
         #endregion

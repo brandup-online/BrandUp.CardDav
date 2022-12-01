@@ -1,7 +1,7 @@
-﻿namespace BrandUp.Carddav.Client.Models.Responses
+﻿namespace BrandUp.CardDav.Client.Models.Responses
 {
     public class VCardResponse : BaseResponse
     {
-        public VCard VCard { get; set; }
+        public VCard.VCard VCard { get; set; }
     }
 }
