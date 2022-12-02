@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33103.184
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{EA4F368D-472D-4FAE-82CC-CAF8F1B8AE53}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{70C8043F-300F-4F04-B010-697F41437BF3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Server.Api", "src\BrandUp.CardDav.Server.Api\BrandUp.CardDav.Server.Api.csproj", "{9C0B372A-ADA0-4A87-B52F-39C9261942C4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9C0B372A-ADA0-4A87-B52F-39C9261942C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C0B372A-ADA0-4A87-B52F-39C9261942C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C0B372A-ADA0-4A87-B52F-39C9261942C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C0B372A-ADA0-4A87-B52F-39C9261942C4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9C0B372A-ADA0-4A87-B52F-39C9261942C4} = {EA4F368D-472D-4FAE-82CC-CAF8F1B8AE53}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D47DF41B-DD5F-4EC6-B1A6-B586F8CE2E88}
+	EndGlobalSection
+EndGlobal
