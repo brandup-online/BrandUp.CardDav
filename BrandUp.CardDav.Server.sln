@@ -9,6 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{70C8043F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Server.Api", "src\BrandUp.CardDav.Server.Api\BrandUp.CardDav.Server.Api.csproj", "{9C0B372A-ADA0-4A87-B52F-39C9261942C4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrandUp.CardDav.Server.Core", "BrandUp.CardDav.Server.Core\BrandUp.CardDav.Server.Core.csproj", "{B1DBE2CF-DB0E-41E5-8C4A-D4631CA659BE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,12 +21,17 @@ Global
 		{9C0B372A-ADA0-4A87-B52F-39C9261942C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C0B372A-ADA0-4A87-B52F-39C9261942C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C0B372A-ADA0-4A87-B52F-39C9261942C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1DBE2CF-DB0E-41E5-8C4A-D4631CA659BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1DBE2CF-DB0E-41E5-8C4A-D4631CA659BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1DBE2CF-DB0E-41E5-8C4A-D4631CA659BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1DBE2CF-DB0E-41E5-8C4A-D4631CA659BE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{9C0B372A-ADA0-4A87-B52F-39C9261942C4} = {EA4F368D-472D-4FAE-82CC-CAF8F1B8AE53}
+		{B1DBE2CF-DB0E-41E5-8C4A-D4631CA659BE} = {EA4F368D-472D-4FAE-82CC-CAF8F1B8AE53}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D47DF41B-DD5F-4EC6-B1A6-B586F8CE2E88}
