@@ -48,14 +48,24 @@ namespace BrandUp.CardDav.Client.Test
         {
             var client = cardDavClientFactory.CreateClientWithCredentials("https://carddav.yandex.ru/", userName, password);
 
+            #region Init
+
             var response = await client.OptionsAsync(CancellationToken.None);
 
             Assert.True(response.IsSuccess);
+
+            #endregion
+
+            #region Create
 
             var vCard = VCardBuilder.Create(testPerson).SetUId("2312133421324668575897435").Build();
 
             response = await client.AddContactAsync($"/addressbook/{userName}/addressbook/new", vCard, CancellationToken.None);
             Assert.True(response.IsSuccess);
+
+            #endregion
+
+            #region Read 
 
             var vCardResponse = await client.GetAsync($"/addressbook/{userName}/addressbook/new", CancellationToken.None);
             Assert.NotNull(vCardResponse);
@@ -69,6 +79,10 @@ namespace BrandUp.CardDav.Client.Test
             Assert.Equal(vCard.Phones, vCardResponse.Phones, new PhonesEqualityComparer());
             Assert.Equal(vCard.Emails, vCardResponse.Emails, new EmailsEqualityComparer());
 
+            #endregion
+
+            #region Update
+
             //у яндекса багнутый апдейт
             //var updateVCard = VCardBuilder.Create("BEGIN:VCARD\r\nVERSION:3.0\r\nUID:2312133421324668575897435\r\nN:Doe;John;;;\r\nFN:John Doe\r\nEMAIL:test@test.org\r\nTEL;type=WORK;type=pref:+1 617 555 1212\r\nEND:VCARD\r\n").Build();
             //response = await client.UpdateContactAsync($"/addressbook/{userName}/addressbook/new", updateVCard, new CarddavRequest { ETag = response.eTag }, CancellationToken.None);
@@ -78,6 +92,10 @@ namespace BrandUp.CardDav.Client.Test
             //Assert.True(response.IsSuccess);
             //Assert.Equal("test@test.org", response.vCards.First().Emails.First().Email);
 
+            #endregion
+
+            #region Delete
+
             response = await client.DeleteContactAsync($"/addressbook/{userName}/addressbook/new", CancellationToken.None);
             Assert.True(response.IsSuccess);
 
@@ -85,6 +103,8 @@ namespace BrandUp.CardDav.Client.Test
 
             Assert.True(response.IsSuccess);
             Assert.Equal(5, response.Content.ResourceEndpoints.Count);
+
+            #endregion
         }
 
         #region Helpers

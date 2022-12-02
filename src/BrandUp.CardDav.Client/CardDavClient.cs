@@ -4,7 +4,7 @@ using BrandUp.CardDav.Client.Xml;
 using BrandUp.VCard;
 using Microsoft.Extensions.Logging;
 
-namespace BrandUp.CardDav.Client.Client
+namespace BrandUp.CardDav.Client
 {
     public class CardDavClient : ICardDavClient
     {
@@ -52,13 +52,13 @@ namespace BrandUp.CardDav.Client.Client
         public Task<CarddavResponse> ReportAsync(string endpoint, string xmlRequest, string depth = "0", CancellationToken cancellationToken = default)
              => ExecuteAsync(endpoint, new HttpMethod("REPORT"), xmlRequest, new() { { "Depth", depth } }, cancellationToken);
 
-        public Task<CarddavResponse> AddContactAsync(string endpoint, VCard.VCardModel vCard, CancellationToken cancellationToken)
+        public Task<CarddavResponse> AddContactAsync(string endpoint, VCardModel vCard, CancellationToken cancellationToken)
             => ExecuteAsync(endpoint, HttpMethod.Put, vCard, null, cancellationToken);
 
         public Task<CarddavResponse> DeleteContactAsync(string endpoint, CancellationToken cancellationToken)
             => ExecuteAsync(endpoint, HttpMethod.Delete, cancellationToken);
 
-        public Task<CarddavResponse> UpdateContactAsync(string endpoint, VCard.VCardModel vCard, string ETag, CancellationToken cancellationToken)
+        public Task<CarddavResponse> UpdateContactAsync(string endpoint, VCardModel vCard, string ETag, CancellationToken cancellationToken)
             => ExecuteAsync(endpoint, HttpMethod.Put, vCard, ETag, cancellationToken);
 
         #endregion
@@ -80,7 +80,7 @@ namespace BrandUp.CardDav.Client.Client
             return await ExecuteAsync(requestMessage, cancellationToken);
         }
 
-        private async Task<CarddavResponse> ExecuteAsync(string endpoint, HttpMethod method, VCard.VCardModel vCard, string eTag = null, CancellationToken cancellationToken = default)
+        private async Task<CarddavResponse> ExecuteAsync(string endpoint, HttpMethod method, VCardModel vCard, string eTag = null, CancellationToken cancellationToken = default)
         {
             using var requestMessage = new HttpRequestMessage(method, endpoint);
             if (vCard != null)

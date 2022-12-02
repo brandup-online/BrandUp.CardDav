@@ -1,7 +1,7 @@
 ﻿using BrandUp.CardDav.Client.Models.Responses;
 using BrandUp.VCard;
 
-namespace BrandUp.CardDav.Client.Client
+namespace BrandUp.CardDav.Client
 {
     public interface ICardDavClient
     {

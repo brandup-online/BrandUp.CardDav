@@ -1,5 +1,4 @@
-﻿using BrandUp.CardDav.Client.Client;
-using BrandUp.CardDav.Client.Factory;
+﻿using BrandUp.CardDav.Client.Factory;
 using BrandUp.CardDav.Client.Options;
 
 namespace BrandUp.CardDav.Client.Extensions

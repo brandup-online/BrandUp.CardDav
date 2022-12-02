@@ -25,7 +25,6 @@ namespace BrandUp.CardDav.Client.Xml
                 var eTag = propNode["getetag", "DAV:"]?.InnerText;
                 var cTag = propNode["getctag", "http://calendarserver.org/ns/"]?.InnerText;
 
-
                 if (propNode["sync-token", "DAV:"] != null)
                 {
                     response.SyncToken = propNode["sync-token", "DAV:"].InnerText;
@@ -43,7 +42,6 @@ namespace BrandUp.CardDav.Client.Xml
 
                     var name = propNode["resourcetype", "DAV:"]?.InnerText;
                     response.AddressBooks.Add(new AddressBookResponse { Etag = eTag, Ctag = cTag, Endpoint = href, DisplayName = name });
-
                 }
                 else
                 {

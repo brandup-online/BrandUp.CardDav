@@ -17,7 +17,6 @@
         public IList<ResourceResponse> ResourceEndpoints { get; set; } = new List<ResourceResponse>();
         public IList<VCardResponse> VCardResponse { get; set; } = new List<VCardResponse>();
         public string SyncToken { get; set; }
-
         public string RawXml { get; set; }
     }
 }
