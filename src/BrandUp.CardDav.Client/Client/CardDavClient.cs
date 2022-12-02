@@ -25,8 +25,26 @@ namespace BrandUp.CardDav.Client.Client
             => ExecuteAsync("", HttpMethod.Options, cancellationToken);
 
         // Must be vcard adress
-        public Task<CarddavResponse> GetAsync(string endpoint, CancellationToken cancellationToken)
-            => ExecuteAsync(endpoint, HttpMethod.Get, cancellationToken);
+        public async Task<VCardModel> GetAsync(string endpoint, CancellationToken cancellationToken)
+        {
+            var response = await httpClient.GetAsync(endpoint, cancellationToken);
+            if (response.IsSuccessStatusCode)
+            {
+                if (VCardParser.TryParse(await response.Content.ReadAsStringAsync(cancellationToken), out var vCard))
+                {
+                    return vCard;
+                }
+                else
+                {
+                    throw new ArgumentException("Endpoint response is not a vCard");
+                }
+            }
+            else
+            {
+                throw new HttpRequestException(response.StatusCode.ToString());
+            }
+
+        }
 
         public Task<CarddavResponse> PropfindAsync(string endpoint, string xmlRequest, string depth = "0", CancellationToken cancellationToken = default)
              => ExecuteAsync(endpoint, new HttpMethod("PROPFIND"), xmlRequest, new() { { "Depth", depth } }, cancellationToken);
@@ -34,13 +52,13 @@ namespace BrandUp.CardDav.Client.Client
         public Task<CarddavResponse> ReportAsync(string endpoint, string xmlRequest, string depth = "0", CancellationToken cancellationToken = default)
              => ExecuteAsync(endpoint, new HttpMethod("REPORT"), xmlRequest, new() { { "Depth", depth } }, cancellationToken);
 
-        public Task<CarddavResponse> AddContactAsync(string endpoint, VCard.VCard vCard, CancellationToken cancellationToken)
+        public Task<CarddavResponse> AddContactAsync(string endpoint, VCard.VCardModel vCard, CancellationToken cancellationToken)
             => ExecuteAsync(endpoint, HttpMethod.Put, vCard, null, cancellationToken);
 
         public Task<CarddavResponse> DeleteContactAsync(string endpoint, CancellationToken cancellationToken)
             => ExecuteAsync(endpoint, HttpMethod.Delete, cancellationToken);
 
-        public Task<CarddavResponse> UpdateContactAsync(string endpoint, VCard.VCard vCard, string ETag, CancellationToken cancellationToken)
+        public Task<CarddavResponse> UpdateContactAsync(string endpoint, VCard.VCardModel vCard, string ETag, CancellationToken cancellationToken)
             => ExecuteAsync(endpoint, HttpMethod.Put, vCard, ETag, cancellationToken);
 
         #endregion
@@ -62,7 +80,7 @@ namespace BrandUp.CardDav.Client.Client
             return await ExecuteAsync(requestMessage, cancellationToken);
         }
 
-        private async Task<CarddavResponse> ExecuteAsync(string endpoint, HttpMethod method, VCard.VCard vCard, string eTag = null, CancellationToken cancellationToken = default)
+        private async Task<CarddavResponse> ExecuteAsync(string endpoint, HttpMethod method, VCard.VCardModel vCard, string eTag = null, CancellationToken cancellationToken = default)
         {
             using var requestMessage = new HttpRequestMessage(method, endpoint);
             if (vCard != null)
@@ -88,45 +106,27 @@ namespace BrandUp.CardDav.Client.Client
             requestMessage.Headers.Authorization = httpClient.DefaultRequestHeaders.Authorization;
             using var response = await httpClient.SendAsync(requestMessage, cancellationToken);
 
-            if (response.Content.Headers.ContentLength != 0)
+            if (response.IsSuccessStatusCode)
             {
-                if (response.Content.Headers.ContentType.MediaType.Contains("xml"))
+                var carddavResponse = new CarddavResponse
                 {
-                    var parser = new XmlParser(await response.Content.ReadAsStreamAsync(cancellationToken));
-                    return parser.GenerateCarddavResponse();
-                }
-                else if (response.Content.Headers.ContentType.MediaType.Contains("card") || response.Content.Headers.ContentType.MediaType.Contains("text"))
-                {
-                    var cardavResponse = new CarddavResponse
-                    {
-                        IsSuccess = response.IsSuccessStatusCode,
-                        StatusCode = response.StatusCode.ToString(),
+                    IsSuccess = response.IsSuccessStatusCode,
+                    StatusCode = response.StatusCode.ToString(),
+                    ETag = response.Headers.ETag?.Tag
+                };
 
-                    };
-                    cardavResponse.VCardResponse.Add(new()
-                    {
-                        Etag = response.Headers.ETag.Tag,
-                        Endpoint = requestMessage.RequestUri.ToString(),
-                        VCard = await VCardSerializer.DeserializeAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken)
-                    });
-                    return cardavResponse;
-                }
-                else
+                if (response.StatusCode == System.Net.HttpStatusCode.MultiStatus && response.Content.Headers.ContentType.MediaType.Contains("xml"))
                 {
-                    return new CarddavResponse
-                    {
-                        IsSuccess = response.IsSuccessStatusCode,
-                        StatusCode = response.StatusCode.ToString(),
-                    };
+                    carddavResponse.Content = XmlParser.GenerateCarddavContent(response.Content.ReadAsStream());
                 }
+                return carddavResponse;
             }
             else
             {
                 return new CarddavResponse
                 {
                     IsSuccess = response.IsSuccessStatusCode,
-                    StatusCode = response.StatusCode.ToString(),
-                    ETag = response.Headers.ETag?.Tag
+                    StatusCode = response.StatusCode.ToString()
                 };
             }
         }

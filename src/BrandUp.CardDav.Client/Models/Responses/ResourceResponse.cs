@@ -2,7 +2,7 @@
 
 namespace BrandUp.CardDav.Client.Models
 {
-    public class ResourceResponse : BaseResponse
+    public class ResourceResponse : BaseContent
     {
     }
 

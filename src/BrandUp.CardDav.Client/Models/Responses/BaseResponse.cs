@@ -1,6 +1,6 @@
 ﻿namespace BrandUp.CardDav.Client.Models.Responses
 {
-    public abstract class BaseResponse
+    public abstract class BaseContent
     {
         public string Endpoint { get; set; }
         public string Etag { get; set; }

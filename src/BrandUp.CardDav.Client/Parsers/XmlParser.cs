@@ -5,22 +5,17 @@ using System.Xml;
 
 namespace BrandUp.CardDav.Client.Xml
 {
-    internal class XmlParser
+    internal static class XmlParser
     {
-        readonly XmlDocument xmlDocument;
-        public XmlParser(Stream xmlStream)
+        public static CarddavContent GenerateCarddavContent(Stream xmlStream, bool closeStream = true)
         {
-            xmlDocument = new XmlDocument();
+            var xmlDocument = new XmlDocument();
             xmlDocument.Load(xmlStream);
 
-            xmlStream.Dispose();
-        }
+            if (closeStream)
+                xmlStream.Dispose();
 
-        public CarddavResponse GenerateCarddavResponse()
-        {
-            CarddavResponse response = new() { RawXml = xmlDocument.OuterXml };
-
-            var mainNode = xmlDocument["multistatus", "DAV:"];
+            CarddavContent response = new() { RawXml = xmlDocument.OuterXml };
 
             foreach (XmlNode responseNode in xmlDocument["multistatus", "DAV:"].ChildNodes)
             {
@@ -34,14 +29,13 @@ namespace BrandUp.CardDav.Client.Xml
                 if (propNode["sync-token", "DAV:"] != null)
                 {
                     response.SyncToken = propNode["sync-token", "DAV:"].InnerText;
-
                 }
                 if (propNode["address-data", "urn:ietf:params:xml:ns:carddav"] != null)
                 {
                     //vcard data
 
                     var vCard = propNode["address-data", "urn:ietf:params:xml:ns:carddav"].InnerText;
-                    response.VCardResponse.Add(new() { Etag = eTag, Ctag = cTag, Endpoint = href, VCard = VCardSerializer.DeserializeAsync(vCard, CancellationToken.None).Result });
+                    response.VCardResponse.Add(new() { Etag = eTag, Ctag = cTag, Endpoint = href, VCard = VCardParser.Parse(vCard) });
                 }
                 if (propNode["resourcetype", "DAV:"] != null && propNode["resourcetype", "DAV:"].InnerXml != "")
                 {
