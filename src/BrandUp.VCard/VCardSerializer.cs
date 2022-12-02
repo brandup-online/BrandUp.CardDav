@@ -2,7 +2,7 @@
 {
     public static class VCardSerializer
     {
-        public static async Task<string> SerializeAsync(VCard vCard, CancellationToken cancellationToken)
+        public static async Task<string> SerializeAsync(VCardModel vCard, CancellationToken cancellationToken)
         {
             var result = "BEGIN:VCARD\r\nVERSION:3.0\r\n";
 
@@ -72,16 +72,5 @@
 
             return result;
         }
-
-        public static async Task<VCard> DeserializeAsync(string vCard, CancellationToken cancellationToken)
-        {
-            return await VCardParser.ParseAsync(vCard, cancellationToken);
-        }
-
-        public static async Task<VCard> DeserializeAsync(Stream stream, CancellationToken cancellationToken)
-        {
-            return await VCardParser.ParseAsync(stream, cancellationToken);
-        }
-
     }
 }

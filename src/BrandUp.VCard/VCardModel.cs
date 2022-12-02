@@ -1,16 +1,16 @@
 ﻿namespace BrandUp.VCard
 {
-    public class VCard
+    public class VCardModel
     {
         public string FormattedName { get; internal set; }
-        public Version Version { get; internal set; }
+        public Version? Version { get; internal set; }
         public string UId { get; internal set; }
         public VCardName Name { get; internal set; }
         public IList<VCardPhone> Phones { get; internal set; }
         public IList<VCardEmail> Emails { get; internal set; }
         public IDictionary<string, string> AdditionalFields { get; internal set; }
 
-        public VCard()
+        public VCardModel()
         {
             Phones = new List<VCardPhone>();
             Emails = new List<VCardEmail>();
@@ -30,8 +30,8 @@
 
     public class VCardPhone
     {
-        public Kind? Kind { get; set; }
         public string Phone { get; set; }
+        public Kind? Kind { get; set; }
         public string[] Types { get; set; }
     }
 

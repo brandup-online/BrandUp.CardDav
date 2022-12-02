@@ -1,13 +1,14 @@
-﻿namespace BrandUp.VCard.Tests
+﻿using BrandUp.VCard.Builders;
+
+namespace BrandUp.VCard.Tests
 {
-    public class SerializeTest : IAsyncLifetime
+    public class VCardBuilderTest : IAsyncLifetime
     {
+
         const string vCard = "BEGIN:VCARD\r\n" +
                              "VERSION:3.0\r\n" +
                              "N:Doe;John;;;\r\n" +
                              "FN:John Doe\r\n" +
-                             "ORG:Example.com Inc.;\r\n" +
-                             "TITLE:Imaginary test person\r\n" +
                              "EMAIL;type=WORK;type=INTERNET;type=pref:johnDoe@example.org\r\n" +
                              "TEL;type=WORK;type=pref:+1 617 555 1212\r\n" +
                              "TEL;type=WORK:+1 (617) 555-1234\r\n" +
@@ -15,29 +16,30 @@
                              "TEL;type=HOME:+1 202 555 1212\r\n" +
                              "END:VCARD\r\n";
 
-
         [Fact]
         public async Task Success()
         {
-            var result = await VCardParser.ParseAsync(vCard, CancellationToken.None);
+            var vCardBuilded = VCardBuilder.Create(Version.VCard3).SetName("Doe", "John")
+                .AddEmail("johnDoe@example.org", Kind.Work, "INTERNET", "pref")
+                .AddPhone("+1 617 555 1212", Kind.Work, "pref")
+                .AddPhone("+1 (617) 555-1234", Kind.Work)
+                .AddPhone("+1 781 555 1212", null, "CELL")
+                .AddPhone("+1 202 555 1212", Kind.Home)
+                .Build();
 
-            Assert.NotNull(result);
+            var serialized = await VCardSerializer.SerializeAsync(vCardBuilded, CancellationToken.None);
 
-            var serialized = await VCardSerializer.SerializeAsync(result, CancellationToken.None);
-
-            Assert.NotNull(serialized);
-            Assert.NotEmpty(serialized);
             Assert.Equal(vCard, serialized, true);
         }
 
         #region IAsyncLifetime
 
-        public Task InitializeAsync()
+        public Task DisposeAsync()
         {
             return Task.CompletedTask;
         }
 
-        public Task DisposeAsync()
+        public Task InitializeAsync()
         {
             return Task.CompletedTask;
         }

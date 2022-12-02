@@ -2,11 +2,11 @@
 {
     public class VCardBuilder : IVCardBuilder
     {
-        private VCard vCard;
+        private VCardModel vCard;
 
-        internal VCardBuilder()
+        internal VCardBuilder(Version version = Version.VCard3)
         {
-            vCard = new();
+            vCard = new() { Version = version };
         }
 
         internal VCardBuilder(string rawVCard) : this()
@@ -14,17 +14,18 @@
             this.vCard = VCardParser.Parse(rawVCard);
         }
 
-        #region IVCardBuilder members
-
-        public static IVCardBuilder Create()
+        internal VCardBuilder(VCardModel vCard)
         {
-            return new VCardBuilder();
+            this.vCard = vCard ?? throw new ArgumentNullException(nameof(vCard));
         }
+
+        #region Static members
+
+        public static IVCardBuilder Create(Version version = Version.VCard3)
+           => new VCardBuilder(version);
 
         public static IVCardBuilder Create(string rawVCard)
-        {
-            return new VCardBuilder(rawVCard);
-        }
+        => new VCardBuilder(rawVCard);
 
         public static IVCardBuilder CreateFromFile(string filepath)
         {
@@ -40,6 +41,12 @@
 
             return new VCardBuilder(raw);
         }
+
+        public static IVCardBuilder Update(VCardModel vCard) => new VCardBuilder(vCard);
+
+        #endregion
+
+        #region IVCardBuilder members
 
         public IVCardBuilder SetName(string name)
         {
@@ -58,13 +65,26 @@
             if (honorificPrefixes == null) throw new ArgumentNullException(nameof(honorificPrefixes));
             if (honorificSuffixes == null) throw new ArgumentNullException(nameof(honorificSuffixes));
 
-            vCard.Name.FamilyNames = familyNames.Split(',').ToList();
-            vCard.Name.GivenNames = givenNames.Split(',').ToList();
-            vCard.Name.AdditionalNames = additionalNames.Split(',').ToList();
-            vCard.Name.HonorificPrefixes = honorificPrefixes.Split(',').ToList();
-            vCard.Name.HonorificSuffixes = honorificSuffixes.Split(',').ToList();
+            var name = new VCardName();
 
-            vCard.FormattedName = string.Join(" ", vCard.Name.HonorificPrefixes, vCard.Name.GivenNames, vCard.Name.AdditionalNames, vCard.Name.FamilyNames, vCard.Name.HonorificSuffixes);
+            name.FamilyNames = familyNames.Split(',').ToList();
+            name.GivenNames = givenNames.Split(',').ToList();
+            name.AdditionalNames = additionalNames.Split(',').ToList();
+            name.HonorificPrefixes = honorificPrefixes.Split(',').ToList();
+            name.HonorificSuffixes = honorificSuffixes.Split(',').ToList();
+
+            vCard.Name = name;
+
+            List<string> names = new();
+            names.AddRange(vCard.Name.HonorificPrefixes);
+            names.AddRange(vCard.Name.GivenNames);
+            names.AddRange(vCard.Name.AdditionalNames);
+            names.AddRange(vCard.Name.FamilyNames);
+            names.AddRange(vCard.Name.HonorificSuffixes);
+
+            names.RemoveAll(x => x == "");
+
+            vCard.FormattedName = string.Join(" ", names);
 
             return this;
         }
@@ -78,7 +98,7 @@
             return this;
         }
 
-        public IVCardBuilder AddEmail(string email, Kind type, params string[] types)
+        public IVCardBuilder AddEmail(string email, Kind? type, params string[] types)
         {
             if (email == null) throw new ArgumentNullException(nameof(email));
 
@@ -87,7 +107,7 @@
             return this;
         }
 
-        public IVCardBuilder UpdateEmail(string oldEmail, string email, Kind type, params string[] types)
+        public IVCardBuilder UpdateEmail(string oldEmail, string email, Kind? type, params string[] types)
         {
             if (email == null) throw new ArgumentNullException(nameof(email));
             if (oldEmail == null) throw new ArgumentNullException(nameof(oldEmail));
@@ -99,7 +119,7 @@
             return this;
         }
 
-        public IVCardBuilder AddPhone(string phone, Kind type, params string[] types)
+        public IVCardBuilder AddPhone(string phone, Kind? type, params string[] types)
         {
             if (phone == null) throw new ArgumentNullException(nameof(phone));
 
@@ -108,7 +128,7 @@
             return this;
         }
 
-        public IVCardBuilder UpdatePhone(string oldPhone, string phone, Kind type, params string[] types)
+        public IVCardBuilder UpdatePhone(string oldPhone, string phone, Kind? type, params string[] types)
         {
             if (phone == null) throw new ArgumentNullException(nameof(phone));
             if (oldPhone == null) throw new ArgumentNullException(nameof(oldPhone));
@@ -121,25 +141,21 @@
         }
 
 
-        public VCard Build() => vCard;
+        public VCardModel Build() => vCard;
 
         #endregion
     }
 
     public interface IVCardBuilder
     {
-        static abstract IVCardBuilder Create();
-        static abstract IVCardBuilder Create(string rawVCard);
-        static abstract IVCardBuilder CreateFromFile(string filepath);
-        static abstract IVCardBuilder CreateFromStream(Stream stream);
         IVCardBuilder SetUId(string uId);
         IVCardBuilder SetName(string name);
         IVCardBuilder SetName(string familyNames, string givenNames, string additionalNames = "", string honorificPrefixes = "", string honorificSuffixes = "");
-        IVCardBuilder AddPhone(string phone, Kind type, params string[] types);
-        IVCardBuilder UpdatePhone(string oldPhone, string phone, Kind type, params string[] types);
-        IVCardBuilder AddEmail(string email, Kind type, params string[] types);
-        IVCardBuilder UpdateEmail(string oldEmail, string email, Kind type, params string[] types);
-        VCard Build();
+        IVCardBuilder AddPhone(string phone, Kind? type, params string[] types);
+        IVCardBuilder UpdatePhone(string oldPhone, string phone, Kind? type, params string[] types);
+        IVCardBuilder AddEmail(string email, Kind? type, params string[] types);
+        IVCardBuilder UpdateEmail(string oldEmail, string email, Kind? type, params string[] types);
+        VCardModel Build();
 
     }
 }

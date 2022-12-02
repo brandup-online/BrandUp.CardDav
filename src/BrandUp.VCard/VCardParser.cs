@@ -2,66 +2,79 @@
 
 namespace BrandUp.VCard
 {
-    internal static class VCardParser
+    public static class VCardParser
     {
-        readonly static Dictionary<Regex, Action<VCard, string>> RegexDictionary;
+        readonly static Dictionary<Regex, Action<VCardModel, string>> RegexDictionary;
         static VCardParser()
         {
             RegexDictionary = new()
             {
-                { new(@"^FN:(.+)$", RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled), AddFullName},
-                { new(@"^N:(.+)$", RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled), AddPartName},
+                { new(@"^FN:(.+)$", RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled), AddFormattedName},
+                { new(@"^N:(.+)$", RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled), AddName},
                 { new(@".*TEL.*:(.+)$", RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled), AddPhone},
                 { new(@".*EMAIL.*:(.+)$", RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled), AddEmail},
                 { new(@"^UID:(.+)$", RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled), AddUid},
                 { new(@"^VERSION:(.+)$", RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled), AddVersion},
             };
-
         }
 
-        private static bool hasName = false;
-        private static bool hasFullName = false;
-        private static bool hasUid = false;
-
-        public static async Task<VCard> ParseAsync(Stream responseStream, CancellationToken cancellationToken)
+        public static async Task<VCardModel> ParseAsync(Stream responseStream, CancellationToken cancellationToken)
         {
             using var reader = new StreamReader(responseStream);
-            VCard vCard = new();
 
-            reader.BaseStream.Position = 0;
-
-            return await ParseAsync(reader, vCard, cancellationToken);
+            return await ParseAsync(reader, cancellationToken);
         }
 
-        public static async Task<VCard> ParseAsync(string vCardRaw, CancellationToken cancellationToken)
+        public static async Task<VCardModel> ParseAsync(string vCardRaw, CancellationToken cancellationToken)
+            => await ParseAsync(new StringReader(vCardRaw), cancellationToken);
+
+        public static VCardModel Parse(string vCardRaw)
+            => ParseAsync(new StringReader(vCardRaw), CancellationToken.None).Result;
+
+        public static bool TryParse(string vCardRaw, out VCardModel vCard)
         {
-            VCard vCard = new();
+            try
+            {
+                vCard = ParseAsync(new StringReader(vCardRaw), CancellationToken.None).Result;
 
-            return await ParseAsync(new StringReader(vCardRaw), vCard, cancellationToken);
+                return true;
+            }
+            catch
+            {
+                vCard = null;
+
+                return false;
+            }
         }
 
-        public static VCard Parse(string vCardRaw)
-        {
-            VCard vCard = new();
-
-            return ParseAsync(new StringReader(vCardRaw), vCard, CancellationToken.None).Result;
-        }
 
         #region Helpers 
 
-        private static async Task<VCard> ParseAsync(TextReader reader, VCard vCard, CancellationToken cancellationToken)
+        private static async Task<VCardModel> ParseAsync(TextReader reader, CancellationToken cancellationToken)
         {
+            VCardModel vCard = new();
+
+            bool firstline = true;
             while (true)
             {
                 var line = await reader.ReadLineAsync(cancellationToken);
                 if (line == null)
                     break;
 
-                if (string.Equals(line, "BEGIN:VCARD", StringComparison.InvariantCultureIgnoreCase))
+                if (firstline)
                 {
-                    continue;
+                    firstline = false;
+                    if (string.Equals(line, "BEGIN:VCARD", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        throw new ArgumentException("This is not VCard");
+                    }
                 }
-                else if (string.Equals(line, "END:VCARD", StringComparison.InvariantCultureIgnoreCase))
+
+                if (string.Equals(line, "END:VCARD", StringComparison.InvariantCultureIgnoreCase))
                 {
                     line = await reader.ReadLineAsync(cancellationToken);
                     if (line == null)
@@ -84,8 +97,8 @@ namespace BrandUp.VCard
                 if (flag)
                 {
                     var split = line.Split(':');
-
-                    vCard.AdditionalFields.Add(split[0], split[1]);
+                    if (split.Length == 2)
+                        vCard.AdditionalFields.Add(split[0], split[1]);
                 }
 
             }
@@ -96,19 +109,20 @@ namespace BrandUp.VCard
 
         #region Dictionary actions
 
-        private static void AddFullName(VCard vCard, string line)
+        private static void AddFormattedName(VCardModel vCard, string line)
         {
-            if (hasFullName)
-                throw new NotSupportedException("cannot work with vcard that have two FN property");
+            if (vCard.FormattedName != null)
+                throw new NotSupportedException("Cannot work with vcard that have two FN property");
+
             var name = line.Split(':')[1];
             vCard.FormattedName = name.Trim();
         }
 
 
-        private static void AddPartName(VCard vCard, string line)
+        private static void AddName(VCardModel vCard, string line)
         {
-            if (hasName)
-                throw new NotSupportedException("cannot work with vcard that have two N property");
+            if (vCard.Name != null)
+                throw new NotSupportedException("Cannot work with vcard that have two N property");
 
             var name = line.Replace("N:", "").Split(';');
             VCardName vCardName = new();
@@ -137,7 +151,7 @@ namespace BrandUp.VCard
 
         }
 
-        private static void AddPhone(VCard vCard, string line)
+        private static void AddPhone(VCardModel vCard, string line)
         {
             var phone = new VCardPhone();
             var phoneArr = line.Split(':');
@@ -171,7 +185,7 @@ namespace BrandUp.VCard
             vCard.Phones.Add(phone);
         }
 
-        private static void AddEmail(VCard vCard, string line)
+        private static void AddEmail(VCardModel vCard, string line)
         {
             var email = new VCardEmail();
             var emailArr = line.Split(':');
@@ -205,18 +219,18 @@ namespace BrandUp.VCard
             vCard.Emails.Add(email);
         }
 
-        private static void AddUid(VCard vCard, string line)
+        private static void AddUid(VCardModel vCard, string line)
         {
-            if (hasUid)
+            if (vCard.UId != null)
                 throw new NotSupportedException("cannot work with vcard that have two UID property");
 
             var uid = line.Replace("UID:", "");
             vCard.UId = uid.Trim();
         }
 
-        private static void AddVersion(VCard vCard, string line)
+        private static void AddVersion(VCardModel vCard, string line)
         {
-            if (hasUid)
+            if (vCard.Version != null)
                 throw new NotSupportedException("cannot work with vcard that have two UID property");
 
             var uid = line.Replace("VERSION:", "");

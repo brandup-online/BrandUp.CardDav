@@ -31,17 +31,16 @@ namespace BrandUp.CardDav.Client.Test
             response = await client.PropfindAsync($"/addressbook/{userName}/", string.Empty, Depth.One, CancellationToken.None);
 
             Assert.True(response.IsSuccess);
-            Assert.Equal(2, response.AddressBooks.Count);
+            Assert.Equal(2, response.Content.AddressBooks.Count);
 
-            response = await client.PropfindAsync(response.AddressBooks[1].Endpoint, string.Empty, Depth.One, CancellationToken.None);
+            response = await client.PropfindAsync(response.Content.AddressBooks[1].Endpoint, string.Empty, Depth.One, CancellationToken.None);
 
             Assert.True(response.IsSuccess);
-            Assert.Equal(1, response.AddressBooks.Count);
-            Assert.Equal(5, response.ResourceEndpoints.Count);
+            Assert.Equal(1, response.Content.AddressBooks.Count);
+            Assert.Equal(5, response.Content.ResourceEndpoints.Count);
 
-            response = await client.GetAsync(response.ResourceEndpoints[0].Endpoint, CancellationToken.None);
-            Assert.True(response.IsSuccess);
-            Assert.Single(response.VCardResponse);
+            var vCardResponse = await client.GetAsync(response.Content.ResourceEndpoints[0].Endpoint, CancellationToken.None);
+            Assert.NotNull(vCardResponse);
         }
 
         [Fact]
@@ -58,18 +57,17 @@ namespace BrandUp.CardDav.Client.Test
             response = await client.AddContactAsync($"/addressbook/{userName}/addressbook/new", vCard, CancellationToken.None);
             Assert.True(response.IsSuccess);
 
-            response = await client.GetAsync($"/addressbook/{userName}/addressbook/new", CancellationToken.None);
-            Assert.True(response.IsSuccess);
+            var vCardResponse = await client.GetAsync($"/addressbook/{userName}/addressbook/new", CancellationToken.None);
+            Assert.NotNull(vCardResponse);
 
-            var responseVCard = response.VCardResponse[0];
-            Assert.Equal(vCard.Name.FamilyNames, responseVCard.VCard.Name.FamilyNames);
-            Assert.Equal(vCard.Name.GivenNames, responseVCard.VCard.Name.GivenNames);
-            Assert.Equal(vCard.Name.AdditionalNames, responseVCard.VCard.Name.AdditionalNames);
-            Assert.Equal(vCard.Name.HonorificPrefixes, responseVCard.VCard.Name.HonorificPrefixes);
-            Assert.Equal(vCard.Name.HonorificSuffixes, responseVCard.VCard.Name.HonorificSuffixes);
-            Assert.Equal(vCard.FormattedName, responseVCard.VCard.FormattedName);
-            Assert.Equal(vCard.Phones, responseVCard.VCard.Phones, new PhonesEqualityComparer());
-            Assert.Equal(vCard.Emails, responseVCard.VCard.Emails, new EmailsEqualityComparer());
+            Assert.Equal(vCard.Name.FamilyNames, vCardResponse.Name.FamilyNames);
+            Assert.Equal(vCard.Name.GivenNames, vCardResponse.Name.GivenNames);
+            Assert.Equal(vCard.Name.AdditionalNames, vCardResponse.Name.AdditionalNames);
+            Assert.Equal(vCard.Name.HonorificPrefixes, vCardResponse.Name.HonorificPrefixes);
+            Assert.Equal(vCard.Name.HonorificSuffixes, vCardResponse.Name.HonorificSuffixes);
+            Assert.Equal(vCard.FormattedName, vCardResponse.FormattedName);
+            Assert.Equal(vCard.Phones, vCardResponse.Phones, new PhonesEqualityComparer());
+            Assert.Equal(vCard.Emails, vCardResponse.Emails, new EmailsEqualityComparer());
 
             //у яндекса багнутый апдейт
             //var updateVCard = VCardBuilder.Create("BEGIN:VCARD\r\nVERSION:3.0\r\nUID:2312133421324668575897435\r\nN:Doe;John;;;\r\nFN:John Doe\r\nEMAIL:test@test.org\r\nTEL;type=WORK;type=pref:+1 617 555 1212\r\nEND:VCARD\r\n").Build();
@@ -86,7 +84,7 @@ namespace BrandUp.CardDav.Client.Test
             response = await client.PropfindAsync($"/addressbook/{userName}/addressbook", string.Empty, Depth.One, CancellationToken.None);
 
             Assert.True(response.IsSuccess);
-            Assert.Equal(5, response.ResourceEndpoints.Count);
+            Assert.Equal(5, response.Content.ResourceEndpoints.Count);
         }
 
         #region Helpers

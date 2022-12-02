@@ -53,26 +53,26 @@ namespace BrandUp.CardDav.Client.Test
             Assert.True(response.IsSuccess);
 
             var vCard = VCardBuilder.Create(testPerson).SetUId("2312133421324668575897435").Build();
-
-            response = await client.AddContactAsync($"carddav/v1/principals/{gmail}/lists/default/new", vCard, CancellationToken.None);
+            var name = RandomName;
+            response = await client.AddContactAsync($"carddav/v1/principals/{gmail}/lists/default/{name}", vCard, CancellationToken.None);
 
             Assert.True(response.IsSuccess);
 
             var eTagRequest = XmlQueryHelper.Propfind("prop", "getetag", "getcontenttype", "resourcetype");
 
-            response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default/new", eTagRequest, Depth.One, CancellationToken.None);
+            response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default/{name}", eTagRequest, Depth.One, CancellationToken.None);
 
             Assert.True(response.IsSuccess);
 
             var updateVCard = VCardBuilder.Create("BEGIN:VCARD\r\nVERSION:3.0\r\nUID:2312133421324668575897435\r\nN:Doe;John;;;\r\nFN:John Doe\r\nEMAIL:test@test.org\r\nTEL;type=WORK;type=pref:+1 617 555 1212\r\nEND:VCARD\r\n").Build();
-            var endpoint = response.ResourceEndpoints.First().Endpoint;
-            var etag = response.ResourceEndpoints.First().Etag;
+            var endpoint = response.Content.ResourceEndpoints.First().Endpoint;
+            var etag = response.Content.ResourceEndpoints.First().Etag;
             response = await client.UpdateContactAsync(endpoint, updateVCard, etag, CancellationToken.None);
             Assert.True(response.IsSuccess);
 
-            response = await client.GetAsync($"carddav/v1/principals/{gmail}/lists/default/new", CancellationToken.None);
-            Assert.True(response.IsSuccess);
-            Assert.Equal("test@test.org", response.VCardResponse.First().VCard.Emails.First().Email);
+            var vCardResponse = await client.GetAsync($"carddav/v1/principals/{gmail}/lists/default/{name}", CancellationToken.None);
+            Assert.NotNull(vCardResponse);
+            Assert.Equal("test@test.org", vCardResponse.Emails.First().Email);
 
             response = await client.DeleteContactAsync(endpoint, CancellationToken.None);
             Assert.True(response.IsSuccess);
@@ -80,7 +80,7 @@ namespace BrandUp.CardDav.Client.Test
             response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default/", eTagRequest, Depth.One, CancellationToken.None);
 
             Assert.True(response.IsSuccess);
-            Assert.Equal(4, response.ResourceEndpoints.Count);
+            Assert.Equal(4, response.Content.ResourceEndpoints.Count);
         }
 
         [Fact]
@@ -101,15 +101,14 @@ namespace BrandUp.CardDav.Client.Test
             response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default", propfind, Depth.One, CancellationToken.None);
 
             Assert.True(response.IsSuccess);
-            var syncRequest0 = XmlQueryHelper.SyncCollection();
+            //var syncRequest0 = XmlQueryHelper.SyncCollection();
 
-            response = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists/default", syncRequest0, Depth.One, CancellationToken.None);
-
-            var syncRequest = XmlQueryHelper.SyncCollection(response.SyncToken, "infinite");
-
-            response = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists/default", syncRequest, Depth.One, CancellationToken.None);
-
-            //Assert.True(response.IsSuccess);
+            //response = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists/default", syncRequest0, Depth.One, CancellationToken.None);
         }
+
+        private static Random random = new Random();
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        private string RandomName => new string(Enumerable.Repeat(chars, 5).Select(s => s[random.Next(s.Length)]).ToArray());
+
     }
 }
