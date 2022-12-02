@@ -16,8 +16,8 @@ namespace BrandUp.CardDav.Client.Test
 
         public CardDavAppleClientTest(ITestOutputHelper output) : base(output)
         {
-            login = configuration.GetSection("Apple:Login").Get<string>();
-            password = configuration.GetSection("Apple:Password").Get<string>();
+            login = configuration.GetSection("Apple:Login").Get<string>() ?? throw new ArgumentNullException(nameof(login));
+            password = configuration.GetSection("Apple:Password").Get<string>() ?? throw new ArgumentNullException(nameof(password));
         }
 
         [Fact]

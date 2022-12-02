@@ -15,8 +15,8 @@ namespace BrandUp.CardDav.Client.Test
 
         public CardDavYandexClientTest(ITestOutputHelper output) : base(output)
         {
-            userName = configuration.GetSection("Cred:UserName").Get<string>();
-            password = configuration.GetSection("Cred:Password").Get<string>();
+            userName = configuration.GetSection("Yandex:UserName").Get<string>() ?? throw new ArgumentNullException(nameof(userName));
+            password = configuration.GetSection("Yandex:Password").Get<string>() ?? throw new ArgumentNullException(nameof(password));
         }
 
         [Fact]

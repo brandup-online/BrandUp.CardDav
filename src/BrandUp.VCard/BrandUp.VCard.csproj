@@ -1,9 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>disable</Nullable>
+	<TargetFramework>net7.0</TargetFramework>
+	  <Authors>Dmitry Shashev</Authors>
+	  <Company>BrandUp.online</Company>
+	  <Product>BrandUp.CloudStorage</Product>
+	  <RepositoryUrl>https://github.com/brandup-online/cardDav-client</RepositoryUrl>
+	  <PackageProjectUrl>https://github.com/brandup-online/cardDav-client</PackageProjectUrl>
+	  <ImplicitUsings>enable</ImplicitUsings>
+	<Nullable>disable</Nullable>
   </PropertyGroup>
 
 </Project>

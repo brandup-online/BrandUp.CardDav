@@ -17,9 +17,9 @@ namespace BrandUp.CardDav.Client.Test
 
         public CardDavGoogleClientTest(ITestOutputHelper output) : base(output)
         {
-            token = configuration.GetSection("Google:Token").Get<string>();
-            gmail = configuration.GetSection("Google:Login").Get<string>();
-            pass = configuration.GetSection("Google:Password").Get<string>();
+            token = configuration.GetSection("Google:Token").Get<string>();// ?? throw new ArgumentNullException(nameof(token));
+            gmail = configuration.GetSection("Google:Login").Get<string>() ?? throw new ArgumentNullException(nameof(gmail));
+            pass = configuration.GetSection("Google:Password").Get<string>() ?? throw new ArgumentNullException(nameof(pass));
 
             client = cardDavClientFactory.CreateClientWithCredentials("https://www.googleapis.com/", gmail, pass);
         }
