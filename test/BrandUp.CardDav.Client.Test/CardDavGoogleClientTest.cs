@@ -34,12 +34,14 @@ namespace BrandUp.CardDav.Client.Test
 
             response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default", content, Depth.One, CancellationToken.None);
 
+            output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
 
             var report = XmlQueryHelper.AddressCollection(true);
 
             response = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists/default", report, Depth.One, CancellationToken.None);
 
+            output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
         }
 
@@ -55,6 +57,7 @@ namespace BrandUp.CardDav.Client.Test
 
             response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default", content, Depth.One, CancellationToken.None);
 
+            output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
 
             #endregion
@@ -65,6 +68,7 @@ namespace BrandUp.CardDav.Client.Test
             var name = RandomName;
             response = await client.AddContactAsync($"carddav/v1/principals/{gmail}/lists/default/{name}", vCard, CancellationToken.None);
 
+            output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
 
             #endregion
@@ -75,6 +79,7 @@ namespace BrandUp.CardDav.Client.Test
 
             response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default/{name}", eTagRequest, Depth.One, CancellationToken.None);
 
+            output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
 
             #endregion
@@ -85,6 +90,8 @@ namespace BrandUp.CardDav.Client.Test
             var endpoint = response.Content.ResourceEndpoints.First().Endpoint;
             var etag = response.Content.ResourceEndpoints.First().Etag;
             response = await client.UpdateContactAsync(endpoint, updateVCard, etag, CancellationToken.None);
+
+            output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
 
             var vCardResponse = await client.GetAsync($"carddav/v1/principals/{gmail}/lists/default/{name}", CancellationToken.None);
@@ -96,10 +103,13 @@ namespace BrandUp.CardDav.Client.Test
             #region Delete
 
             response = await client.DeleteContactAsync(endpoint, CancellationToken.None);
+
+            output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
 
             response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default/", eTagRequest, Depth.One, CancellationToken.None);
 
+            output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
             Assert.Equal(4, response.Content.ResourceEndpoints.Count);
 
@@ -115,12 +125,14 @@ namespace BrandUp.CardDav.Client.Test
 
             var response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default", content, Depth.One, CancellationToken.None);
 
+            output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
 
             var propfind = XmlQueryHelper.Propfind("sync-token");
 
             response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default", propfind, Depth.One, CancellationToken.None);
 
+            output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
             //var syncRequest0 = XmlQueryHelper.SyncCollection();
 

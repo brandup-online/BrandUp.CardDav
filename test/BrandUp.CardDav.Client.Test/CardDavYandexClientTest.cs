@@ -26,15 +26,18 @@ namespace BrandUp.CardDav.Client.Test
 
             var response = await client.OptionsAsync(CancellationToken.None);
 
+            output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
 
             response = await client.PropfindAsync($"/addressbook/{userName}/", string.Empty, Depth.One, CancellationToken.None);
 
+            output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
             Assert.Equal(2, response.Content.AddressBooks.Count);
 
             response = await client.PropfindAsync(response.Content.AddressBooks[1].Endpoint, string.Empty, Depth.One, CancellationToken.None);
 
+            output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
             Assert.Equal(1, response.Content.AddressBooks.Count);
             Assert.Equal(5, response.Content.ResourceEndpoints.Count);
@@ -52,6 +55,7 @@ namespace BrandUp.CardDav.Client.Test
 
             var response = await client.OptionsAsync(CancellationToken.None);
 
+            output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
 
             #endregion
@@ -61,6 +65,8 @@ namespace BrandUp.CardDav.Client.Test
             var vCard = VCardBuilder.Create(testPerson).SetUId("2312133421324668575897435").Build();
 
             response = await client.AddContactAsync($"/addressbook/{userName}/addressbook/new", vCard, CancellationToken.None);
+
+            output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
 
             #endregion
@@ -97,10 +103,13 @@ namespace BrandUp.CardDav.Client.Test
             #region Delete
 
             response = await client.DeleteContactAsync($"/addressbook/{userName}/addressbook/new", CancellationToken.None);
+
+            output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
 
             response = await client.PropfindAsync($"/addressbook/{userName}/addressbook", string.Empty, Depth.One, CancellationToken.None);
 
+            output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
             Assert.Equal(5, response.Content.ResourceEndpoints.Count);
 

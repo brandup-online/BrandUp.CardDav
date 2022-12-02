@@ -27,12 +27,14 @@ namespace BrandUp.CardDav.Client.Test
 
             var response = await client.OptionsAsync(CancellationToken.None);
 
+            output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
 
             var request = XmlQueryHelper.Propfind("getetag");
 
             response = await client.PropfindAsync($"{login}/carddavhome/", request, Depth.Zero, CancellationToken.None);
 
+            output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
 
             response = await client.PropfindAsync(response.Content.ResourceEndpoints[0].Endpoint, request, Depth.One, CancellationToken.None);
@@ -43,6 +45,7 @@ namespace BrandUp.CardDav.Client.Test
 
             response = await client.ReportAsync(response.Content.ResourceEndpoints[1].Endpoint, report, Depth.One, CancellationToken.None);
 
+            output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
         }
 
@@ -55,16 +58,19 @@ namespace BrandUp.CardDav.Client.Test
 
             var response = await client.OptionsAsync(CancellationToken.None);
 
+            output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
 
             var request = XmlQueryHelper.Propfind("getetag");
 
             response = await client.PropfindAsync($"{login}/carddavhome/", request, Depth.Zero, CancellationToken.None);
 
+            output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
 
             response = await client.PropfindAsync(response.Content.ResourceEndpoints[0].Endpoint, request, Depth.One, CancellationToken.None);
 
+            output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
 
             #endregion
@@ -86,6 +92,7 @@ namespace BrandUp.CardDav.Client.Test
             var eTagRequest = XmlQueryHelper.Propfind("getetag", "getcontenttype", "resourcetype");
             response = await client.PropfindAsync(newUserEndpoint, eTagRequest, Depth.One, CancellationToken.None);
 
+            output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
 
             var vCardResponse = await client.GetAsync(newUserEndpoint, CancellationToken.None);
@@ -103,9 +110,12 @@ namespace BrandUp.CardDav.Client.Test
             #endregion
 
             #region Update 
+
             var updateVCard = VCardBuilder.Create("BEGIN:VCARD\r\nVERSION:3.0\r\nUID:2312133421324668575897435\r\nN:Doe;John;;;\r\nFN:John Doe\r\nEMAIL;type=INTERNET;type=WORK;type=pref:test@test.org\r\nTEL;type=WORK;type=pref:+1 617 555 1212\r\nEND:VCARD\r\n").Build();
             var etag = response.ETag;
             response = await client.UpdateContactAsync(newUserEndpoint, updateVCard, etag, CancellationToken.None); //просто заменяет контакт
+
+            output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
 
             vCardResponse = await client.GetAsync(newUserEndpoint, CancellationToken.None);
@@ -117,6 +127,8 @@ namespace BrandUp.CardDav.Client.Test
             #region Delete
 
             response = await client.DeleteContactAsync(newUserEndpoint, CancellationToken.None);
+
+            output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
 
             #endregion
