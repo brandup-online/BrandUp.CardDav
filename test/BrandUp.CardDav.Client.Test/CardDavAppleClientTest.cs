@@ -30,7 +30,9 @@ namespace BrandUp.CardDav.Client.Test
             output.WriteLine(options.StatusCode);
             Assert.True(options.IsSuccess);
             Assert.NotEmpty(options.AllowHeaderValue);
+            output.WriteLine(string.Join(" ", options.AllowHeaderValue));
             Assert.NotEmpty(options.DavHeaderValue);
+            output.WriteLine(string.Join(" ", options.DavHeaderValue));
 
             var request = XmlQueryHelper.Propfind("getetag");
 
