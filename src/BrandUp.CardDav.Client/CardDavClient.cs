@@ -23,8 +23,16 @@ namespace BrandUp.CardDav.Client
 
         public async Task<OptionsResponse> OptionsAsync(CancellationToken cancellationToken)
         {
-            var request = new HttpRequestMessage(HttpMethod.Options, "");
-            var response = await httpClient.SendAsync(request, cancellationToken);
+            var response = await ExecuteAsync("", HttpMethod.Options, cancellationToken: cancellationToken);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return new()
+                {
+                    IsSuccess = response.IsSuccessStatusCode,
+                    StatusCode = response.StatusCode.ToString(),
+                };
+            }
 
             var allow = response.Content.Headers.Allow;
             var dav = response.Headers.GetValues("DAV");
@@ -60,89 +68,81 @@ namespace BrandUp.CardDav.Client
 
         }
 
-        public Task<CarddavResponse> PropfindAsync(string endpoint, string xmlRequest, string depth = "0", CancellationToken cancellationToken = default)
-             => ExecuteAsync(endpoint, new HttpMethod("PROPFIND"), xmlRequest, new() { { "Depth", depth } }, cancellationToken);
+        public async Task<CarddavResponse> PropfindAsync(string endpoint, string xmlRequest, string depth = "0", CancellationToken cancellationToken = default)
+             => ProccesCardDavResponse(await ExecuteAsync(endpoint, new HttpMethod("PROPFIND"), xmlRequest, new() { { "Content-Type", "text/xml" }, { "Depth", depth } }, cancellationToken));
 
-        public Task<CarddavResponse> ReportAsync(string endpoint, string xmlRequest, string depth = "0", CancellationToken cancellationToken = default)
-             => ExecuteAsync(endpoint, new HttpMethod("REPORT"), xmlRequest, new() { { "Depth", depth } }, cancellationToken);
+        public async Task<CarddavResponse> ReportAsync(string endpoint, string xmlRequest, string depth = "0", CancellationToken cancellationToken = default)
+             => ProccesCardDavResponse(await ExecuteAsync(endpoint, new HttpMethod("REPORT"), xmlRequest, new() { { "Content-Type", "text/xml" }, { "Depth", depth } }, cancellationToken));
 
-        public Task<CarddavResponse> AddContactAsync(string endpoint, VCardModel vCard, CancellationToken cancellationToken)
-            => ExecuteAsync(endpoint, HttpMethod.Put, vCard, null, cancellationToken);
+        public async Task<CarddavResponse> AddContactAsync(string endpoint, VCardModel vCard, CancellationToken cancellationToken)
+            => ProccesCardDavResponse(await ExecuteAsync(endpoint, HttpMethod.Put, await VCardSerializer.SerializeAsync(vCard, cancellationToken), null, cancellationToken));
 
-        public Task<CarddavResponse> DeleteContactAsync(string endpoint, CancellationToken cancellationToken)
-            => ExecuteAsync(endpoint, HttpMethod.Delete, cancellationToken);
+        public async Task<CarddavResponse> DeleteContactAsync(string endpoint, CancellationToken cancellationToken)
+            => ProccesCardDavResponse(await ExecuteAsync(endpoint, HttpMethod.Delete, null, null, cancellationToken));
 
-        public Task<CarddavResponse> UpdateContactAsync(string endpoint, VCardModel vCard, string ETag, CancellationToken cancellationToken)
-            => ExecuteAsync(endpoint, HttpMethod.Put, vCard, ETag, cancellationToken);
+        public async Task<CarddavResponse> UpdateContactAsync(string endpoint, VCardModel vCard, string ETag, CancellationToken cancellationToken)
+            => ProccesCardDavResponse(await ExecuteAsync(endpoint, HttpMethod.Put, await VCardSerializer.SerializeAsync(vCard, cancellationToken), new() { { "If-Match", ETag } }, cancellationToken));
 
         #endregion
 
         #region Helpers
 
-        private async Task<CarddavResponse> ExecuteAsync(string endpoint, HttpMethod method, string request, Dictionary<string, string> headers, CancellationToken cancellationToken)
+        private async Task<HttpResponseMessage> ExecuteAsync(string endpoint, HttpMethod method, string request = null, Dictionary<string, string> headers = null, CancellationToken cancellationToken = default)
         {
             using var requestMessage = new HttpRequestMessage(method, endpoint);
             if (request != null)
             {
                 requestMessage.Content = new StringContent(request);
-                requestMessage.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/xml");
+                if (headers != null)
+                {
+                    if (headers.TryGetValue("Content-Type", out var contentType))
+                    {
 
-                foreach (var header in headers)
-                    requestMessage.Content.Headers.Add(header.Key, header.Value);
+                        requestMessage.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
+                        headers.Remove("Content-Type");
+                    }
+
+                    if (headers.TryGetValue("If-Match", out var match))
+                    {
+                        requestMessage.Headers.Add("If-Match", match);
+                        headers.Remove("If-Match");
+                    }
+
+                    foreach (var header in headers)
+                        requestMessage.Content.Headers.Add(header.Key, header.Value);
+                }
             }
 
             return await ExecuteAsync(requestMessage, cancellationToken);
         }
 
-        private async Task<CarddavResponse> ExecuteAsync(string endpoint, HttpMethod method, VCardModel vCard, string eTag = null, CancellationToken cancellationToken = default)
-        {
-            using var requestMessage = new HttpRequestMessage(method, endpoint);
-            if (vCard != null)
-            {
-                requestMessage.Content = new StringContent(await VCardSerializer.SerializeAsync(vCard, cancellationToken));
-                if (eTag != null)
-                    requestMessage.Headers.Add("If-Match", eTag);
-                requestMessage.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/vcard");
-            }
-
-            return await ExecuteAsync(requestMessage, cancellationToken);
-        }
-
-        private async Task<CarddavResponse> ExecuteAsync(string endpoint, HttpMethod method, CancellationToken cancellationToken)
-        {
-            using var requestMessage = new HttpRequestMessage(method, endpoint);
-
-            return await ExecuteAsync(requestMessage, cancellationToken);
-        }
-
-        private async Task<CarddavResponse> ExecuteAsync(HttpRequestMessage requestMessage, CancellationToken cancellationToken)
+        private async Task<HttpResponseMessage> ExecuteAsync(HttpRequestMessage requestMessage, CancellationToken cancellationToken)
         {
             requestMessage.Headers.Authorization = httpClient.DefaultRequestHeaders.Authorization;
-            using var response = await httpClient.SendAsync(requestMessage, cancellationToken);
+            return await httpClient.SendAsync(requestMessage, cancellationToken);
+        }
+
+        private CarddavResponse ProccesCardDavResponse(HttpResponseMessage response)
+        {
+            var carddavResponse = new CarddavResponse
+            {
+                IsSuccess = response.IsSuccessStatusCode,
+                StatusCode = response.StatusCode.ToString()
+            };
 
             if (response.IsSuccessStatusCode)
             {
-                var carddavResponse = new CarddavResponse
-                {
-                    IsSuccess = response.IsSuccessStatusCode,
-                    StatusCode = response.StatusCode.ToString(),
-                    ETag = response.Headers.ETag?.Tag
-                };
+                carddavResponse.ETag = response.Headers.ETag?.Tag;
 
                 if (response.StatusCode == System.Net.HttpStatusCode.MultiStatus && response.Content.Headers.ContentType.MediaType.Contains("xml"))
                 {
                     carddavResponse.Content = XmlParser.GenerateCarddavContent(response.Content.ReadAsStream());
                 }
-                return carddavResponse;
+
             }
-            else
-            {
-                return new CarddavResponse
-                {
-                    IsSuccess = response.IsSuccessStatusCode,
-                    StatusCode = response.StatusCode.ToString()
-                };
-            }
+
+            response.Dispose();
+            return carddavResponse;
         }
 
         private void SetOptions(CardDavOptions options)
