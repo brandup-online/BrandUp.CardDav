@@ -21,8 +21,22 @@ namespace BrandUp.CardDav.Client
 
         #region ICardDavClient members
 
-        public Task<CarddavResponse> OptionsAsync(CancellationToken cancellationToken)
-            => ExecuteAsync("", HttpMethod.Options, cancellationToken);
+        public async Task<OptionsResponse> OptionsAsync(CancellationToken cancellationToken)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Options, "");
+            var response = await httpClient.SendAsync(request, cancellationToken);
+
+            var allow = response.Content.Headers.Allow;
+            var dav = response.Headers.GetValues("DAV");
+
+            return new()
+            {
+                AllowHeaderValue = allow.ToArray(),
+                DavHeaderValue = dav.SelectMany(s => s.Split(",")).ToArray(),
+                IsSuccess = response.IsSuccessStatusCode,
+                StatusCode = response.StatusCode.ToString(),
+            };
+        }
 
         // Must be vcard adress
         public async Task<VCardModel> GetAsync(string endpoint, CancellationToken cancellationToken)

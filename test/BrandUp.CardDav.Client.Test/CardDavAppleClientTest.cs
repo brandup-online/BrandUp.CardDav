@@ -25,14 +25,16 @@ namespace BrandUp.CardDav.Client.Test
         {
             var client = cardDavClientFactory.CreateClientWithCredentials("https://contacts.icloud.com/", login, password);
 
-            var response = await client.OptionsAsync(CancellationToken.None);
+            var options = await client.OptionsAsync(CancellationToken.None);
 
-            output.WriteLine(response.StatusCode);
-            Assert.True(response.IsSuccess);
+            output.WriteLine(options.StatusCode);
+            Assert.True(options.IsSuccess);
+            Assert.NotEmpty(options.AllowHeaderValue);
+            Assert.NotEmpty(options.DavHeaderValue);
 
             var request = XmlQueryHelper.Propfind("getetag");
 
-            response = await client.PropfindAsync($"{login}/carddavhome/", request, Depth.Zero, CancellationToken.None);
+            var response = await client.PropfindAsync($"{login}/carddavhome/", request, Depth.Zero, CancellationToken.None);
 
             output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
@@ -56,14 +58,17 @@ namespace BrandUp.CardDav.Client.Test
 
             #region Init
 
-            var response = await client.OptionsAsync(CancellationToken.None);
 
-            output.WriteLine(response.StatusCode);
-            Assert.True(response.IsSuccess);
+            var options = await client.OptionsAsync(CancellationToken.None);
+
+            output.WriteLine(options.StatusCode);
+            Assert.True(options.IsSuccess);
+            Assert.NotEmpty(options.AllowHeaderValue);
+            Assert.NotEmpty(options.DavHeaderValue);
 
             var request = XmlQueryHelper.Propfind("getetag");
 
-            response = await client.PropfindAsync($"{login}/carddavhome/", request, Depth.Zero, CancellationToken.None);
+            var response = await client.PropfindAsync($"{login}/carddavhome/", request, Depth.Zero, CancellationToken.None);
 
             output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);

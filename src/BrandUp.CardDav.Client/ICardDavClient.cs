@@ -5,7 +5,7 @@ namespace BrandUp.CardDav.Client
 {
     public interface ICardDavClient
     {
-        public Task<CarddavResponse> OptionsAsync(CancellationToken cancellationToken);
+        public Task<OptionsResponse> OptionsAsync(CancellationToken cancellationToken);
         public Task<CarddavResponse> PropfindAsync(string endpoint, string xmlRequest, string depth = "0", CancellationToken cancellationToken = default);
         public Task<CarddavResponse> ReportAsync(string endpoint, string xmlRequest, string depth = "0", CancellationToken cancellationToken = default);
         public Task<VCardModel> GetAsync(string endpoint, CancellationToken cancellationToken);

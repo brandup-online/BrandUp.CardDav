@@ -24,12 +24,14 @@ namespace BrandUp.CardDav.Client.Test
         {
             var client = cardDavClientFactory.CreateClientWithCredentials("https://carddav.yandex.ru/", userName, password);
 
-            var response = await client.OptionsAsync(CancellationToken.None);
+            var options = await client.OptionsAsync(CancellationToken.None);
 
-            output.WriteLine(response.StatusCode);
-            Assert.True(response.IsSuccess);
+            output.WriteLine(options.StatusCode);
+            Assert.True(options.IsSuccess);
+            Assert.NotEmpty(options.AllowHeaderValue);
+            Assert.NotEmpty(options.DavHeaderValue);
 
-            response = await client.PropfindAsync($"/addressbook/{userName}/", string.Empty, Depth.One, CancellationToken.None);
+            var response = await client.PropfindAsync($"/addressbook/{userName}/", string.Empty, Depth.One, CancellationToken.None);
 
             output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
@@ -53,10 +55,14 @@ namespace BrandUp.CardDav.Client.Test
 
             #region Init
 
-            var response = await client.OptionsAsync(CancellationToken.None);
 
-            output.WriteLine(response.StatusCode);
-            Assert.True(response.IsSuccess);
+            var options = await client.OptionsAsync(CancellationToken.None);
+
+            output.WriteLine(options.StatusCode);
+            Assert.True(options.IsSuccess);
+            Assert.NotEmpty(options.AllowHeaderValue);
+            Assert.NotEmpty(options.DavHeaderValue);
+
 
             #endregion
 
@@ -64,7 +70,7 @@ namespace BrandUp.CardDav.Client.Test
 
             var vCard = VCardBuilder.Create(testPerson).SetUId("2312133421324668575897435").Build();
 
-            response = await client.AddContactAsync($"/addressbook/{userName}/addressbook/new", vCard, CancellationToken.None);
+            var response = await client.AddContactAsync($"/addressbook/{userName}/addressbook/new", vCard, CancellationToken.None);
 
             output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
