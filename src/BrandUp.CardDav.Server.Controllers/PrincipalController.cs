@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BrandUp.CardDav.Server.Attributes;
+using Microsoft.AspNetCore.Mvc;
 using System.Text;
 
 namespace BrandUp.CardDav.Server.Controllers
@@ -7,9 +8,7 @@ namespace BrandUp.CardDav.Server.Controllers
     [Route("{controller}")]
     public class PrincipalController : CardDavController
     {
-        [Route("{Name}")]
-        [Consumes("text/xml", "application/xml")]
-        [AcceptVerbs("PROPFIND")]
+        [CardDavPropfind("{Name}")]
         [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<ActionResult<string>> PropfindAsync([FromRoute] string userName)
         {

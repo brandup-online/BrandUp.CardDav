@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BrandUp.CardDav.Server.Attributes;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BrandUp.CardDav.Server.Controllers
 {
@@ -9,31 +10,26 @@ namespace BrandUp.CardDav.Server.Controllers
         [FromRoute(Name = "Name")]
         private string Name { get; }
 
-        [Consumes("text/xml")]
-        [AcceptVerbs("PROPFIND")]
+        [CardDavPropfind]
         public Task<ActionResult> PropfindAsync()
         {
             return Task.FromResult((ActionResult)Ok());
         }
 
-        [Consumes("text/xml")]
-        [AcceptVerbs("REPORT")]
+        [CardDavReport]
         public Task<ActionResult> ReportCollectionAsync()
         {
             return Task.FromResult((ActionResult)Ok());
         }
 
-        [Consumes("text/xml")]
-        [Route("{AddressBook}")]
-        [AcceptVerbs("PROPFIND")]
+
+        [CardDavPropfind("{AddressBook}")]
         public Task<ActionResult> PropfindCollectionAsync([FromRoute] string addressBook)
         {
             return Task.FromResult((ActionResult)Ok());
         }
 
-        [Consumes("text/xml")]
-        [AcceptVerbs("REPORT")]
-        [Route("{AddressBook}")]
+        [CardDavReport("{AddressBook}")]
         public Task<ActionResult> ReportCollectionAsync([FromRoute] string addressBook)
         {
             return Task.FromResult((ActionResult)Ok());
