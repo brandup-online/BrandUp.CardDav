@@ -9,7 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BrandUp.CardDav.Client" Version="1.0.13" />
     <PackageReference Include="BrandUp.Extensions.Migrations" Version="7.0.1" />
     <PackageReference Include="BrandUp.Extensions.Migrations.Abstractions" Version="7.0.1" />
     <PackageReference Include="BrandUp.MongoDB.Testing.Mongo2Go" Version="7.0.1" />
@@ -29,6 +28,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\example\BrandUp.CardDav.Server.Example\BrandUp.CardDav.Server.Example.csproj" />
+    <ProjectReference Include="..\..\src\BrandUp.CardDav.Client\BrandUp.CardDav.Client.csproj" />
     <ProjectReference Include="..\..\src\BrandUp.CardDav.Server.Controllers\BrandUp.CardDav.Server.csproj" />
   </ItemGroup>
 

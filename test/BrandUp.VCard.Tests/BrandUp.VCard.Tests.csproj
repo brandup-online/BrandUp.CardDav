@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\BrandUp.VCard\BrandUp.VCard.csproj" />
+    <ProjectReference Include="..\..\src\BrandUp.VCard\BrandUp.CardDav.VCard.csproj" />
   </ItemGroup>
 
 </Project>
