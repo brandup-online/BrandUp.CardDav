@@ -2,8 +2,6 @@
 {
     public class CarddavRequest
     {
-        //TODO: переделать в енам
-        //0, 1, infinity
         public string Depth { get; set; }
 
         public string ETag { get; set; }
@@ -18,6 +16,5 @@
         public static string Zero => "0";
         public static string One => "1";
         public static string Infinity => "infinity";
-
     }
 }

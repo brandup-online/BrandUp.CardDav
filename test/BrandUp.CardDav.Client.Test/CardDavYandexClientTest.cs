@@ -55,14 +55,12 @@ namespace BrandUp.CardDav.Client.Test
 
             #region Init
 
-
             var options = await client.OptionsAsync(CancellationToken.None);
 
             output.WriteLine(options.StatusCode);
             Assert.True(options.IsSuccess);
             Assert.NotEmpty(options.AllowHeaderValue);
             Assert.NotEmpty(options.DavHeaderValue);
-
 
             #endregion
 

@@ -28,11 +28,11 @@ namespace BrandUp.CardDav.Client.Test
         [Fact]
         public async Task Success_Google_Basic()
         {
-            var response = await client.PropfindAsync(".well-known/carddav", string.Empty, Depth.One, CancellationToken.None);
+            _ = await client.PropfindAsync(".well-known/carddav", string.Empty, Depth.One, CancellationToken.None);
 
             var content = XmlQueryHelper.Propfind("current-user-principal", "getetag", "getctag");
 
-            response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default", content, Depth.One, CancellationToken.None);
+            var response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default", content, Depth.One, CancellationToken.None);
 
             output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
