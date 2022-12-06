@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace BrandUp.VCard
+namespace BrandUp.CardDav.VCard
 {
     public static class VCardParser
     {

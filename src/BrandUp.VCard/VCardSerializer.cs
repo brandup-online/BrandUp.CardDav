@@ -1,10 +1,24 @@
-﻿namespace BrandUp.VCard
+﻿namespace BrandUp.CardDav.VCard
 {
     public static class VCardSerializer
     {
         public static async Task<string> SerializeAsync(VCardModel vCard, CancellationToken cancellationToken)
         {
-            var result = "BEGIN:VCARD\r\nVERSION:3.0\r\n";
+            if (vCard == null)
+            {
+                throw new ArgumentNullException(nameof(vCard));
+            }
+
+            var version = vCard.Version switch
+            {
+                Version.VCard4 => "4.0",
+                Version.VCard3 => "3.0",
+                Version.VCard2 => "2.0",
+                Version.VCard1 => "1.0",
+                _ => throw new ArgumentException(nameof(vCard)),
+            };
+
+            var result = $"BEGIN:VCARD\r\nVERSION:{version}\r\n";
 
             result += vCard.UId == null ? "" : "UID:" + vCard.UId + "\r\n";
 

@@ -1,7 +1,7 @@
-﻿using BrandUp.CardDav.Client.Models.Responses;
-using BrandUp.CardDav.Client.Options;
-using BrandUp.CardDav.Client.Xml;
-using BrandUp.VCard;
+﻿using BrandUp.CardDav.Client.Options;
+using BrandUp.CardDav.Transport;
+using BrandUp.CardDav.Transport.Models.Responses;
+using BrandUp.CardDav.VCard;
 using Microsoft.Extensions.Logging;
 
 namespace BrandUp.CardDav.Client

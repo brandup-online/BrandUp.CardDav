@@ -9,8 +9,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{70C8043F
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "example", "example", "{B18D0C72-1893-4DAA-AE72-6A21378DCA1A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Transport", "BrandUp.CardDav.XmlParser\BrandUp.CardDav.Transport.csproj", "{BC73C463-53B3-4032-A9B4-E76763FF5CEF}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Server.Abstractions", "src\BrandUp.CardDav.Server\BrandUp.CardDav.Server.Abstractions.csproj", "{36D3AFCB-1FCA-44B4-BEDD-5C2F3647A30C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Server", "src\BrandUp.CardDav.Server.Controllers\BrandUp.CardDav.Server.csproj", "{5666D37D-BCD2-4C43-9BC8-AF8E89AEF48A}"
@@ -25,7 +23,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.VCard", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Client.Tests", "test\BrandUp.CardDav.Client.Test\BrandUp.CardDav.Client.Tests.csproj", "{9CAF913C-A0B8-4874-ADEB-F92C3E8A307F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.VCard.Tests", "test\BrandUp.VCard.Tests\BrandUp.VCard.Tests.csproj", "{493623D4-0D41-4674-8B39-D79A95A92541}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.VCard.Tests", "test\BrandUp.VCard.Tests\BrandUp.CardDav.VCard.Tests.csproj", "{493623D4-0D41-4674-8B39-D79A95A92541}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrandUp.CardDav.Transport", "src\BrandUp.CardDav.Transport\BrandUp.CardDav.Transport.csproj", "{BFFA5ECE-D7B8-475B-9C0D-0A55942CD58D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,10 +33,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{BC73C463-53B3-4032-A9B4-E76763FF5CEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BC73C463-53B3-4032-A9B4-E76763FF5CEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BC73C463-53B3-4032-A9B4-E76763FF5CEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BC73C463-53B3-4032-A9B4-E76763FF5CEF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{36D3AFCB-1FCA-44B4-BEDD-5C2F3647A30C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{36D3AFCB-1FCA-44B4-BEDD-5C2F3647A30C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{36D3AFCB-1FCA-44B4-BEDD-5C2F3647A30C}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -69,12 +65,15 @@ Global
 		{493623D4-0D41-4674-8B39-D79A95A92541}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{493623D4-0D41-4674-8B39-D79A95A92541}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{493623D4-0D41-4674-8B39-D79A95A92541}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFFA5ECE-D7B8-475B-9C0D-0A55942CD58D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFFA5ECE-D7B8-475B-9C0D-0A55942CD58D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFFA5ECE-D7B8-475B-9C0D-0A55942CD58D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFFA5ECE-D7B8-475B-9C0D-0A55942CD58D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{BC73C463-53B3-4032-A9B4-E76763FF5CEF} = {EA4F368D-472D-4FAE-82CC-CAF8F1B8AE53}
 		{36D3AFCB-1FCA-44B4-BEDD-5C2F3647A30C} = {EA4F368D-472D-4FAE-82CC-CAF8F1B8AE53}
 		{5666D37D-BCD2-4C43-9BC8-AF8E89AEF48A} = {EA4F368D-472D-4FAE-82CC-CAF8F1B8AE53}
 		{BBB6F529-B495-43DC-A1F4-481435C3189A} = {70C8043F-300F-4F04-B010-697F41437BF3}
@@ -83,6 +82,7 @@ Global
 		{BA7354DD-5573-401D-A8AE-713A82A71DEE} = {EA4F368D-472D-4FAE-82CC-CAF8F1B8AE53}
 		{9CAF913C-A0B8-4874-ADEB-F92C3E8A307F} = {70C8043F-300F-4F04-B010-697F41437BF3}
 		{493623D4-0D41-4674-8B39-D79A95A92541} = {70C8043F-300F-4F04-B010-697F41437BF3}
+		{BFFA5ECE-D7B8-475B-9C0D-0A55942CD58D} = {EA4F368D-472D-4FAE-82CC-CAF8F1B8AE53}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D47DF41B-DD5F-4EC6-B1A6-B586F8CE2E88}

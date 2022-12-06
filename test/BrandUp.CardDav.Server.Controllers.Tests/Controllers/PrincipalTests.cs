@@ -1,5 +1,5 @@
 ﻿using BrandUp.CardDav.Client.Helpers;
-using BrandUp.CardDav.Client.Models.Requests;
+using BrandUp.CardDav.Transport.Models.Requests;
 using Xunit.Abstractions;
 
 namespace BrandUp.CardDav.Server.Controllers.Tests.Controllers

@@ -1,5 +1,5 @@
-﻿using BrandUp.CardDav.Client.Models.Responses;
-using BrandUp.VCard;
+﻿using BrandUp.CardDav.Transport.Models.Responses;
+using BrandUp.CardDav.VCard;
 
 namespace BrandUp.CardDav.Client
 {

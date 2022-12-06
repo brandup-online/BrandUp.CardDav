@@ -1,6 +1,6 @@
-﻿using BrandUp.VCard.Builders;
+﻿using BrandUp.CardDav.VCard.Builders;
 
-namespace BrandUp.VCard.Tests
+namespace BrandUp.CardDav.VCard.Tests
 {
     public class VCardBuilderTest : IAsyncLifetime
     {

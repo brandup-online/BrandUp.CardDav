@@ -1,4 +1,4 @@
-﻿namespace BrandUp.CardDav.Client.Models.Responses
+﻿namespace BrandUp.CardDav.Transport.Models.Responses
 {
     public class CarddavResponse
     {
