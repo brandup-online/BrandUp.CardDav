@@ -13,13 +13,7 @@ namespace BrandUp.CardDav.Server.Controllers
         }
 
         [HttpPut]
-        public Task<ActionResult> AddAsync([FromRoute(Name = "VCard")] string vCardName)
-        {
-            return Task.FromResult((ActionResult)Ok());
-        }
-
-        [HttpPut]
-        public Task<ActionResult> UpdateAsync([FromRoute(Name = "VCard")] string vCardName, [FromHeader(Name = "If-Match")] string Etag)
+        public Task<ActionResult> AddOrUpdateAsync([FromRoute(Name = "VCard")] string vCardName, [FromHeader(Name = "If-Match")] string Etag)
         {
             return Task.FromResult((ActionResult)NoContent());
         }

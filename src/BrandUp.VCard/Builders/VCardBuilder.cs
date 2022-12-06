@@ -1,4 +1,4 @@
-﻿namespace BrandUp.VCard.Builders
+﻿namespace BrandUp.CardDav.VCard.Builders
 {
     public class VCardBuilder : IVCardBuilder
     {

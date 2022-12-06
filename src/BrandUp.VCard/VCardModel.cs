@@ -1,4 +1,4 @@
-﻿namespace BrandUp.VCard
+﻿namespace BrandUp.CardDav.VCard
 {
     public class VCardModel
     {

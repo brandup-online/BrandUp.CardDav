@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace BrandUp.VCard.Tests
+namespace BrandUp.CardDav.VCard
 {
     public class ParseTest : IAsyncLifetime
     {

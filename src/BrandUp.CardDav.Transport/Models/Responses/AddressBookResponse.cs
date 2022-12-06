@@ -1,6 +1,6 @@
-﻿using BrandUp.CardDav.Client.Models.Responses;
+﻿using BrandUp.CardDav.Transport.Models.Responses;
 
-namespace BrandUp.CardDav.Client.Models
+namespace BrandUp.CardDav.Transport.Models
 {
     public class AddressBookResponse : BaseContent
     {

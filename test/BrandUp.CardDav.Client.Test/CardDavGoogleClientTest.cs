@@ -1,7 +1,7 @@
 ﻿using BrandUp.CardDav.Client.Extensions;
 using BrandUp.CardDav.Client.Helpers;
-using BrandUp.CardDav.Client.Models.Requests;
-using BrandUp.VCard.Builders;
+using BrandUp.CardDav.Transport.Models.Requests;
+using BrandUp.CardDav.VCard.Builders;
 using Microsoft.Extensions.Configuration;
 using Xunit.Abstractions;
 

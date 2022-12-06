@@ -1,4 +1,4 @@
-﻿namespace BrandUp.VCard.Tests
+﻿namespace BrandUp.CardDav.VCard.Tests
 {
     public class SerializeTest : IAsyncLifetime
     {

@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BrandUp.CardDav.Transport\BrandUp.CardDav.Transport.csproj" />
     <ProjectReference Include="..\BrandUp.VCard\BrandUp.CardDav.VCard.csproj" />
   </ItemGroup>
 

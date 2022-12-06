@@ -1,11 +1,11 @@
-﻿using BrandUp.CardDav.Client.Models;
-using BrandUp.CardDav.Client.Models.Responses;
-using BrandUp.VCard;
+﻿using BrandUp.CardDav.Transport.Models;
+using BrandUp.CardDav.Transport.Models.Responses;
+using BrandUp.CardDav.VCard;
 using System.Xml;
 
-namespace BrandUp.CardDav.Client.Xml
+namespace BrandUp.CardDav.Transport
 {
-    internal static class XmlParser
+    public static class XmlParser
     {
         public static CarddavContent GenerateCarddavContent(Stream xmlStream, bool closeStream = true)
         {
