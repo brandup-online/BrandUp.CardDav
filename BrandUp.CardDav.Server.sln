@@ -7,19 +7,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{EA4F368D-472
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{70C8043F-300F-4F04-B010-697F41437BF3}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Example", "Example", "{B18D0C72-1893-4DAA-AE72-6A21378DCA1A}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "example", "example", "{B18D0C72-1893-4DAA-AE72-6A21378DCA1A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Xml", "BrandUp.CardDav.XmlParser\BrandUp.CardDav.Xml.csproj", "{BC73C463-53B3-4032-A9B4-E76763FF5CEF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Server.Core", "BrandUp.CardDav.Server.Core\BrandUp.CardDav.Server.Core.csproj", "{4FDFD514-5ED5-4CCF-B5F1-DE1DB4CF5495}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Server.Abstractions", "src\BrandUp.CardDav.Server\BrandUp.CardDav.Server.Abstractions.csproj", "{36D3AFCB-1FCA-44B4-BEDD-5C2F3647A30C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Server.Controllers", "src\BrandUp.CardDav.Server.Controllers\BrandUp.CardDav.Server.Controllers.csproj", "{5666D37D-BCD2-4C43-9BC8-AF8E89AEF48A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Server", "src\BrandUp.CardDav.Server.Controllers\BrandUp.CardDav.Server.csproj", "{5666D37D-BCD2-4C43-9BC8-AF8E89AEF48A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Server.Controllers.Tests", "test\BrandUp.CardDav.Server.Controllers.Tests\BrandUp.CardDav.Server.Controllers.Tests.csproj", "{BBB6F529-B495-43DC-A1F4-481435C3189A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Server.Example", "example\BrandUp.CardDav.Server.Api\BrandUp.CardDav.Server.Example.csproj", "{B21445FA-5573-487E-A26D-C6AE4994C2A1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Server.Example", "example\BrandUp.CardDav.Server.Example\BrandUp.CardDav.Server.Example.csproj", "{5A6F2ED2-54B7-4447-BD76-9071B9597624}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,10 +29,6 @@ Global
 		{BC73C463-53B3-4032-A9B4-E76763FF5CEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC73C463-53B3-4032-A9B4-E76763FF5CEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC73C463-53B3-4032-A9B4-E76763FF5CEF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4FDFD514-5ED5-4CCF-B5F1-DE1DB4CF5495}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4FDFD514-5ED5-4CCF-B5F1-DE1DB4CF5495}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4FDFD514-5ED5-4CCF-B5F1-DE1DB4CF5495}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4FDFD514-5ED5-4CCF-B5F1-DE1DB4CF5495}.Release|Any CPU.Build.0 = Release|Any CPU
 		{36D3AFCB-1FCA-44B4-BEDD-5C2F3647A30C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{36D3AFCB-1FCA-44B4-BEDD-5C2F3647A30C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{36D3AFCB-1FCA-44B4-BEDD-5C2F3647A30C}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -47,21 +41,20 @@ Global
 		{BBB6F529-B495-43DC-A1F4-481435C3189A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BBB6F529-B495-43DC-A1F4-481435C3189A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BBB6F529-B495-43DC-A1F4-481435C3189A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B21445FA-5573-487E-A26D-C6AE4994C2A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B21445FA-5573-487E-A26D-C6AE4994C2A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B21445FA-5573-487E-A26D-C6AE4994C2A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B21445FA-5573-487E-A26D-C6AE4994C2A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A6F2ED2-54B7-4447-BD76-9071B9597624}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A6F2ED2-54B7-4447-BD76-9071B9597624}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A6F2ED2-54B7-4447-BD76-9071B9597624}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A6F2ED2-54B7-4447-BD76-9071B9597624}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{BC73C463-53B3-4032-A9B4-E76763FF5CEF} = {EA4F368D-472D-4FAE-82CC-CAF8F1B8AE53}
-		{4FDFD514-5ED5-4CCF-B5F1-DE1DB4CF5495} = {EA4F368D-472D-4FAE-82CC-CAF8F1B8AE53}
 		{36D3AFCB-1FCA-44B4-BEDD-5C2F3647A30C} = {EA4F368D-472D-4FAE-82CC-CAF8F1B8AE53}
 		{5666D37D-BCD2-4C43-9BC8-AF8E89AEF48A} = {EA4F368D-472D-4FAE-82CC-CAF8F1B8AE53}
 		{BBB6F529-B495-43DC-A1F4-481435C3189A} = {70C8043F-300F-4F04-B010-697F41437BF3}
-		{B21445FA-5573-487E-A26D-C6AE4994C2A1} = {B18D0C72-1893-4DAA-AE72-6A21378DCA1A}
+		{5A6F2ED2-54B7-4447-BD76-9071B9597624} = {B18D0C72-1893-4DAA-AE72-6A21378DCA1A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D47DF41B-DD5F-4EC6-B1A6-B586F8CE2E88}

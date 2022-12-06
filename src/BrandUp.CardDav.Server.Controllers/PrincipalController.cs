@@ -3,16 +3,17 @@ using System.Text;
 
 namespace BrandUp.CardDav.Server.Controllers
 {
+    [ApiController]
     [Route("{controller}")]
     public class PrincipalController : CardDavController
     {
-        [ApiExplorerSettings(IgnoreApi = true)]
-        [AcceptVerbs("PROPFIND")]
-        [Consumes("text/xml")]
         [Route("{Name}")]
+        [Consumes("text/xml", "application/xml")]
+        [AcceptVerbs("PROPFIND")]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<ActionResult<string>> PropfindAsync([FromRoute] string userName)
         {
-            if (!Request.ContentType.Contains("xmls"))
+            if (!Request.ContentType.Contains("xml"))
                 return new UnsupportedMediaTypeResult();
 
             using StreamReader reader = new StreamReader(Request.Body, Encoding.UTF8);
