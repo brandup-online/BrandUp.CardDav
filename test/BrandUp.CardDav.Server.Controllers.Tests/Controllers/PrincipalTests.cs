@@ -1,4 +1,5 @@
-﻿using BrandUp.CardDav.Client.Helpers;
+﻿using BrandUp.CardDav.Transport.Models;
+using BrandUp.CardDav.Transport.Models.Body;
 using BrandUp.CardDav.Transport.Models.Requests;
 using Xunit.Abstractions;
 
@@ -12,9 +13,9 @@ namespace BrandUp.CardDav.Server.Controllers.Tests.Controllers
         [Fact]
         public async Task Success_Propfind()
         {
-            var request = XmlQueryHelper.Propfind("getetag");
+            var request = PropfindRequest.Create(Depth.Zero, Prop.ETag);
 
-            var propfind = await Client.PropfindAsync("Principal/user", request, Depth.Zero, CancellationToken.None);
+            var propfind = await Client.PropfindAsync("Principal/user", request, CancellationToken.None);
 
             Output.WriteLine(propfind.StatusCode);
             Assert.True(propfind.IsSuccess);

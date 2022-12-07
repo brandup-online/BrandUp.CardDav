@@ -1,5 +1,7 @@
 ﻿using BrandUp.CardDav.Client.Extensions;
 using BrandUp.CardDav.Client.Helpers;
+using BrandUp.CardDav.Transport.Models;
+using BrandUp.CardDav.Transport.Models.Body;
 using BrandUp.CardDav.Transport.Models.Requests;
 using BrandUp.CardDav.VCard;
 using BrandUp.CardDav.VCard.Builders;
@@ -34,20 +36,22 @@ namespace BrandUp.CardDav.Client.Test
             Assert.NotEmpty(options.DavHeaderValue);
             output.WriteLine(string.Join(" ", options.DavHeaderValue));
 
-            var request = XmlQueryHelper.Propfind("getetag");
+            var request = PropfindRequest.Create(Depth.Zero, Prop.ETag);
 
-            var response = await client.PropfindAsync($"{login}/carddavhome/", request, Depth.Zero, CancellationToken.None);
+            var response = await client.PropfindAsync($"{login}/carddavhome/", request, CancellationToken.None);
 
             output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
 
-            response = await client.PropfindAsync(response.Content.ResourceEndpoints[0].Endpoint, request, Depth.One, CancellationToken.None);
+            request = PropfindRequest.Create(Depth.One, Prop.ETag);
+
+            response = await client.PropfindAsync(response.Content.ResourceEndpoints[0].Endpoint, request, CancellationToken.None);
 
             Assert.True(response.IsSuccess);
 
             var report = XmlQueryHelper.AddressCollection(true);
 
-            response = await client.ReportAsync(response.Content.ResourceEndpoints[1].Endpoint, report, Depth.One, CancellationToken.None);
+            response = await client.ReportAsync(response.Content.ResourceEndpoints[1].Endpoint, report, Depth.One.Value, CancellationToken.None);
 
             output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
@@ -68,14 +72,17 @@ namespace BrandUp.CardDav.Client.Test
             Assert.NotEmpty(options.AllowHeaderValue);
             Assert.NotEmpty(options.DavHeaderValue);
 
-            var request = XmlQueryHelper.Propfind("getetag");
+            var request = PropfindRequest.Create(Depth.Zero, Prop.ETag);
 
-            var response = await client.PropfindAsync($"{login}/carddavhome/", request, Depth.Zero, CancellationToken.None);
+            var response = await client.PropfindAsync($"{login}/carddavhome/", request, CancellationToken.None);
 
             output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
 
-            response = await client.PropfindAsync(response.Content.ResourceEndpoints[0].Endpoint, request, Depth.One, CancellationToken.None);
+
+            request = PropfindRequest.Create(Depth.One, Prop.ETag);
+
+            response = await client.PropfindAsync(response.Content.ResourceEndpoints[0].Endpoint, request, CancellationToken.None);
 
             output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
@@ -96,8 +103,8 @@ namespace BrandUp.CardDav.Client.Test
 
             #region Read
 
-            var eTagRequest = XmlQueryHelper.Propfind("getetag", "getcontenttype", "resourcetype");
-            response = await client.PropfindAsync(newUserEndpoint, eTagRequest, Depth.One, CancellationToken.None);
+            var eTagRequest = PropfindRequest.Create(Depth.One, Prop.ETag, Prop.ResourceType, Prop.ContentType);
+            response = await client.PropfindAsync(newUserEndpoint, eTagRequest, CancellationToken.None);
 
             output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);

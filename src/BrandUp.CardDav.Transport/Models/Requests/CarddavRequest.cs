@@ -10,11 +10,4 @@
 
         public string XmlContent { get; set; }
     }
-
-    public static class Depth
-    {
-        public static string Zero => "0";
-        public static string One => "1";
-        public static string Infinity => "infinity";
-    }
 }

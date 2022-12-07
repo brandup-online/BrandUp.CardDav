@@ -1,5 +1,6 @@
 ﻿using BrandUp.CardDav.Client.Options;
 using BrandUp.CardDav.Transport;
+using BrandUp.CardDav.Transport.Models.Requests;
 using BrandUp.CardDav.Transport.Models.Responses;
 using BrandUp.CardDav.VCard;
 using Microsoft.Extensions.Logging;
@@ -68,8 +69,8 @@ namespace BrandUp.CardDav.Client
 
         }
 
-        public async Task<CarddavResponse> PropfindAsync(string endpoint, string xmlRequest, string depth = "0", CancellationToken cancellationToken = default)
-             => ProccesCardDavResponse(await ExecuteAsync(endpoint, new HttpMethod("PROPFIND"), xmlRequest, new() { { "Content-Type", "text/xml" }, { "Depth", depth } }, cancellationToken));
+        public async Task<CarddavResponse> PropfindAsync(string endpoint, PropfindRequest request, CancellationToken cancellationToken = default)
+             => ProccesCardDavResponse(await ExecuteAsync(endpoint, request.ToHttpRequest(), cancellationToken));
 
         public async Task<CarddavResponse> ReportAsync(string endpoint, string xmlRequest, string depth = "0", CancellationToken cancellationToken = default)
              => ProccesCardDavResponse(await ExecuteAsync(endpoint, new HttpMethod("REPORT"), xmlRequest, new() { { "Content-Type", "text/xml" }, { "Depth", depth } }, cancellationToken));
@@ -114,6 +115,13 @@ namespace BrandUp.CardDav.Client
             }
 
             return await ExecuteAsync(requestMessage, cancellationToken);
+        }
+
+        private async Task<HttpResponseMessage> ExecuteAsync(string endpoint, HttpRequestMessage requestMessage, CancellationToken cancellationToken)
+        {
+            requestMessage.RequestUri = new Uri(endpoint, UriKind.Relative);
+
+            return await httpClient.SendAsync(requestMessage, cancellationToken);
         }
 
         private async Task<HttpResponseMessage> ExecuteAsync(HttpRequestMessage requestMessage, CancellationToken cancellationToken)
