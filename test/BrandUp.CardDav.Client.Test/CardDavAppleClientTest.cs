@@ -45,16 +45,16 @@ namespace BrandUp.CardDav.Client.Test
 
             request = PropfindRequest.Create(Depth.One, Prop.ETag);
 
-            response = await client.PropfindAsync(response.Content.ResourceEndpoints[0].Endpoint, request, CancellationToken.None);
+            response = await client.PropfindAsync(response.Resources[0].Endpoint, request, CancellationToken.None);
 
             Assert.True(response.IsSuccess);
 
             var report = XmlQueryHelper.AddressCollection(true);
 
-            response = await client.ReportAsync(response.Content.ResourceEndpoints[1].Endpoint, report, Depth.One.Value, CancellationToken.None);
+            var reportResponse = await client.ReportAsync(response.Resources[1].Endpoint, report, Depth.One.Value, CancellationToken.None);
 
-            output.WriteLine(response.StatusCode);
-            Assert.True(response.IsSuccess);
+            output.WriteLine(reportResponse.StatusCode);
+            Assert.True(reportResponse.IsSuccess);
         }
 
         [Fact]
@@ -74,40 +74,41 @@ namespace BrandUp.CardDav.Client.Test
 
             var request = PropfindRequest.Create(Depth.Zero, Prop.ETag);
 
-            var response = await client.PropfindAsync($"{login}/carddavhome/", request, CancellationToken.None);
+            var propfindResponse = await client.PropfindAsync($"{login}/carddavhome/", request, CancellationToken.None);
 
-            output.WriteLine(response.StatusCode);
-            Assert.True(response.IsSuccess);
+            output.WriteLine(propfindResponse.StatusCode);
+            Assert.True(propfindResponse.IsSuccess);
 
 
             request = PropfindRequest.Create(Depth.One, Prop.ETag);
 
-            response = await client.PropfindAsync(response.Content.ResourceEndpoints[0].Endpoint, request, CancellationToken.None);
+            propfindResponse = await client.PropfindAsync(propfindResponse.Resources[0].Endpoint, request, CancellationToken.None);
 
-            output.WriteLine(response.StatusCode);
-            Assert.True(response.IsSuccess);
+            output.WriteLine(propfindResponse.StatusCode);
+            Assert.True(propfindResponse.IsSuccess);
 
             #endregion
 
             #region Create 
 
-            var newUserEndpoint = response.Content.ResourceEndpoints[1].Endpoint + "new.vcf";
+            var newUserEndpoint = propfindResponse.Resources[1].Endpoint + "new.vcf";
 
             var vCard = VCardBuilder.Create(testPerson).AddEmail("milo@milo.com", Kind.Home).SetUId("2312133421324668575897435").Build();
 
-            response = await client.AddContactAsync(newUserEndpoint, vCard, CancellationToken.None);
+            var response1 = await client.AddContactAsync(newUserEndpoint, vCard, CancellationToken.None);
 
-            Assert.True(response.IsSuccess);
+            Assert.True(response1.IsSuccess);
 
             #endregion
 
             #region Read
 
             var eTagRequest = PropfindRequest.Create(Depth.One, Prop.ETag, Prop.ResourceType, Prop.ContentType);
-            response = await client.PropfindAsync(newUserEndpoint, eTagRequest, CancellationToken.None);
+            propfindResponse = await client.PropfindAsync(newUserEndpoint, eTagRequest, CancellationToken.None);
 
-            output.WriteLine(response.StatusCode);
-            Assert.True(response.IsSuccess);
+            output.WriteLine(propfindResponse.StatusCode);
+            Assert.True(propfindResponse.IsSuccess);
+            Assert.Single(propfindResponse.Resources);
 
             var vCardResponse = await client.GetAsync(newUserEndpoint, CancellationToken.None);
             Assert.NotNull(vCardResponse);
@@ -126,11 +127,12 @@ namespace BrandUp.CardDav.Client.Test
             #region Update 
 
             var updateVCard = VCardBuilder.Create("BEGIN:VCARD\r\nVERSION:3.0\r\nUID:2312133421324668575897435\r\nN:Doe;John;;;\r\nFN:John Doe\r\nEMAIL;type=INTERNET;type=WORK;type=pref:test@test.org\r\nTEL;type=WORK;type=pref:+1 617 555 1212\r\nEND:VCARD\r\n").Build();
-            var etag = response.ETag;
-            response = await client.UpdateContactAsync(newUserEndpoint, updateVCard, etag, CancellationToken.None); //просто заменяет контакт
 
-            output.WriteLine(response.StatusCode);
-            Assert.True(response.IsSuccess);
+            var etag = propfindResponse.Resources.First().FoundProperties[Prop.ETag];
+            var updateResponse = await client.UpdateContactAsync(newUserEndpoint, updateVCard, etag, CancellationToken.None); //просто заменяет контакт
+
+            output.WriteLine(updateResponse.StatusCode);
+            Assert.True(updateResponse.IsSuccess);
 
             vCardResponse = await client.GetAsync(newUserEndpoint, CancellationToken.None);
             Assert.NotNull(vCardResponse);
@@ -140,10 +142,10 @@ namespace BrandUp.CardDav.Client.Test
 
             #region Delete
 
-            response = await client.DeleteContactAsync(newUserEndpoint, CancellationToken.None);
+            var deleteResponse = await client.DeleteContactAsync(newUserEndpoint, CancellationToken.None);
 
-            output.WriteLine(response.StatusCode);
-            Assert.True(response.IsSuccess);
+            output.WriteLine(deleteResponse.StatusCode);
+            Assert.True(deleteResponse.IsSuccess);
 
             #endregion
         }

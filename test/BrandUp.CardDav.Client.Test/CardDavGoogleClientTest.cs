@@ -34,17 +34,17 @@ namespace BrandUp.CardDav.Client.Test
 
             var content = PropfindRequest.Create(Depth.One, Prop.ETag, Prop.CTag, Prop.CurrentUserPrincipal);
 
-            var response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default", content, CancellationToken.None);
+            var propfindResponse = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default", content, CancellationToken.None);
 
-            output.WriteLine(response.StatusCode);
-            Assert.True(response.IsSuccess);
+            output.WriteLine(propfindResponse.StatusCode);
+            Assert.True(propfindResponse.IsSuccess);
 
             var report = XmlQueryHelper.AddressCollection(true);
 
-            response = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists/default", report, Depth.One.Value, CancellationToken.None);
+            var reportResponse = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists/default", report, Depth.One.Value, CancellationToken.None);
 
-            output.WriteLine(response.StatusCode);
-            Assert.True(response.IsSuccess);
+            output.WriteLine(reportResponse.StatusCode);
+            Assert.True(reportResponse.IsSuccess);
         }
 
         [Fact]
@@ -52,14 +52,14 @@ namespace BrandUp.CardDav.Client.Test
         {
             #region Init
 
-            var response = await client.PropfindAsync(".well-known/carddav", PropfindRequest.Create(Depth.One), CancellationToken.None);
+            var propfindResponse = await client.PropfindAsync(".well-known/carddav", PropfindRequest.Create(Depth.One), CancellationToken.None);
 
             var content = PropfindRequest.Create(Depth.One, Prop.CTag, Prop.CurrentUserPrincipal, Prop.PrincipalUrl);
 
-            response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default", content, CancellationToken.None);
+            propfindResponse = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default", content, CancellationToken.None);
 
-            output.WriteLine(response.StatusCode);
-            Assert.True(response.IsSuccess);
+            output.WriteLine(propfindResponse.StatusCode);
+            Assert.True(propfindResponse.IsSuccess);
 
             #endregion
 
@@ -67,33 +67,33 @@ namespace BrandUp.CardDav.Client.Test
 
             var vCard = VCardBuilder.Create(testPerson).SetUId("2312133421324668575897435").Build();
             var name = RandomName;
-            response = await client.AddContactAsync($"carddav/v1/principals/{gmail}/lists/default/{name}", vCard, CancellationToken.None);
+            var createResponse = await client.AddContactAsync($"carddav/v1/principals/{gmail}/lists/default/{name}", vCard, CancellationToken.None);
 
-            output.WriteLine(response.StatusCode);
-            Assert.True(response.IsSuccess);
+            output.WriteLine(createResponse.StatusCode);
+            Assert.True(createResponse.IsSuccess);
 
             #endregion
 
             #region Read
 
-            var eTagRequest = PropfindRequest.Create(Depth.One, Prop.ETag);
+            var eTagRequest = PropfindRequest.Create(Depth.One, Prop.ETag, Prop.ResourceType);
 
-            response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default/{name}", eTagRequest, CancellationToken.None);
+            propfindResponse = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default/{name}", eTagRequest, CancellationToken.None);
 
-            output.WriteLine(response.StatusCode);
-            Assert.True(response.IsSuccess);
+            output.WriteLine(propfindResponse.StatusCode);
+            Assert.True(propfindResponse.IsSuccess);
 
             #endregion
 
             #region Update
 
             var updateVCard = VCardBuilder.Create("BEGIN:VCARD\r\nVERSION:3.0\r\nUID:2312133421324668575897435\r\nN:Doe;John;;;\r\nFN:John Doe\r\nEMAIL:test@test.org\r\nTEL;type=WORK;type=pref:+1 617 555 1212\r\nEND:VCARD\r\n").Build();
-            var endpoint = response.Content.ResourceEndpoints.First().Endpoint;
-            var etag = response.Content.ResourceEndpoints.First().Etag;
-            response = await client.UpdateContactAsync(endpoint, updateVCard, etag, CancellationToken.None);
+            var endpoint = propfindResponse.Resources.First().Endpoint;
+            var etag = propfindResponse.Resources.First().FoundProperties[Prop.ETag];
+            var updateResponse = await client.UpdateContactAsync(endpoint, updateVCard, etag, CancellationToken.None);
 
-            output.WriteLine(response.StatusCode);
-            Assert.True(response.IsSuccess);
+            output.WriteLine(updateResponse.StatusCode);
+            Assert.True(updateResponse.IsSuccess);
 
             var vCardResponse = await client.GetAsync($"carddav/v1/principals/{gmail}/lists/default/{name}", CancellationToken.None);
             Assert.NotNull(vCardResponse);
@@ -103,16 +103,16 @@ namespace BrandUp.CardDav.Client.Test
 
             #region Delete
 
-            response = await client.DeleteContactAsync(endpoint, CancellationToken.None);
+            var deleteResponse = await client.DeleteContactAsync(endpoint, CancellationToken.None);
 
-            output.WriteLine(response.StatusCode);
-            Assert.True(response.IsSuccess);
+            output.WriteLine(deleteResponse.StatusCode);
+            Assert.True(deleteResponse.IsSuccess);
 
-            response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default/", eTagRequest, CancellationToken.None);
+            propfindResponse = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default/", eTagRequest, CancellationToken.None);
 
-            output.WriteLine(response.StatusCode);
-            Assert.True(response.IsSuccess);
-            Assert.Equal(4, response.Content.ResourceEndpoints.Count);
+            output.WriteLine(propfindResponse.StatusCode);
+            Assert.True(propfindResponse.IsSuccess);
+            Assert.Equal(4, propfindResponse.Resources.Count());
 
             #endregion
         }

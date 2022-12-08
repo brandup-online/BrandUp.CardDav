@@ -1,5 +1,6 @@
 using BrandUp.CardDav.Client.Extensions;
 using BrandUp.CardDav.Transport.Models;
+using BrandUp.CardDav.Transport.Models.Body;
 using BrandUp.CardDav.Transport.Models.Requests;
 using BrandUp.CardDav.VCard;
 using BrandUp.CardDav.VCard.Builders;
@@ -32,20 +33,19 @@ namespace BrandUp.CardDav.Client.Test
             Assert.NotEmpty(options.AllowHeaderValue);
             Assert.NotEmpty(options.DavHeaderValue);
 
-            var response = await client.PropfindAsync($"/addressbook/{userName}/", PropfindRequest.Create(Depth.One), CancellationToken.None);
+            var response = await client.PropfindAsync($"/addressbook/{userName}/", PropfindRequest.Create(Depth.One, Prop.ETag), CancellationToken.None);
 
             output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
-            Assert.Equal(2, response.Content.AddressBooks.Count);
+            Assert.Equal(2, response.Resources.Count());
 
-            response = await client.PropfindAsync(response.Content.AddressBooks[1].Endpoint, PropfindRequest.Create(Depth.One), CancellationToken.None);
+            response = await client.PropfindAsync(response.Resources[1].Endpoint, PropfindRequest.Create(Depth.One, Prop.ETag), CancellationToken.None);
 
             output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
-            Assert.Equal(1, response.Content.AddressBooks.Count);
-            Assert.Equal(5, response.Content.ResourceEndpoints.Count);
+            Assert.Equal(6, response.Resources.Count());
 
-            var vCardResponse = await client.GetAsync(response.Content.ResourceEndpoints[0].Endpoint, CancellationToken.None);
+            var vCardResponse = await client.GetAsync(response.Resources[0].Endpoint, CancellationToken.None);
             Assert.NotNull(vCardResponse);
         }
 
@@ -69,10 +69,10 @@ namespace BrandUp.CardDav.Client.Test
 
             var vCard = VCardBuilder.Create(testPerson).SetUId("2312133421324668575897435").Build();
 
-            var response = await client.AddContactAsync($"/addressbook/{userName}/addressbook/new", vCard, CancellationToken.None);
+            var createResponse = await client.AddContactAsync($"/addressbook/{userName}/addressbook/new", vCard, CancellationToken.None);
 
-            output.WriteLine(response.StatusCode);
-            Assert.True(response.IsSuccess);
+            output.WriteLine(createResponse.StatusCode);
+            Assert.True(createResponse.IsSuccess);
 
             #endregion
 
@@ -107,16 +107,16 @@ namespace BrandUp.CardDav.Client.Test
 
             #region Delete
 
-            response = await client.DeleteContactAsync($"/addressbook/{userName}/addressbook/new", CancellationToken.None);
+            var deleteResponse = await client.DeleteContactAsync($"/addressbook/{userName}/addressbook/new", CancellationToken.None);
 
-            output.WriteLine(response.StatusCode);
-            Assert.True(response.IsSuccess);
+            output.WriteLine(deleteResponse.StatusCode);
+            Assert.True(deleteResponse.IsSuccess);
 
-            response = await client.PropfindAsync($"/addressbook/{userName}/addressbook", PropfindRequest.Create(Depth.One), CancellationToken.None);
+            var propfindResponse = await client.PropfindAsync($"/addressbook/{userName}/addressbook", PropfindRequest.Create(Depth.One), CancellationToken.None);
 
-            output.WriteLine(response.StatusCode);
-            Assert.True(response.IsSuccess);
-            Assert.Equal(5, response.Content.ResourceEndpoints.Count);
+            output.WriteLine(propfindResponse.StatusCode);
+            Assert.True(propfindResponse.IsSuccess);
+            Assert.Equal(5, propfindResponse.Resources.Count());
 
             #endregion
         }

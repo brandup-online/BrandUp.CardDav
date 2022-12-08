@@ -69,8 +69,20 @@ namespace BrandUp.CardDav.Client
 
         }
 
-        public async Task<CarddavResponse> PropfindAsync(string endpoint, PropfindRequest request, CancellationToken cancellationToken = default)
-             => ProccesCardDavResponse(await ExecuteAsync(endpoint, request.ToHttpRequest(), cancellationToken));
+        public async Task<PropfindResponse> PropfindAsync(string endpoint, PropfindRequest request, CancellationToken cancellationToken = default)
+        {
+            using var response = await ExecuteAsync(endpoint, request.ToHttpRequest(), cancellationToken);
+
+            if (!IsSuccessResponse(response))
+            {
+                return new() { IsSuccess = false };
+            }
+            else
+            {
+                return PropfindResponse.Create(response);
+            }
+
+        }
 
         public async Task<CarddavResponse> ReportAsync(string endpoint, string xmlRequest, string depth = "0", CancellationToken cancellationToken = default)
              => ProccesCardDavResponse(await ExecuteAsync(endpoint, new HttpMethod("REPORT"), xmlRequest, new() { { "Content-Type", "text/xml" }, { "Depth", depth } }, cancellationToken));
@@ -153,6 +165,20 @@ namespace BrandUp.CardDav.Client
             return carddavResponse;
         }
 
+        private bool IsSuccessResponse(HttpResponseMessage response, string requiredContentType = "xml")
+        {
+            if (!response.IsSuccessStatusCode)
+                return false;
+
+            if (!response.Content.Headers.ContentType.MediaType.Contains(requiredContentType))
+                return false;
+
+            if (response.Content.Headers.ContentLength == 0)
+                return false;
+
+            return true;
+        }
+
         private void SetOptions(CardDavOptions options)
         {
             httpClient.BaseAddress = new Uri(options.BaseUrl);
@@ -168,6 +194,8 @@ namespace BrandUp.CardDav.Client
                 httpClient.DefaultRequestHeaders.Authorization = new($"Basic", Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes(string.Format("{0}:{1}", cred.Login, cred.Password))));
             }
         }
+
+
 
         #endregion
     }

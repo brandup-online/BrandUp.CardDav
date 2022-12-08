@@ -2,13 +2,21 @@
 
 namespace BrandUp.CardDav.Transport.Models.Body
 {
-    public class Prop : IRequestProperty
+    public class Prop : IDavProperty
     {
         private string name;
         private string @namespace;
+        private string key;
 
-        string IXmlConvertable.Name => name;
-        string IXmlConvertable.Namespace => @namespace;
+        string IXmlConvertMetadata.Name => name;
+        string IXmlConvertMetadata.Namespace => @namespace;
+
+        bool IEquatable<IDavProperty>.Equals(IDavProperty other)
+        {
+            return this.name == other.Name && this.@namespace == other.Namespace;
+        }
+
+        string IPropertyKey.Key => key;
 
         internal Prop(string name, string @namespace = "DAV:")
         {
@@ -16,7 +24,11 @@ namespace BrandUp.CardDav.Transport.Models.Body
             this.@namespace = @namespace ?? throw new ArgumentNullException(nameof(@namespace));
         }
 
-        public IRequestProperty Inner => null;
+        #region IDavProperty members
+
+        IEnumerable<IXmlConvertMetadata> IXmlConvertMetadata.Inner => null;
+
+        #endregion
 
         #region Static members
 
@@ -31,7 +43,6 @@ namespace BrandUp.CardDav.Transport.Models.Body
         public static Prop ContentType => new("getcontenttype");
         public static Prop LastModified => new("getlastmodified");
         public static Prop ResourceType => new("resourcetype");
-        public static Prop AllProperties => new("allprop");
 
         #endregion
     }

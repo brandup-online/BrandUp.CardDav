@@ -1,7 +1,12 @@
 ﻿namespace BrandUp.CardDav.Transport.Models.Abstract
 {
-    public interface IRequestBody : IXmlConvertable
+    public interface IRequestBody : IXmlConvertMetadata
     {
-        IEnumerable<IRequestProperty> Properties { get; }
+        IEnumerable<IDavProperty> Properties { get; }
+    }
+
+    public interface IRequestFilter
+    {
+
     }
 }

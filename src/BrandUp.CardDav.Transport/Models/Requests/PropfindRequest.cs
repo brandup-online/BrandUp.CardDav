@@ -3,7 +3,7 @@ using BrandUp.CardDav.Transport.Models.Body;
 
 namespace BrandUp.CardDav.Transport.Models.Requests
 {
-    public class PropfindRequest : ICardDavRequest, IXmlConvertable
+    public class PropfindRequest : ICardDavRequest, IXmlConvertMetadata
     {
         public IRequestBody Body { get; init; }
 
@@ -24,6 +24,8 @@ namespace BrandUp.CardDav.Transport.Models.Requests
 
         public string Namespace => "DAV:";
 
+        IEnumerable<IXmlConvertMetadata> IXmlConvertMetadata.Inner => new IXmlConvertMetadata[1] { Body };
+
         #endregion
 
         #region ICardDavRequest members 
@@ -35,7 +37,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests
             HttpRequestMessage request = new()
             {
                 Method = new("PROPFIND"),
-                Content = new StringContent(XmlSerializer.Serialize(Name, Namespace, Body))
+                Content = new StringContent(XmlSerializer.Serialize(this))
             };
 
             request.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/xml");
@@ -54,7 +56,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests
         {
             #region IRequestBody members
 
-            public IEnumerable<IRequestProperty> Properties { get; init; }
+            public IEnumerable<IDavProperty> Properties { get; init; }
 
             #endregion
 
@@ -63,6 +65,8 @@ namespace BrandUp.CardDav.Transport.Models.Requests
             public string Name => "prop";
 
             public string Namespace => "DAV:";
+
+            IEnumerable<IXmlConvertMetadata> IXmlConvertMetadata.Inner => Properties;
 
             #endregion
         }
