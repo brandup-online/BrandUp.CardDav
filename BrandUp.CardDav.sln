@@ -23,9 +23,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.VCard", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Client.Tests", "test\BrandUp.CardDav.Client.Test\BrandUp.CardDav.Client.Tests.csproj", "{9CAF913C-A0B8-4874-ADEB-F92C3E8A307F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.VCard.Tests", "test\BrandUp.VCard.Tests\BrandUp.CardDav.VCard.Tests.csproj", "{493623D4-0D41-4674-8B39-D79A95A92541}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Transport", "src\BrandUp.CardDav.Transport\BrandUp.CardDav.Transport.csproj", "{BFFA5ECE-D7B8-475B-9C0D-0A55942CD58D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrandUp.CardDav.Transport", "src\BrandUp.CardDav.Transport\BrandUp.CardDav.Transport.csproj", "{BFFA5ECE-D7B8-475B-9C0D-0A55942CD58D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Transport.Binding", "src\BrandUp.CardDav.Transport.Binding\BrandUp.CardDav.Transport.Binding.csproj", "{4C3BD281-4C3A-4DB1-8189-FE363797CF97}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.VCard.Tests", "test\BrandUp.VCard.Tests\BrandUp.CardDav.VCard.Tests.csproj", "{85481F14-17F4-43E7-AE44-0407C775C5E9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,14 +63,18 @@ Global
 		{9CAF913C-A0B8-4874-ADEB-F92C3E8A307F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9CAF913C-A0B8-4874-ADEB-F92C3E8A307F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9CAF913C-A0B8-4874-ADEB-F92C3E8A307F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{493623D4-0D41-4674-8B39-D79A95A92541}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{493623D4-0D41-4674-8B39-D79A95A92541}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{493623D4-0D41-4674-8B39-D79A95A92541}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{493623D4-0D41-4674-8B39-D79A95A92541}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BFFA5ECE-D7B8-475B-9C0D-0A55942CD58D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BFFA5ECE-D7B8-475B-9C0D-0A55942CD58D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BFFA5ECE-D7B8-475B-9C0D-0A55942CD58D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BFFA5ECE-D7B8-475B-9C0D-0A55942CD58D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C3BD281-4C3A-4DB1-8189-FE363797CF97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C3BD281-4C3A-4DB1-8189-FE363797CF97}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C3BD281-4C3A-4DB1-8189-FE363797CF97}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C3BD281-4C3A-4DB1-8189-FE363797CF97}.Release|Any CPU.Build.0 = Release|Any CPU
+		{85481F14-17F4-43E7-AE44-0407C775C5E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{85481F14-17F4-43E7-AE44-0407C775C5E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{85481F14-17F4-43E7-AE44-0407C775C5E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{85481F14-17F4-43E7-AE44-0407C775C5E9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -81,8 +87,9 @@ Global
 		{DF153450-C715-43F5-A394-12830565AAB9} = {EA4F368D-472D-4FAE-82CC-CAF8F1B8AE53}
 		{BA7354DD-5573-401D-A8AE-713A82A71DEE} = {EA4F368D-472D-4FAE-82CC-CAF8F1B8AE53}
 		{9CAF913C-A0B8-4874-ADEB-F92C3E8A307F} = {70C8043F-300F-4F04-B010-697F41437BF3}
-		{493623D4-0D41-4674-8B39-D79A95A92541} = {70C8043F-300F-4F04-B010-697F41437BF3}
 		{BFFA5ECE-D7B8-475B-9C0D-0A55942CD58D} = {EA4F368D-472D-4FAE-82CC-CAF8F1B8AE53}
+		{4C3BD281-4C3A-4DB1-8189-FE363797CF97} = {EA4F368D-472D-4FAE-82CC-CAF8F1B8AE53}
+		{85481F14-17F4-43E7-AE44-0407C775C5E9} = {70C8043F-300F-4F04-B010-697F41437BF3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D47DF41B-DD5F-4EC6-B1A6-B586F8CE2E88}

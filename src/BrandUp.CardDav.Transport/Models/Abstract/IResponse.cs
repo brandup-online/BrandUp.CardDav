@@ -4,8 +4,6 @@
     {
         bool IsSuccess { get; }
         string StatusCode { get; }
-        IEnumerable<IResponseResource> Resources { get; }
+        IResponseBody Body { get; }
     }
-
-
 }

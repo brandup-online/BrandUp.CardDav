@@ -10,7 +10,7 @@ namespace BrandUp.CardDav.Client.Extensions
             services.AddHttpClient("carddav").ConfigurePrimaryHttpMessageHandler(() =>
                     new HttpClientHandler()
                     {
-                        AllowAutoRedirect = true,
+                        AllowAutoRedirect = false,
                     });
 
 

@@ -1,6 +1,8 @@
-﻿namespace BrandUp.CardDav.Transport.Models.Abstract
+﻿using System.Xml.Serialization;
+
+namespace BrandUp.CardDav.Transport.Models.Abstract
 {
-    public interface IRequestBody : IXmlConvertMetadata
+    public interface IRequestBody : IXmlSerializable
     {
         IEnumerable<IDavProperty> Properties { get; }
     }

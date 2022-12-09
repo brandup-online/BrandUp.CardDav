@@ -1,6 +1,6 @@
 ﻿using BrandUp.CardDav.Server.Attributes;
+using BrandUp.CardDav.Transport.Models.Requests;
 using Microsoft.AspNetCore.Mvc;
-using System.Text;
 
 namespace BrandUp.CardDav.Server.Controllers
 {
@@ -10,16 +10,12 @@ namespace BrandUp.CardDav.Server.Controllers
     {
         [CardDavPropfind("{Name}")]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public async Task<ActionResult<string>> PropfindAsync([FromRoute] string userName)
+        public async Task<ActionResult<string>> PropfindAsync([FromRoute] string userName, PropfindRequest request)
         {
             if (!Request.ContentType.Contains("xml"))
                 return new UnsupportedMediaTypeResult();
 
-            using StreamReader reader = new StreamReader(Request.Body, Encoding.UTF8);
-
-            var request = await reader.ReadToEndAsync();
-
-            var xmlString = "   <?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n  " +
+            var xmlString = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n  " +
                 " <D:multistatus xmlns:D=\"DAV:\">\r\n   " +
                 "  <D:response>\r\n      " +
                 " <D:href>http://www.example.com/papers/</D:href>\r\n     " +

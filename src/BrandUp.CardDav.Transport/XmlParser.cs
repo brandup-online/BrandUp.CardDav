@@ -5,6 +5,7 @@ using System.Xml;
 
 namespace BrandUp.CardDav.Transport
 {
+    //Obsolete
     public static class XmlParser
     {
         public static CarddavContent GenerateCarddavContent(Stream xmlStream, bool closeStream = true)

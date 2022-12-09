@@ -1,47 +1,59 @@
 ﻿using BrandUp.CardDav.Transport.Models.Abstract;
 using BrandUp.CardDav.Transport.Models.Body;
+using BrandUp.CardDav.Transport.Models.Headers;
+using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Models.Requests
 {
-    public class PropfindRequest : ICardDavRequest, IXmlConvertMetadata
-    {
-        public IRequestBody Body { get; init; }
 
-        private string depth;
+    public class PropfindRequest : ICardDavRequest
+    {
+        public IRequestBody Body { get; set; }
+        public PropfindRequest() { }
+        public PropfindRequest(IDictionary<string, string> headers) { }
+        public PropfindRequest(string depth)
+        {
+            Headers.Add("Depth", depth);
+        }
 
         #region Static members
 
         public static PropfindRequest Create(Depth depth, params Prop[] properties)
         {
-            return new() { depth = depth.Value, Body = new PropBody { Properties = properties } };
+            return new(depth.Value) { Body = new PropBody { Properties = properties } };
         }
 
-        #endregion
-
-        #region IXmlConvertable region
-
-        public string Name => "propfind";
-
-        public string Namespace => "DAV:";
-
-        IEnumerable<IXmlConvertMetadata> IXmlConvertMetadata.Inner => new IXmlConvertMetadata[1] { Body };
+        public static PropfindRequest AllProp(Depth depth)
+        {
+            return new(depth.Value) { Body = new AllProp() };
+        }
 
         #endregion
 
         #region ICardDavRequest members 
 
-        public IDictionary<string, string> Headers { get; } = new Dictionary<string, string>();
+        public IDictionary<string, string> Headers { get; set; } = new Dictionary<string, string>();
 
         public HttpRequestMessage ToHttpRequest()
         {
+            var serializer = new XmlSerializer(Body.GetType());
+            var ms = new MemoryStream();
+
+            serializer.Serialize(ms, Body);
+            ms.Position = 0;
+
+#if DEBUG
+            var debugReader = new StreamReader(ms);
+            var debug = debugReader.ReadToEnd();
+            ms.Position = 0;
+#endif
             HttpRequestMessage request = new()
             {
                 Method = new("PROPFIND"),
-                Content = new StringContent(XmlSerializer.Serialize(this))
+                Content = new StreamContent(ms)
             };
 
             request.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/xml");
-            request.Content.Headers.Add("Depth", depth);
             foreach (var header in Headers)
             {
                 request.Content.Headers.Add(header.Key, header.Value);
@@ -49,26 +61,6 @@ namespace BrandUp.CardDav.Transport.Models.Requests
 
             return request;
         }
-
         #endregion
-
-        internal class PropBody : IRequestBody
-        {
-            #region IRequestBody members
-
-            public IEnumerable<IDavProperty> Properties { get; init; }
-
-            #endregion
-
-            #region IXmlConvertable region
-
-            public string Name => "prop";
-
-            public string Namespace => "DAV:";
-
-            IEnumerable<IXmlConvertMetadata> IXmlConvertMetadata.Inner => Properties;
-
-            #endregion
-        }
     }
 }

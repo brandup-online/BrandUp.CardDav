@@ -1,7 +1,7 @@
 ﻿using BrandUp.CardDav.Client.Extensions;
 using BrandUp.CardDav.Client.Helpers;
-using BrandUp.CardDav.Transport.Models;
 using BrandUp.CardDav.Transport.Models.Body;
+using BrandUp.CardDav.Transport.Models.Headers;
 using BrandUp.CardDav.Transport.Models.Requests;
 using BrandUp.CardDav.VCard.Builders;
 using Microsoft.Extensions.Configuration;
@@ -13,7 +13,7 @@ namespace BrandUp.CardDav.Client.Test
     {
         private string token;
         private string gmail;
-        private string pass;
+        private string password;
 
         readonly CardDavClient client;
 
@@ -21,12 +21,11 @@ namespace BrandUp.CardDav.Client.Test
         {
             token = configuration.GetSection("Google:Token").Get<string>();// ?? throw new ArgumentNullException(nameof(token));
             gmail = configuration.GetSection("Google:Login").Get<string>() ?? throw new ArgumentNullException(nameof(gmail));
-            pass = configuration.GetSection("Google:Password").Get<string>() ?? throw new ArgumentNullException(nameof(pass));
+            password = configuration.GetSection("Google:Password").Get<string>() ?? throw new ArgumentNullException(nameof(password));
 
-            client = cardDavClientFactory.CreateClientWithCredentials("https://www.googleapis.com/", gmail, pass);
+            client = cardDavClientFactory.CreateClientWithCredentials("https://www.googleapis.com/", gmail, password);
         }
 
-        //For google test work you need to get somewhere valid access token
         [Fact]
         public async Task Success_Google_Basic()
         {
@@ -88,8 +87,8 @@ namespace BrandUp.CardDav.Client.Test
             #region Update
 
             var updateVCard = VCardBuilder.Create("BEGIN:VCARD\r\nVERSION:3.0\r\nUID:2312133421324668575897435\r\nN:Doe;John;;;\r\nFN:John Doe\r\nEMAIL:test@test.org\r\nTEL;type=WORK;type=pref:+1 617 555 1212\r\nEND:VCARD\r\n").Build();
-            var endpoint = propfindResponse.Resources.First().Endpoint;
-            var etag = propfindResponse.Resources.First().FoundProperties[Prop.ETag];
+            var endpoint = propfindResponse.Body.Resources.First().Endpoint;
+            var etag = propfindResponse.Body.Resources.First().FoundProperties[Prop.ETag];
             var updateResponse = await client.UpdateContactAsync(endpoint, updateVCard, etag, CancellationToken.None);
 
             output.WriteLine(updateResponse.StatusCode);
@@ -112,7 +111,7 @@ namespace BrandUp.CardDav.Client.Test
 
             output.WriteLine(propfindResponse.StatusCode);
             Assert.True(propfindResponse.IsSuccess);
-            Assert.Equal(4, propfindResponse.Resources.Count());
+            Assert.Equal(5, propfindResponse.Body.Resources.Count());
 
             #endregion
         }

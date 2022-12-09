@@ -1,8 +1,12 @@
 using BrandUp.CardDav.Server.Example.Context;
+using BrandUp.CardDav.Transport.Binding.Providers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.ModelBinderProviders.Insert(0, new PropfindRequestBinderProvider());
+});
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
