@@ -6,6 +6,4 @@
         string StatusCode { get; }
         IEnumerable<IResponseResource> Resources { get; }
     }
-
-
 }

@@ -22,15 +22,13 @@ namespace BrandUp.CardDav.Transport
             return doc.OuterXml;
         }
 
-        public static IEnumerable<IResponseResource> DeserializeToResoure(Stream contentStream, bool closeStream = true)
+        public static IEnumerable<IResponseResource> DeserializeToResourses(Stream contentStream, bool closeStream = true)
         {
             var xmlDocument = new XmlDocument();
             xmlDocument.Load(contentStream);
 
             if (closeStream)
                 contentStream.Dispose();
-
-            var nsmgr = new XmlNamespaceManager(xmlDocument.NameTable);
 
             var resources = new List<IResponseResource>();
 
@@ -49,16 +47,31 @@ namespace BrandUp.CardDav.Transport
                         }
                         else if (propstatNode.LocalName == "propstat")
                         {
-                            if (propstatNode["propstat", "DAV:"]["status", "DAV:"].InnerText.Contains(" 2"))
+                            if (propstatNode["status", "DAV:"] == null)
+                                continue;
+
+                            if (propstatNode["status", "DAV:"].InnerText.Contains(" 2"))
                             {
-                                var propNode = propstatNode["prop", "DAV"];
+                                var propNode = propstatNode["prop", "DAV:"];
                                 if (propNode == null)
                                     break;
                                 else
                                 {
                                     foreach (XmlNode prop in propNode.ChildNodes)
                                     {
-                                        properties.Add(new Prop(prop.Name, prop.NamespaceURI), prop.InnerText);
+                                        if (prop.InnerText != string.Empty)
+                                            properties.Add(new Prop(prop.LocalName, prop.NamespaceURI), prop.InnerText);
+                                        else
+                                        {
+                                            var values = "";
+                                            foreach (XmlNode valuesProp in prop.ChildNodes)
+                                            {
+                                                values = string.Join(" ", values, valuesProp.LocalName);
+                                            }
+
+                                            properties.Add(new Prop(prop.LocalName, prop.NamespaceURI), values);
+                                        }
+
                                     }
                                     break;
                                 }
@@ -66,7 +79,7 @@ namespace BrandUp.CardDav.Transport
                         }
                     }
 
-                resource.FoundProperties = properties;
+                resource.FoundProperties = new(properties);
                 resources.Add(resource);
             }
 

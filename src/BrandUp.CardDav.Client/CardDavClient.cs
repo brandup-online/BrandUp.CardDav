@@ -75,13 +75,12 @@ namespace BrandUp.CardDav.Client
 
             if (!IsSuccessResponse(response))
             {
-                return new() { IsSuccess = false };
+                return new() { IsSuccess = false, StatusCode = response.StatusCode.ToString() };
             }
             else
             {
                 return PropfindResponse.Create(response);
             }
-
         }
 
         public async Task<CarddavResponse> ReportAsync(string endpoint, string xmlRequest, string depth = "0", CancellationToken cancellationToken = default)
@@ -168,6 +167,9 @@ namespace BrandUp.CardDav.Client
         private bool IsSuccessResponse(HttpResponseMessage response, string requiredContentType = "xml")
         {
             if (!response.IsSuccessStatusCode)
+                return false;
+
+            if (response.Content.Headers.ContentType == null)
                 return false;
 
             if (!response.Content.Headers.ContentType.MediaType.Contains(requiredContentType))

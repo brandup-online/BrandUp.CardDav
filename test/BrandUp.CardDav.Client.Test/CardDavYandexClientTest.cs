@@ -1,6 +1,6 @@
 using BrandUp.CardDav.Client.Extensions;
-using BrandUp.CardDav.Transport.Models;
 using BrandUp.CardDav.Transport.Models.Body;
+using BrandUp.CardDav.Transport.Models.Headers;
 using BrandUp.CardDav.Transport.Models.Requests;
 using BrandUp.CardDav.VCard;
 using BrandUp.CardDav.VCard.Builders;
@@ -33,19 +33,20 @@ namespace BrandUp.CardDav.Client.Test
             Assert.NotEmpty(options.AllowHeaderValue);
             Assert.NotEmpty(options.DavHeaderValue);
 
-            var response = await client.PropfindAsync($"/addressbook/{userName}/", PropfindRequest.Create(Depth.One, Prop.ETag), CancellationToken.None);
+            var response = await client.PropfindAsync($"/addressbook/{userName}/", PropfindRequest.AllProp(Depth.One), CancellationToken.None);
 
             output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
             Assert.Equal(2, response.Resources.Count());
+            var addressBookEndpoint = response.Resources.Where(r => r.FoundProperties[Prop.ResourceType].Contains("addressbook")).FirstOrDefault().Endpoint;
 
-            response = await client.PropfindAsync(response.Resources[1].Endpoint, PropfindRequest.Create(Depth.One, Prop.ETag), CancellationToken.None);
+            response = await client.PropfindAsync(addressBookEndpoint, PropfindRequest.Create(Depth.One, Prop.ETag, Prop.DisplayName), CancellationToken.None);
 
             output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
             Assert.Equal(6, response.Resources.Count());
 
-            var vCardResponse = await client.GetAsync(response.Resources[0].Endpoint, CancellationToken.None);
+            var vCardResponse = await client.GetAsync(response.Resources[1].Endpoint, CancellationToken.None);
             Assert.NotNull(vCardResponse);
         }
 
@@ -116,7 +117,7 @@ namespace BrandUp.CardDav.Client.Test
 
             output.WriteLine(propfindResponse.StatusCode);
             Assert.True(propfindResponse.IsSuccess);
-            Assert.Equal(5, propfindResponse.Resources.Count());
+            Assert.Equal(6, propfindResponse.Resources.Count());
 
             #endregion
         }

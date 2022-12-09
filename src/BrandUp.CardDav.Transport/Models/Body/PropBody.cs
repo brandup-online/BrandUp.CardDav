@@ -2,21 +2,35 @@
 
 namespace BrandUp.CardDav.Transport.Models.Body
 {
+
+    internal class PropBody : IRequestBody
+    {
+        #region IRequestBody members
+
+        public IEnumerable<IDavProperty> Properties { get; init; }
+
+        #endregion
+
+        #region IXmlConvertable region
+
+        public string Name => "prop";
+
+        public string Namespace => "DAV:";
+
+        IEnumerable<IXmlConvertMetadata> IXmlConvertMetadata.Inner => Properties;
+
+        #endregion
+    }
+
     public class Prop : IDavProperty
     {
         private string name;
         private string @namespace;
-        private string key;
 
         string IXmlConvertMetadata.Name => name;
         string IXmlConvertMetadata.Namespace => @namespace;
 
-        bool IEquatable<IDavProperty>.Equals(IDavProperty other)
-        {
-            return this.name == other.Name && this.@namespace == other.Namespace;
-        }
 
-        string IPropertyKey.Key => key;
 
         internal Prop(string name, string @namespace = "DAV:")
         {

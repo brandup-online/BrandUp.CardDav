@@ -1,5 +1,6 @@
 ﻿using BrandUp.CardDav.Transport.Models.Abstract;
 using BrandUp.CardDav.Transport.Models.Body;
+using BrandUp.CardDav.Transport.Models.Headers;
 
 namespace BrandUp.CardDav.Transport.Models.Requests
 {
@@ -14,6 +15,11 @@ namespace BrandUp.CardDav.Transport.Models.Requests
         public static PropfindRequest Create(Depth depth, params Prop[] properties)
         {
             return new() { depth = depth.Value, Body = new PropBody { Properties = properties } };
+        }
+
+        public static PropfindRequest AllProp(Depth depth)
+        {
+            return new() { depth = depth.Value, Body = new AllProp() };
         }
 
         #endregion
@@ -51,24 +57,5 @@ namespace BrandUp.CardDav.Transport.Models.Requests
         }
 
         #endregion
-
-        internal class PropBody : IRequestBody
-        {
-            #region IRequestBody members
-
-            public IEnumerable<IDavProperty> Properties { get; init; }
-
-            #endregion
-
-            #region IXmlConvertable region
-
-            public string Name => "prop";
-
-            public string Namespace => "DAV:";
-
-            IEnumerable<IXmlConvertMetadata> IXmlConvertMetadata.Inner => Properties;
-
-            #endregion
-        }
     }
 }

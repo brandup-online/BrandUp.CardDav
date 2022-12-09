@@ -1,7 +1,7 @@
 ﻿using BrandUp.CardDav.Client.Extensions;
 using BrandUp.CardDav.Client.Helpers;
-using BrandUp.CardDav.Transport.Models;
 using BrandUp.CardDav.Transport.Models.Body;
+using BrandUp.CardDav.Transport.Models.Headers;
 using BrandUp.CardDav.Transport.Models.Requests;
 using BrandUp.CardDav.VCard;
 using BrandUp.CardDav.VCard.Builders;
@@ -16,17 +16,19 @@ namespace BrandUp.CardDav.Client.Test
         private string login;
         private string password;
 
+        readonly CardDavClient client;
+
         public CardDavAppleClientTest(ITestOutputHelper output) : base(output)
         {
             login = configuration.GetSection("Apple:Login").Get<string>() ?? throw new ArgumentNullException(nameof(login));
             password = configuration.GetSection("Apple:Password").Get<string>() ?? throw new ArgumentNullException(nameof(password));
+
+            client = cardDavClientFactory.CreateClientWithCredentials("https://contacts.icloud.com/", login, password);
         }
 
         [Fact]
         public async Task Success_Basic()
         {
-            var client = cardDavClientFactory.CreateClientWithCredentials("https://contacts.icloud.com/", login, password);
-
             var options = await client.OptionsAsync(CancellationToken.None);
 
             output.WriteLine(options.StatusCode);
@@ -58,12 +60,31 @@ namespace BrandUp.CardDav.Client.Test
         }
 
         [Fact]
+        public async Task Success_Allprop()
+        {
+            var options = await client.OptionsAsync(CancellationToken.None);
+            Assert.True(options.IsSuccess);
+
+            var request = PropfindRequest.Create(Depth.Zero, Prop.ETag);
+
+            var response = await client.PropfindAsync($"{login}/carddavhome/", request, CancellationToken.None);
+
+            output.WriteLine(response.StatusCode);
+            Assert.True(response.IsSuccess);
+
+            var allpropRequest = PropfindRequest.AllProp(Depth.One);
+
+            var allpropResponse = await client.PropfindAsync(response.Resources[0].Endpoint, allpropRequest, CancellationToken.None);
+
+            output.WriteLine(allpropResponse.StatusCode);
+            Assert.True(allpropResponse.IsSuccess);
+        }
+
+
+        [Fact]
         public async Task Success_CRUD()
         {
-            var client = cardDavClientFactory.CreateClientWithCredentials("https://contacts.icloud.com/", login, password);
-
             #region Init
-
 
             var options = await client.OptionsAsync(CancellationToken.None);
 
@@ -103,7 +124,7 @@ namespace BrandUp.CardDav.Client.Test
 
             #region Read
 
-            var eTagRequest = PropfindRequest.Create(Depth.One, Prop.ETag, Prop.ResourceType, Prop.ContentType);
+            var eTagRequest = PropfindRequest.Create(Depth.One, Prop.ETag, Prop.ResourceType);
             propfindResponse = await client.PropfindAsync(newUserEndpoint, eTagRequest, CancellationToken.None);
 
             output.WriteLine(propfindResponse.StatusCode);

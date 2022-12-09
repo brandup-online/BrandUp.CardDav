@@ -1,4 +1,4 @@
-﻿namespace BrandUp.CardDav.Transport.Models
+﻿namespace BrandUp.CardDav.Transport.Models.Headers
 {
     public class Depth
     {

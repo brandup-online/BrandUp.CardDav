@@ -4,9 +4,9 @@ namespace BrandUp.CardDav.Transport.Models.Requests
 {
     public class MultigetRequest : IReportRequest
     {
-        public IDictionary<string, string> Headers => throw new NotImplementedException();
+        public IDictionary<string, string> Headers { get; set; }
 
-        public IRequestBody Body => throw new NotImplementedException();
+        public IRequestBody Body { get; set; }
 
         public HttpRequestMessage ToHttpRequest()
         {

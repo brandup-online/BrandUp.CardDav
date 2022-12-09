@@ -19,7 +19,7 @@ namespace BrandUp.CardDav.Server.Controllers
 
             var request = await reader.ReadToEndAsync();
 
-            var xmlString = "   <?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n  " +
+            var xmlString = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n  " +
                 " <D:multistatus xmlns:D=\"DAV:\">\r\n   " +
                 "  <D:response>\r\n      " +
                 " <D:href>http://www.example.com/papers/</D:href>\r\n     " +

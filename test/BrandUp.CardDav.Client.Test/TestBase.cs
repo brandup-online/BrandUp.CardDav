@@ -55,9 +55,16 @@ namespace BrandUp.CardDav.Client.Test
 
         public async Task DisposeAsync()
         {
+            await OnFinishAsync();
             await provider.DisposeAsync();
             scope.Dispose();
         }
+
+        #endregion
+
+        #region Virtual members
+
+        protected virtual Task OnFinishAsync() => Task.CompletedTask;
 
         #endregion
     }

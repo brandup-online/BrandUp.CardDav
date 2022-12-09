@@ -1,5 +1,5 @@
-﻿using BrandUp.CardDav.Transport.Models;
-using BrandUp.CardDav.Transport.Models.Body;
+﻿using BrandUp.CardDav.Transport.Models.Body;
+using BrandUp.CardDav.Transport.Models.Headers;
 using BrandUp.CardDav.Transport.Models.Requests;
 using Xunit.Abstractions;
 
