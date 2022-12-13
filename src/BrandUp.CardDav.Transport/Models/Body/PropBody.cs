@@ -54,6 +54,11 @@ namespace BrandUp.CardDav.Transport.Models.Body
         private string name;
         private string @namespace;
 
+        string IDavProperty.Name => name;
+        string IDavProperty.Namespace => @namespace;
+
+
+
         internal Prop(string name, string @namespace = "DAV:")
         {
             this.name = name ?? throw new ArgumentNullException(nameof(name));
