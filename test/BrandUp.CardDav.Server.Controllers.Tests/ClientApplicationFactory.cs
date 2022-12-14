@@ -11,6 +11,11 @@ namespace BrandUp.CardDav.Server.Controllers
 {
     internal class ClientApplicationFactory : WebApplicationFactory<Program>
     {
+        public ClientApplicationFactory() : base()
+        {
+            Server.AllowSynchronousIO = true;
+        }
+
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.ConfigureTestServices(services =>
@@ -24,6 +29,5 @@ namespace BrandUp.CardDav.Server.Controllers
                 services.AddMongo2GoDbClientFactory();
             });
         }
-
     }
 }

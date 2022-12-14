@@ -236,10 +236,10 @@ namespace BrandUp.CardDav.VCard
             var uid = line.Replace("VERSION:", "");
             vCard.Version = uid.Trim() switch
             {
-                "1.0" => Version.VCard1,
-                "2.0" => Version.VCard2,
-                "3.0" => Version.VCard3,
-                "4.0" => Version.VCard4,
+                "1.0" => VCardVersion.VCard1,
+                "2.0" => VCardVersion.VCard2,
+                "3.0" => VCardVersion.VCard3,
+                "4.0" => VCardVersion.VCard4,
                 _ => throw new ArgumentException()
             };
         }

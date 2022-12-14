@@ -1,7 +1,7 @@
 ﻿using BrandUp.CardDav.Client.Extensions;
 using BrandUp.CardDav.Client.Helpers;
-using BrandUp.CardDav.Transport.Models.Body;
 using BrandUp.CardDav.Transport.Models.Headers;
+using BrandUp.CardDav.Transport.Models.Properties;
 using BrandUp.CardDav.Transport.Models.Requests;
 using BrandUp.CardDav.VCard.Builders;
 using Microsoft.Extensions.Configuration;

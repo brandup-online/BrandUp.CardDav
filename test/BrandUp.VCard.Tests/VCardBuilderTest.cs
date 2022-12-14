@@ -19,7 +19,7 @@ namespace BrandUp.CardDav.VCard.Tests
         [Fact]
         public async Task Success()
         {
-            var vCardBuilded = VCardBuilder.Create(Version.VCard3).SetName("Doe", "John")
+            var vCardBuilded = VCardBuilder.Create(VCardVersion.VCard3).SetName("Doe", "John")
                 .AddEmail("johnDoe@example.org", Kind.Work, "INTERNET", "pref")
                 .AddPhone("+1 617 555 1212", Kind.Work, "pref")
                 .AddPhone("+1 (617) 555-1234", Kind.Work)

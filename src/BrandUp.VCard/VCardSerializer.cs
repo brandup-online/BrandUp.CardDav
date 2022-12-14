@@ -11,10 +11,10 @@
 
             var version = vCard.Version switch
             {
-                Version.VCard4 => "4.0",
-                Version.VCard3 => "3.0",
-                Version.VCard2 => "2.0",
-                Version.VCard1 => "1.0",
+                VCardVersion.VCard4 => "4.0",
+                VCardVersion.VCard3 => "3.0",
+                VCardVersion.VCard2 => "2.0",
+                VCardVersion.VCard1 => "1.0",
                 _ => throw new ArgumentException(nameof(vCard)),
             };
 

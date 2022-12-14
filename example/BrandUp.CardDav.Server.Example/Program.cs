@@ -13,7 +13,6 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddMongoDbContext<AppDocumentContext>(builder.Configuration.GetSection("MongoDb"));
 
-
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

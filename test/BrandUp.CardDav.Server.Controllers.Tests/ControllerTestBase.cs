@@ -26,7 +26,6 @@ namespace BrandUp.CardDav.Server.Controllers.Tests
             });
         }
 
-
         #region IAsyncLifetime members
 
         public Task InitializeAsync()

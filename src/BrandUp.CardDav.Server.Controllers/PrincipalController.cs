@@ -10,10 +10,10 @@ namespace BrandUp.CardDav.Server.Controllers
     {
         [CardDavPropfind("{Name}")]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public async Task<ActionResult<string>> PropfindAsync([FromRoute] string userName, PropfindRequest request)
+        public Task<ActionResult<string>> PropfindAsync([FromRoute] string userName, PropfindRequest request)
         {
             if (!Request.ContentType.Contains("xml"))
-                return new UnsupportedMediaTypeResult();
+                return Task.FromResult((ActionResult<string>)new UnsupportedMediaTypeResult());
 
             var xmlString = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n  " +
                 " <D:multistatus xmlns:D=\"DAV:\">\r\n   " +
@@ -27,7 +27,7 @@ namespace BrandUp.CardDav.Server.Controllers
                 "  </D:response>\r\n " +
                 "  </D:multistatus>";
 
-            return Content(xmlString, "text/xml");
+            return Task.FromResult((ActionResult<string>)Content(xmlString, "text/xml"));
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using BrandUp.CardDav.Transport.Models.Requests;
+using BrandUp.CardDav.Transport.Models.Requests.Body.Propfind;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Xml.Serialization;
 
@@ -13,15 +14,17 @@ namespace BrandUp.CardDav.Transport.Binding
                 throw new ArgumentNullException(nameof(bindingContext));
             }
 
-            var serializer = new XmlSerializer(typeof(PropfindRequest));
+            XmlSerializer serializer = new(typeof(PropBody));
 
             var reader = new StreamReader(bindingContext.ActionContext.HttpContext.Request.Body);
 
-
             var headers = bindingContext.ActionContext.HttpContext.Request.Headers;
-            var model = (PropfindRequest)serializer.Deserialize(reader);
+            var body = (PropBody)serializer.Deserialize(reader);
 
-            model.Headers = headers.ToDictionary(h => h.Key, h => h.Value.ToString());
+            var model = new PropfindRequest(headers.ToDictionary(h => h.Key, h => h.Value.ToString()))
+            {
+                Body = body
+            };
 
             bindingContext.Result = ModelBindingResult.Success(model);
 

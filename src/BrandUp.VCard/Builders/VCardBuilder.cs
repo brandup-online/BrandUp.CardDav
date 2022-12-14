@@ -4,7 +4,7 @@
     {
         private VCardModel vCard;
 
-        internal VCardBuilder(Version version = Version.VCard3)
+        internal VCardBuilder(VCardVersion version = VCardVersion.VCard3)
         {
             vCard = new() { Version = version };
         }
@@ -21,7 +21,7 @@
 
         #region Static members
 
-        public static IVCardBuilder Create(Version version = Version.VCard3)
+        public static IVCardBuilder Create(VCardVersion version = VCardVersion.VCard3)
            => new VCardBuilder(version);
 
         public static IVCardBuilder Create(string rawVCard)

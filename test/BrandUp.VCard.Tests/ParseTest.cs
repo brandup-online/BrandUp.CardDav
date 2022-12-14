@@ -47,7 +47,7 @@ namespace BrandUp.CardDav.VCard
         private void Check(VCardModel result)
         {
             Assert.NotNull(result);
-            Assert.Equal(Version.VCard3, result.Version);
+            Assert.Equal(VCardVersion.VCard3, result.Version);
 
             Assert.Single(result.Name.FamilyNames);
             Assert.Equal("Doe", result.Name.FamilyNames.First());

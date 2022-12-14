@@ -1,16 +1,20 @@
 ﻿using BrandUp.CardDav.Transport.Models.Abstract;
-using BrandUp.CardDav.Transport.Models.Body;
 using BrandUp.CardDav.Transport.Models.Headers;
+using BrandUp.CardDav.Transport.Models.Requests.Body.Propfind;
 using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Models.Requests
 {
-
     public class PropfindRequest : ICardDavRequest
     {
-        public IRequestBody Body { get; set; }
+        public Depth Depth => Depth.Parse(Headers["Depth"]);
         public PropfindRequest() { }
-        public PropfindRequest(IDictionary<string, string> headers) { }
+
+        public PropfindRequest(IDictionary<string, string> headers)
+        {
+            Headers = headers;
+        }
+
         public PropfindRequest(string depth)
         {
             Headers.Add("Depth", depth);
@@ -18,21 +22,23 @@ namespace BrandUp.CardDav.Transport.Models.Requests
 
         #region Static members
 
-        public static PropfindRequest Create(Depth depth, params Prop[] properties)
+        public static PropfindRequest Create(Depth depth, params IDavProperty[] properties)
         {
-            return new(depth.Value) { Body = new PropBody { Properties = properties } };
+            return new(depth.Value) { Body = new PropBody("prop") { Properties = properties } };
         }
 
         public static PropfindRequest AllProp(Depth depth)
         {
-            return new(depth.Value) { Body = new AllProp() };
+            return new(depth.Value) { Body = new PropBody("allprop") { } };
         }
 
         #endregion
 
         #region ICardDavRequest members 
 
-        public IDictionary<string, string> Headers { get; set; } = new Dictionary<string, string>();
+        public IRequestBody Body { get; init; }
+
+        public IDictionary<string, string> Headers { get; init; } = new Dictionary<string, string>();
 
         public HttpRequestMessage ToHttpRequest()
         {
