@@ -1,7 +1,7 @@
 ﻿using BrandUp.CardDav.Client.Extensions;
-using BrandUp.CardDav.Client.Helpers;
 using BrandUp.CardDav.Transport.Models.Headers;
 using BrandUp.CardDav.Transport.Models.Properties;
+using BrandUp.CardDav.Transport.Models.Properties.Filters;
 using BrandUp.CardDav.Transport.Models.Requests;
 using BrandUp.CardDav.VCard.Builders;
 using Microsoft.Extensions.Configuration;
@@ -11,7 +11,7 @@ namespace BrandUp.CardDav.Client.Test
 {
     public class CardDavGoogleClientTest : TestBase
     {
-        private string token;
+        //private string token;
         private string gmail;
         private string password;
 
@@ -19,7 +19,7 @@ namespace BrandUp.CardDav.Client.Test
 
         public CardDavGoogleClientTest(ITestOutputHelper output) : base(output)
         {
-            token = configuration.GetSection("Google:Token").Get<string>();// ?? throw new ArgumentNullException(nameof(token));
+            //token = configuration.GetSection("Google:Token").Get<string>() ?? throw new ArgumentNullException(nameof(token));
             gmail = configuration.GetSection("Google:Login").Get<string>() ?? throw new ArgumentNullException(nameof(gmail));
             password = configuration.GetSection("Google:Password").Get<string>() ?? throw new ArgumentNullException(nameof(password));
 
@@ -38,12 +38,55 @@ namespace BrandUp.CardDav.Client.Test
             output.WriteLine(propfindResponse.StatusCode);
             Assert.True(propfindResponse.IsSuccess);
 
-            var report = XmlQueryHelper.AddressCollection(true);
+            #region Empty filter
 
-            var reportResponse = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists/default", report, Depth.One.Value, CancellationToken.None);
+            var filter = new Filter();
+            filter.AddPropFilter("FN", FilterMatchType.All, TextMatch.Create("", TextMatchType.Contains));
+            var report = ReportRequest.CreateQuery(Depth.One, PropList.Create(Prop.CTag, Prop.ETag), filter);
+
+            var reportResponse = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists/default", report, CancellationToken.None);
 
             output.WriteLine(reportResponse.StatusCode);
             Assert.True(reportResponse.IsSuccess);
+            Assert.NotEmpty(reportResponse.Body.Resources);
+
+            #endregion
+        }
+
+        [Fact]
+        public async Task Success_Google_NotEmptyFilter()
+        {
+            var filter = new Filter();
+            filter.AddPropFilter("EMAIL", FilterMatchType.All, TextMatch.Create("me", TextMatchType.Contains));
+            var report = ReportRequest.CreateQuery(Depth.One,
+                                    PropList.Create(Prop.CTag, Prop.ETag, new AddressData()),
+                                    filter);
+
+
+            var reportResponse = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists/default", report, CancellationToken.None);
+
+            output.WriteLine(reportResponse.StatusCode);
+            Assert.True(reportResponse.IsSuccess);
+            Assert.Single(reportResponse.Body.Resources);
+            Assert.NotNull(reportResponse.Body.Resources.First().CardModel);
+        }
+
+        [Fact]
+        public async Task Success_Google_Limit()
+        {
+            var filter = new Filter();
+            filter.AddPropFilter("FN", FilterMatchType.All, TextMatch.Create("", TextMatchType.Contains));
+            var report = ReportRequest.CreateQuery(Depth.One,
+                                    PropList.Create(Prop.CTag, Prop.ETag, new AddressData()),
+                                    filter,
+                                    2);
+
+            var reportResponse = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists/default", report, CancellationToken.None);
+
+            output.WriteLine(reportResponse.StatusCode);
+            Assert.True(reportResponse.IsSuccess);
+            Assert.Equal(3, reportResponse.Body.Resources.Count);
+            Assert.NotNull(reportResponse.Body.Resources.First().CardModel);
         }
 
         [Fact]

@@ -56,6 +56,7 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
                 }
                 else if (reader.LocalName == "response")
                 {
+                    FoundProperties = new(propstat);
                     return;
                 }
             }

@@ -2,8 +2,10 @@
 {
     public interface IResponse
     {
-        bool IsSuccess { get; }
-        string StatusCode { get; }
+        bool IsSuccess { get; init; }
+        string StatusCode { get; init; }
         IResponseBody Body { get; }
+
+        static abstract IResponse Create(HttpResponseMessage message);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using BrandUp.CardDav.Transport.Models.Abstract;
 using BrandUp.CardDav.Transport.Models.Properties;
+using BrandUp.CardDav.Transport.Models.Properties.Filters;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -10,7 +11,9 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
     public class AddresbookQueryBody : IRequestBody
     {
         internal IEnumerable<IDavProperty> PropList { get; set; }
-        internal PropFilter Filter { get; set; }
+        internal Filter Filter { get; set; }
+
+        internal uint Limit { get; set; } = 0;
 
         public AddresbookQueryBody()
         { }
@@ -18,6 +21,8 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
         #region IRequestBody members
 
         public IEnumerable<IDavProperty> Properties => new List<IDavProperty>(PropList) { Filter };
+
+        #endregion
 
         #region IXmlSerializable member
 
@@ -46,11 +51,17 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
 
                     if (reader.LocalName == "filter")
                     {
-                        var filter = new PropFilter();
+                        var filter = new Filter();
 
                         filter.ReadXml(reader);
 
                         Filter = filter;
+                    }
+
+                    if (reader.LocalName == "limit")
+                    {
+                        reader.Read();
+                        Limit = uint.Parse(reader.Value);
                     }
                     else
                     {
@@ -70,10 +81,18 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
             }
             writer.WriteEndElement();
 
-            Filter.WriteXml(writer);
-        }
+            if (Filter != null)
+                Filter.WriteXml(writer);
 
-        #endregion
+            if (Limit > 0)
+            {
+                writer.WriteStartElement("limit", "urn:ietf:params:xml:ns:carddav");
+                writer.WriteStartElement("nresults", "urn:ietf:params:xml:ns:carddav");
+                writer.WriteValue(Limit);
+                writer.WriteEndElement();
+                writer.WriteEndElement();
+            }
+        }
 
         #endregion
     }

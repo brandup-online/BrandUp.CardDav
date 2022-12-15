@@ -2,14 +2,12 @@
 
 namespace BrandUp.CardDav.Transport.Models.Responses
 {
-    public class OptionsResponse : IResponse
+    public class MkcolResponse : IResponse
     {
         public bool IsSuccess { get; init; }
         public string StatusCode { get; init; }
-        public string[] DavHeaderValue { get; init; }
-        public string[] AllowHeaderValue { get; init; }
 
-        public IResponseBody Body { get; init; } = null;
+        public IResponseBody Body => null;
 
         public static IResponse Create(HttpResponseMessage message)
         {

@@ -19,6 +19,8 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
 
         public IEnumerable<IDavProperty> Properties => PropList;
 
+        #endregion
+
         #region IXmlSerializable members
 
         public XmlSchema GetSchema()
@@ -71,11 +73,9 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
 
             foreach (string href in VCardEndpoints)
             {
-                writer.WriteElementString("prop", "urn:ietf:params:xml:ns:carddav", href);
+                writer.WriteElementString("href", "DAV:", href);
             }
         }
-
-        #endregion
 
         #endregion
     }

@@ -31,7 +31,19 @@ namespace BrandUp.CardDav.Server.Controllers
         [CardDavReport]
         public Task<ActionResult> ReportCollectionAsync()
         {
-            return Task.FromResult((ActionResult)Ok());
+            var xmlString = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n  " +
+                            " <D:multistatus xmlns:D=\"DAV:\">\r\n   " +
+                            "  <D:response>\r\n      " +
+                            " <D:href>http://www.example.com/papers/</D:href>\r\n     " +
+                            "  <D:propstat>\r\n   " +
+                            "      <D:prop>\r\n        " +
+                            "     </D:prop>\r\n      " +
+                            "   <D:status>HTTP/1.1 200 OK</D:status>\r\n     " +
+                            "  </D:propstat>\r\n   " +
+                            "  </D:response>\r\n " +
+                            "  </D:multistatus>";
+
+            return Task.FromResult((ActionResult)Content(xmlString, "text/xml"));
         }
 
 
@@ -39,16 +51,16 @@ namespace BrandUp.CardDav.Server.Controllers
         public Task<ActionResult> PropfindCollectionAsync([FromRoute] string addressBook)
         {
             var xmlString = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n  " +
-                " <D:multistatus xmlns:D=\"DAV:\">\r\n   " +
-                "  <D:response>\r\n      " +
-                " <D:href>http://www.example.com/papers/</D:href>\r\n     " +
-                "  <D:propstat>\r\n   " +
-                "      <D:prop>\r\n        " +
-                "     </D:prop>\r\n      " +
-                "   <D:status>HTTP/1.1 200 OK</D:status>\r\n     " +
-                "  </D:propstat>\r\n   " +
-                "  </D:response>\r\n " +
-                "  </D:multistatus>";
+                            " <D:multistatus xmlns:D=\"DAV:\">\r\n   " +
+                            "  <D:response>\r\n      " +
+                            " <D:href>http://www.example.com/papers/</D:href>\r\n     " +
+                            "  <D:propstat>\r\n   " +
+                            "      <D:prop>\r\n        " +
+                            "     </D:prop>\r\n      " +
+                            "   <D:status>HTTP/1.1 200 OK</D:status>\r\n     " +
+                            "  </D:propstat>\r\n   " +
+                            "  </D:response>\r\n " +
+                            "  </D:multistatus>";
 
             return Task.FromResult((ActionResult)Content(xmlString, "text/xml"));
         }
@@ -56,7 +68,19 @@ namespace BrandUp.CardDav.Server.Controllers
         [CardDavReport("{AddressBook}")]
         public Task<ActionResult> ReportCollectionAsync([FromRoute] string addressBook)
         {
-            return Task.FromResult((ActionResult)Ok());
+            var xmlString = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n  " +
+                        " <D:multistatus xmlns:D=\"DAV:\">\r\n   " +
+                        "  <D:response>\r\n      " +
+                        " <D:href>http://www.example.com/papers/</D:href>\r\n     " +
+                        "  <D:propstat>\r\n   " +
+                        "      <D:prop>\r\n        " +
+                        "     </D:prop>\r\n      " +
+                        "   <D:status>HTTP/1.1 200 OK</D:status>\r\n     " +
+                        "  </D:propstat>\r\n   " +
+                        "  </D:response>\r\n " +
+                        "  </D:multistatus>";
+
+            return Task.FromResult((ActionResult)Content(xmlString, "text/xml"));
         }
     }
 }

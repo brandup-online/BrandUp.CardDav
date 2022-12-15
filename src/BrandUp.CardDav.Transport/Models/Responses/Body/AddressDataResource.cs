@@ -3,7 +3,7 @@ using BrandUp.CardDav.VCard;
 
 namespace BrandUp.CardDav.Transport.Models.Responses.Body
 {
-    internal class AddressDataResource : DefaultResponseResource
+    public class AddressDataResource : DefaultResponseResource
     {
         public VCardModel CardModel
         {

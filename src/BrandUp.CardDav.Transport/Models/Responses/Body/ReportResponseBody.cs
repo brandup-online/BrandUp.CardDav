@@ -5,24 +5,26 @@ using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Models.Responses.Body
 {
-    [XmlRoot(Namespace = "DAV:", ElementName = "multistatus")]
-    public class ResponseBody : IResponseBody
+    [XmlRoot(ElementName = "multistatus", Namespace = "DAV:")]
+    public class ReportResponseBody : IResponseBody
     {
+        public IList<AddressDataResource> Resources { get; private set; }
+        public ReportResponseBody() { }
         #region IResponseBody
 
-        public IList<IResponseResource> Resources { get; private set; }
+        IList<IResponseResource> IResponseBody.Resources => (IList<IResponseResource>)Resources;
 
         public XmlSchema GetSchema() => null;
 
         public void ReadXml(XmlReader reader)
         {
-            var resourseList = new List<DefaultResponseResource>();
+            var resourseList = new List<AddressDataResource>();
 
             while (reader.Read())
             {
                 if (reader.NodeType == XmlNodeType.Element)
                 {
-                    var resourse = new DefaultResponseResource();
+                    var resourse = new AddressDataResource();
                     resourse.ReadXml(reader);
                     resourseList.Add(resourse);
                 }
@@ -37,7 +39,4 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
 
         #endregion
     }
-
-
-
 }

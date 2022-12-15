@@ -10,15 +10,15 @@ namespace BrandUp.CardDav.Transport.Models.Responses
         public bool IsSuccess { get; init; }
         public string StatusCode { get; init; }
 
-        public ResponseBody Body { get; init; }
+        public PropfindResponseBody Body { get; init; }
 
         IResponseBody IResponse.Body => Body;
 
-        public static PropfindResponse Create(HttpResponseMessage message)
+        public static IResponse Create(HttpResponseMessage message)
         {
-            var serializer = new XmlSerializer(typeof(ResponseBody));
+            var serializer = new XmlSerializer(typeof(PropfindResponseBody));
 
-            var body = (ResponseBody)serializer.Deserialize(message.Content.ReadAsStream());
+            var body = (PropfindResponseBody)serializer.Deserialize(message.Content.ReadAsStream());
             var response = new PropfindResponse { IsSuccess = message.IsSuccessStatusCode, StatusCode = message.StatusCode.ToString(), Body = body };
 
             return response;

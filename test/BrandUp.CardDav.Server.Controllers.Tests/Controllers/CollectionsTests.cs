@@ -1,6 +1,6 @@
-﻿using BrandUp.CardDav.Client.Helpers;
-using BrandUp.CardDav.Transport.Models.Headers;
+﻿using BrandUp.CardDav.Transport.Models.Headers;
 using BrandUp.CardDav.Transport.Models.Properties;
+using BrandUp.CardDav.Transport.Models.Properties.Filters;
 using BrandUp.CardDav.Transport.Models.Requests;
 using Xunit.Abstractions;
 
@@ -25,9 +25,14 @@ namespace BrandUp.CardDav.Server.Controllers.Tests.Controllers
         [Fact]
         public async Task Success_Report()
         {
-            var request = XmlQueryHelper.AddressCollection();
+            //var request = XmlQueryHelper.AddressCollection();
+            var filter = new Filter()
+            {
 
-            var propfind = await Client.ReportAsync("Principal/user/Collections/", request, Depth.Zero.Value, CancellationToken.None);
+            };
+            var request = ReportRequest.CreateQuery(Depth.Zero, PropList.Create(Prop.ETag, Prop.CTag), filter);
+
+            var propfind = await Client.ReportAsync("Principal/user/Collections/", request, CancellationToken.None);
 
             Output.WriteLine(propfind.StatusCode);
             Assert.True(propfind.IsSuccess);

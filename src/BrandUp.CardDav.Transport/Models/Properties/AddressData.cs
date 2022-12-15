@@ -5,7 +5,7 @@ using System.Xml.Schema;
 
 namespace BrandUp.CardDav.Transport.Models.Properties
 {
-    internal class AddressData : IDavProperty
+    public class AddressData : IDavProperty
     {
         private IEnumerable<VCardProperty> vCardProperties;
         public AddressData() { }
@@ -44,14 +44,15 @@ namespace BrandUp.CardDav.Transport.Models.Properties
         public void WriteXml(XmlWriter writer)
         {
             writer.WriteStartElement(Name, Namespace);
-            foreach (VCardProperty property in vCardProperties)
-            {
-                writer.WriteStartElement("prop", Namespace);
+            if (vCardProperties != null)
+                foreach (VCardProperty property in vCardProperties)
+                {
+                    writer.WriteStartElement("C", "prop", Namespace);
 
-                writer.WriteAttributeString("name", Namespace, property.ToString());
+                    writer.WriteAttributeString("C", "name", Namespace, property.ToString());
 
-                writer.WriteEndElement();
-            }
+                    writer.WriteEndElement();
+                }
             writer.WriteEndElement();
         }
 

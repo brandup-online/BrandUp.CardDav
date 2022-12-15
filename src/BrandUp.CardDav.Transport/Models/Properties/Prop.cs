@@ -2,6 +2,20 @@
 
 namespace BrandUp.CardDav.Transport.Models.Properties
 {
+    public class PropList
+    {
+        public IEnumerable<IDavProperty> Properties { get; set; }
+        public PropList()
+        {
+        }
+
+        public static PropList Create(params IDavProperty[] props)
+        {
+            return new() { Properties = props };
+
+        }
+    }
+
     public static class Prop
     {
         #region Static members
@@ -21,3 +35,4 @@ namespace BrandUp.CardDav.Transport.Models.Properties
         #endregion
     }
 }
+

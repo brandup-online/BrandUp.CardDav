@@ -1,5 +1,6 @@
 ﻿using BrandUp.CardDav.Client.Options;
 using BrandUp.CardDav.Transport;
+using BrandUp.CardDav.Transport.Models.Abstract;
 using BrandUp.CardDav.Transport.Models.Requests;
 using BrandUp.CardDav.Transport.Models.Responses;
 using BrandUp.CardDav.VCard;
@@ -24,27 +25,9 @@ namespace BrandUp.CardDav.Client
 
         public async Task<OptionsResponse> OptionsAsync(CancellationToken cancellationToken)
         {
-            var response = await ExecuteAsync("", HttpMethod.Options, cancellationToken: cancellationToken);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                return new()
-                {
-                    IsSuccess = response.IsSuccessStatusCode,
-                    StatusCode = response.StatusCode.ToString(),
-                };
-            }
-
-            var allow = response.Content.Headers.Allow;
-            var dav = response.Headers.GetValues("DAV");
-
-            return new()
-            {
-                AllowHeaderValue = allow.ToArray(),
-                DavHeaderValue = dav.SelectMany(s => s.Split(",")).ToArray(),
-                IsSuccess = response.IsSuccessStatusCode,
-                StatusCode = response.StatusCode.ToString(),
-            };
+            using var request = new HttpRequestMessage();
+            request.Method = HttpMethod.Options;
+            return await ProccesResponse<OptionsResponse>("", request, cancellationToken);
         }
 
         // Must be vcard adress
@@ -70,22 +53,17 @@ namespace BrandUp.CardDav.Client
         }
 
         public async Task<PropfindResponse> PropfindAsync(string endpoint, PropfindRequest request, CancellationToken cancellationToken = default)
+             => await ProccesResponse<PropfindResponse>(endpoint, request, cancellationToken);
+
+        public async Task<ReportResponse> ReportAsync(string endpoint, ReportRequest request, CancellationToken cancellationToken = default)
+             => await ProccesResponse<ReportResponse>(endpoint, request, cancellationToken);
+
+        public async Task<MkcolResponse> MkcolAsync(string endpoint, CancellationToken cancellationToken = default)
         {
-            using var httpRequest = request.ToHttpRequest();
-            using var response = await ExecuteAsync(endpoint, httpRequest, cancellationToken);
-
-            if (!IsSuccessResponse(response))
-            {
-                return new() { IsSuccess = false, StatusCode = response.StatusCode.ToString() };
-            }
-            else
-            {
-                return PropfindResponse.Create(response);
-            }
+            using var request = new HttpRequestMessage();
+            request.Method = new("MKCOL");
+            return await ProccesResponse<MkcolResponse>(endpoint, request, cancellationToken);
         }
-
-        public async Task<CarddavResponse> ReportAsync(string endpoint, string xmlRequest, string depth = "0", CancellationToken cancellationToken = default)
-             => ProccesCardDavResponse(await ExecuteAsync(endpoint, new HttpMethod("REPORT"), xmlRequest, new() { { "Content-Type", "text/xml" }, { "Depth", depth } }, cancellationToken));
 
         public async Task<CarddavResponse> AddContactAsync(string endpoint, VCardModel vCard, CancellationToken cancellationToken)
             => ProccesCardDavResponse(await ExecuteAsync(endpoint, HttpMethod.Put, await VCardSerializer.SerializeAsync(vCard, cancellationToken), null, cancellationToken));
@@ -99,6 +77,68 @@ namespace BrandUp.CardDav.Client
         #endregion
 
         #region Helpers
+
+        private async Task<HttpResponseMessage> ExecuteAsync(string endpoint, HttpRequestMessage requestMessage, CancellationToken cancellationToken)
+        {
+            requestMessage.RequestUri = new Uri(endpoint, UriKind.Relative);
+
+            return await httpClient.SendAsync(requestMessage, cancellationToken);
+        }
+
+        private async Task<T> ProccesResponse<T>(string endpoint, ICardDavRequest request, CancellationToken cancellationToken) where T : class, IResponse, new()
+        {
+            using var httpRequest = request.ToHttpRequest();
+            return await ProccesResponse<T>(endpoint, httpRequest, cancellationToken);
+        }
+
+        private async Task<T> ProccesResponse<T>(string endpoint, HttpRequestMessage request, CancellationToken cancellationToken) where T : class, IResponse, new()
+        {
+            using var response = await ExecuteAsync(endpoint, request, cancellationToken);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return (T)T.Create(response);
+            }
+            else
+            {
+                return new() { IsSuccess = false, StatusCode = response.StatusCode.ToString() };
+            }
+        }
+
+        private bool IsSuccessXmlResponse(HttpResponseMessage response)
+        {
+            if (!response.IsSuccessStatusCode)
+                return false;
+
+            if (response.Content.Headers.ContentType == null)
+                return false;
+
+            if (!response.Content.Headers.ContentType.MediaType.Contains("xml"))
+                return false;
+
+            if (response.Content.Headers.ContentLength == 0)
+                return false;
+
+            return true;
+        }
+
+        private void SetOptions(CardDavOptions options)
+        {
+            httpClient.BaseAddress = new Uri(options.BaseUrl);
+
+            if (options is CardDavOAuthOptions)
+            {
+                var oauth = (CardDavOAuthOptions)options;
+                httpClient.DefaultRequestHeaders.Authorization = new($"Bearer", oauth.AccessToken);
+            }
+            else if (options is CardDavCredentialsOptions)
+            {
+                var cred = (CardDavCredentialsOptions)options;
+                httpClient.DefaultRequestHeaders.Authorization = new($"Basic", Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes(string.Format("{0}:{1}", cred.Login, cred.Password))));
+            }
+        }
+
+        #region Obsolete
 
         private async Task<HttpResponseMessage> ExecuteAsync(string endpoint, HttpMethod method, string request = null, Dictionary<string, string> headers = null, CancellationToken cancellationToken = default)
         {
@@ -127,13 +167,6 @@ namespace BrandUp.CardDav.Client
             }
 
             return await ExecuteAsync(requestMessage, cancellationToken);
-        }
-
-        private async Task<HttpResponseMessage> ExecuteAsync(string endpoint, HttpRequestMessage requestMessage, CancellationToken cancellationToken)
-        {
-            requestMessage.RequestUri = new Uri(endpoint, UriKind.Relative);
-
-            return await httpClient.SendAsync(requestMessage, cancellationToken);
         }
 
         private async Task<HttpResponseMessage> ExecuteAsync(HttpRequestMessage requestMessage, CancellationToken cancellationToken)
@@ -165,40 +198,7 @@ namespace BrandUp.CardDav.Client
             return carddavResponse;
         }
 
-        private bool IsSuccessResponse(HttpResponseMessage response, string requiredContentType = "xml")
-        {
-            if (!response.IsSuccessStatusCode)
-                return false;
-
-            if (response.Content.Headers.ContentType == null)
-                return false;
-
-            if (!response.Content.Headers.ContentType.MediaType.Contains(requiredContentType))
-                return false;
-
-            if (response.Content.Headers.ContentLength == 0)
-                return false;
-
-            return true;
-        }
-
-        private void SetOptions(CardDavOptions options)
-        {
-            httpClient.BaseAddress = new Uri(options.BaseUrl);
-
-            if (options is CardDavOAuthOptions)
-            {
-                var oauth = (CardDavOAuthOptions)options;
-                httpClient.DefaultRequestHeaders.Authorization = new($"Bearer", oauth.AccessToken);
-            }
-            else if (options is CardDavCredentialsOptions)
-            {
-                var cred = (CardDavCredentialsOptions)options;
-                httpClient.DefaultRequestHeaders.Authorization = new($"Basic", Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes(string.Format("{0}:{1}", cred.Login, cred.Password))));
-            }
-        }
-
-
+        #endregion
 
         #endregion
     }

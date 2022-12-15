@@ -1,7 +1,7 @@
 ﻿using BrandUp.CardDav.Client.Extensions;
-using BrandUp.CardDav.Client.Helpers;
 using BrandUp.CardDav.Transport.Models.Headers;
 using BrandUp.CardDav.Transport.Models.Properties;
+using BrandUp.CardDav.Transport.Models.Properties.Filters;
 using BrandUp.CardDav.Transport.Models.Requests;
 using BrandUp.CardDav.VCard;
 using BrandUp.CardDav.VCard.Builders;
@@ -51,12 +51,42 @@ namespace BrandUp.CardDav.Client.Test
 
             Assert.True(response.IsSuccess);
 
-            var report = XmlQueryHelper.AddressCollection(true);
+            var filter = new Filter();
 
-            var reportResponse = await client.ReportAsync(response.Body.Resources[1].Endpoint, report, Depth.One.Value, CancellationToken.None);
+            filter.AddPropFilter("FN", FilterMatchType.All, TextMatch.Create("", TextMatchType.Contains));
+            var report = ReportRequest.CreateQuery(Depth.One, PropList.Create(Prop.CTag, Prop.ETag), filter);
+
+            var reportResponse = await client.ReportAsync(response.Body.Resources[1].Endpoint, report, CancellationToken.None);
 
             output.WriteLine(reportResponse.StatusCode);
             Assert.True(reportResponse.IsSuccess);
+
+            filter = new Filter();
+
+            filter.AddPropFilter("FN", FilterMatchType.All, TextMatch.Create("ma", TextMatchType.Contains));
+            report = ReportRequest.CreateQuery(Depth.One, PropList.Create(Prop.CTag, Prop.ETag), filter);
+
+            reportResponse = await client.ReportAsync(response.Body.Resources[1].Endpoint, report, CancellationToken.None);
+
+            output.WriteLine(reportResponse.StatusCode);
+            Assert.True(reportResponse.IsSuccess);
+            Assert.Single(reportResponse.Body.Resources);
+            Assert.NotNull(reportResponse.Body.Resources.First().CardModel);
+
+            request = PropfindRequest.AllProp(Depth.One);
+
+            response = await client.PropfindAsync(response.Body.Resources[1].Endpoint, request, CancellationToken.None);
+
+            Assert.True(response.IsSuccess);
+
+            report = ReportRequest.CreateMultiget(Depth.One, PropList.Create(Prop.CTag, Prop.ETag), response.Body.Resources[1].Endpoint);
+
+            reportResponse = await client.ReportAsync(response.Body.Resources[1].Endpoint, report, CancellationToken.None);
+
+            output.WriteLine(reportResponse.StatusCode);
+            Assert.True(reportResponse.IsSuccess);
+            Assert.Single(reportResponse.Body.Resources);
+            Assert.NotNull(reportResponse.Body.Resources.First().CardModel);
         }
 
         [Fact]
@@ -79,7 +109,6 @@ namespace BrandUp.CardDav.Client.Test
             output.WriteLine(allpropResponse.StatusCode);
             Assert.True(allpropResponse.IsSuccess);
         }
-
 
         [Fact]
         public async Task Success_CRUD()
