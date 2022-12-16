@@ -7,9 +7,11 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
 {
     public class DefaultResponseResource : IResponseResource
     {
-        public string Endpoint { get; private set; }
+        public string Endpoint { get; set; }
 
-        public PropertyDictionary FoundProperties { get; private set; }
+        public PropertyDictionary FoundProperties { get; set; }
+
+        public IEnumerable<IDavProperty> NotFoundProperties { get; set; }
 
         public XmlSchema GetSchema()
         {
@@ -18,8 +20,10 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
 
         public void ReadXml(XmlReader reader)
         {
-            bool notFoundFlag = true;
-            Dictionary<IDavProperty, string> propstat = new();
+            Dictionary<IDavProperty, string> found = new();
+            List<IDavProperty> notFound = new();
+            int propDepth = 0;
+
             while (reader.Read())
             {
                 if (reader.LocalName == "href")
@@ -27,37 +31,55 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
                     ReadHref(reader);
                     continue;
                 }
-                else if (reader.LocalName == "propstat")
+
+                if (reader.LocalName == "propstat")
+                    continue;
+
+                if (reader.LocalName == "response")
                 {
-                    if (notFoundFlag)
+                    if (reader.NodeType == XmlNodeType.Element)
                     {
-                        propstat = new();
+                        continue;
                     }
-                    else
+                    else if (reader.NodeType == XmlNodeType.EndElement)
                     {
-                        FoundProperties = new(propstat);
-                        while (reader.LocalName != "response" || reader.NodeType != XmlNodeType.EndElement)
-                        {
-                            reader.Read();
-                        }
+                        FoundProperties = new(found);
+                        NotFoundProperties = notFound;
+
                         return;
                     }
                 }
-                else if (reader.LocalName == "prop")
+
+                if (reader.NodeType == XmlNodeType.Element && reader.LocalName == "prop")
                 {
-                    ReadProp(reader, propstat);
+                    propDepth = reader.Depth;
                 }
-                else if (reader.LocalName == "status")
+
+                if (reader.NodeType == XmlNodeType.Element && reader.Depth > propDepth && propDepth != 0)
                 {
+                    var prop = new DefaultProp(reader.LocalName, reader.NamespaceURI);
                     reader.Read();
-                    if (reader.Value.Contains("200"))
-                        notFoundFlag = false;
-                    reader.Read();
-                }
-                else if (reader.LocalName == "response")
-                {
-                    FoundProperties = new(propstat);
-                    return;
+
+                    if (reader.NodeType == XmlNodeType.Text)
+                    {
+                        found.TryAdd(prop, reader.Value);
+                        continue;
+                    }
+
+                    if (reader.Depth > propDepth + 1)
+                    {
+                        while (reader.Depth > propDepth + 1)
+                        {
+                            if (!found.TryAdd(prop, reader.LocalName))
+                                found[prop] = string.Join(", ", found[prop], reader.LocalName);
+
+                            reader.Read();
+                        }
+                    }
+                    else
+                    {
+                        notFound.Add(prop);
+                    }
                 }
             }
         }

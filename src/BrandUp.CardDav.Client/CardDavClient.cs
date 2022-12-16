@@ -58,12 +58,8 @@ namespace BrandUp.CardDav.Client
         public async Task<ReportResponse> ReportAsync(string endpoint, ReportRequest request, CancellationToken cancellationToken = default)
              => await ProccesResponse<ReportResponse>(endpoint, request, cancellationToken);
 
-        public async Task<MkcolResponse> MkcolAsync(string endpoint, CancellationToken cancellationToken = default)
-        {
-            using var request = new HttpRequestMessage();
-            request.Method = new("MKCOL");
-            return await ProccesResponse<MkcolResponse>(endpoint, request, cancellationToken);
-        }
+        public async Task<MkcolResponse> MkcolAsync(string endpoint, MkcolRequest request, CancellationToken cancellationToken = default)
+             => await ProccesResponse<MkcolResponse>(endpoint, request, cancellationToken);
 
         public async Task<CarddavResponse> AddContactAsync(string endpoint, VCardModel vCard, CancellationToken cancellationToken)
             => ProccesCardDavResponse(await ExecuteAsync(endpoint, HttpMethod.Put, await VCardSerializer.SerializeAsync(vCard, cancellationToken), null, cancellationToken));

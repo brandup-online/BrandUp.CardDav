@@ -1,4 +1,5 @@
 ﻿using BrandUp.CardDav.Server.Attributes;
+using BrandUp.CardDav.Server.Repositories;
 using BrandUp.CardDav.Transport.Models.Requests;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +9,11 @@ namespace BrandUp.CardDav.Server.Controllers
     [Route("{controller}")]
     public class PrincipalController : CardDavController
     {
+        public PrincipalController(IUserRepository userRepository, IContactRepository contactRepository, IAddressBookRepository addressRepository)
+            : base(userRepository, contactRepository, addressRepository)
+        {
+        }
+
         [CardDavPropfind("{Name}")]
         [ApiExplorerSettings(IgnoreApi = true)]
         public Task<ActionResult<string>> PropfindAsync([FromRoute] string userName, PropfindRequest request)

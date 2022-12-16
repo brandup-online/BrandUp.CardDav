@@ -62,7 +62,6 @@ namespace BrandUp.CardDav.Client.Test
                                     PropList.Create(Prop.CTag, Prop.ETag, new AddressData()),
                                     filter);
 
-
             var reportResponse = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists/default", report, CancellationToken.None);
 
             output.WriteLine(reportResponse.StatusCode);

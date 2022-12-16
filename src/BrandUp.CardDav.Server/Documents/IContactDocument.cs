@@ -4,5 +4,8 @@
     {
         public Guid Id { get; set; }
         public Guid AddressBookId { get; set; }
+
+        public string ETag { get; set; }
+        public string RawVCard { get; set; }
     }
 }

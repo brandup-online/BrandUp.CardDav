@@ -15,7 +15,10 @@ namespace BrandUp.CardDav.Server.Attributes
             Template = template;
         }
 
-        public CardDavAttribute(string[] method, string contentType, params string[] otherContentTypes) : base(contentType, otherContentTypes)
+        public CardDavAttribute(string method, string contentType, params string[] otherContentTypes) : this(new string[1] { method }, contentType, otherContentTypes)
+        { }
+
+        private CardDavAttribute(string[] method, string contentType, params string[] otherContentTypes) : base(contentType, otherContentTypes)
         {
             HttpMethods = method.Select(m => m.ToUpperInvariant()).ToList();
         }

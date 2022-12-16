@@ -1,8 +1,8 @@
-﻿using BrandUp.CardDav.Server.Example.Documents;
+﻿using BrandUp.CardDav.Server.Example.Domain.Documents;
 using BrandUp.MongoDB;
 using MongoDB.Driver;
 
-namespace BrandUp.CardDav.Server.Example.Context
+namespace BrandUp.CardDav.Server.Example.Domain.Context
 {
     public class AppDocumentContext : MongoDbContext
     {

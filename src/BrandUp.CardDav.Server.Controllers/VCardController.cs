@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BrandUp.CardDav.Server.Repositories;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BrandUp.CardDav.Server.Controllers
 {
@@ -6,6 +7,11 @@ namespace BrandUp.CardDav.Server.Controllers
     [Route("Principal/{Name}/Collections/{AddressBook}/{VCard}")]
     public class VCardController : CardDavController
     {
+        public VCardController(IUserRepository userRepository, IContactRepository contactRepository, IAddressBookRepository addressRepository)
+            : base(userRepository, contactRepository, addressRepository)
+        {
+        }
+
         [HttpGet]
         public Task<ActionResult> GetAsync([FromRoute(Name = "VCard")] string vCardName)
         {

@@ -89,6 +89,27 @@ namespace BrandUp.CardDav.Client.Test
             Assert.NotNull(reportResponse.Body.Resources.First().CardModel);
         }
 
+        //[Fact]
+        //public async Task Success_MakeCollection()
+        //{
+        //    var options = await client.OptionsAsync(CancellationToken.None);
+        //    Assert.True(options.IsSuccess);
+
+        //    var request = PropfindRequest.Create(Depth.One, Prop.ETag);
+
+        //    var response = await client.PropfindAsync($"{login}/carddavhome/", request, CancellationToken.None);
+        //    Assert.True(response.IsSuccess);
+
+        //    var mkcolRequest = new MkcolRequest
+        //    {
+        //        Headers = new Dictionary<string, string>(),
+        //        Body = new SetPropBody("myAddresBook", "desc")
+        //    };
+        //    var mkcol = await client.MkcolAsync(response.Body.Resources[0].Endpoint, mkcolRequest, CancellationToken.None);
+
+        //    Assert.True(mkcol.IsSuccess);
+        //}
+
         [Fact]
         public async Task Success_Allprop()
         {

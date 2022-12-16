@@ -10,11 +10,11 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
     {
         #region IResponseBody
 
-        public IList<IResponseResource> Resources { get; private set; }
+        public IList<IResponseResource> Resources { get; private set; } = new List<IResponseResource>();
 
-        public XmlSchema GetSchema() => null;
+        XmlSchema IXmlSerializable.GetSchema() => null;
 
-        public void ReadXml(XmlReader reader)
+        void IXmlSerializable.ReadXml(XmlReader reader)
         {
             var resourseList = new List<DefaultResponseResource>();
 
@@ -30,7 +30,7 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
             Resources = resourseList.ToArray();
         }
 
-        public void WriteXml(XmlWriter writer)
+        void IXmlSerializable.WriteXml(XmlWriter writer)
         {
             throw new NotImplementedException();
         }

@@ -2,7 +2,7 @@
 using BrandUp.MongoDB;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace BrandUp.CardDav.Server.Example.Documents
+namespace BrandUp.CardDav.Server.Example.Domain.Documents
 {
     [Document(CollectionName = "CardDav.Contacts")]
     public class ContactDocument : IContactDocument
@@ -11,5 +11,7 @@ namespace BrandUp.CardDav.Server.Example.Documents
         public Guid Id { get; set; }
         public Guid AddressBookId { get; set; }
         public string VCard { get; set; }
+        public string ETag { get; set; }
+        public string RawVCard { get; set; }
     }
 }

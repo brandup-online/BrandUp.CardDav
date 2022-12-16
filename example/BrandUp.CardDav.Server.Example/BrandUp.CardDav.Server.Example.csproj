@@ -12,12 +12,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Attributes\" />
+    <ProjectReference Include="..\..\src\BrandUp.CardDav.Server.Controllers\BrandUp.CardDav.Server.csproj" />
+    <ProjectReference Include="..\..\src\BrandUp.CardDav.Transport.Binding\BrandUp.CardDav.Transport.Binding.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\BrandUp.CardDav.Server.Controllers\BrandUp.CardDav.Server.csproj" />
-    <ProjectReference Include="..\..\src\BrandUp.CardDav.Transport.Binding\BrandUp.CardDav.Transport.Binding.csproj" />
+    <Folder Include="Repository\" />
   </ItemGroup>
 
 </Project>

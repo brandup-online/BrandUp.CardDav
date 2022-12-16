@@ -1,4 +1,4 @@
-﻿using BrandUp.CardDav.Server.Example.Context;
+﻿using BrandUp.CardDav.Server.Example.Domain.Context;
 using BrandUp.Extensions.Migrations;
 using MongoDB.Driver;
 

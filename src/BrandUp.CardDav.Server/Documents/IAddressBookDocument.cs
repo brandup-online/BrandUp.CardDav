@@ -4,6 +4,6 @@
     {
         public Guid Id { get; set; }
         public Guid UserId { get; set; }
-        public string ETag { get; set; }
+        public string CTag { get; set; }
     }
 }
