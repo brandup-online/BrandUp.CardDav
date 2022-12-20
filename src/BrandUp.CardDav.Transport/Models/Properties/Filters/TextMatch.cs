@@ -9,7 +9,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
         public string Text { get; set; }
         public string Collation { get; set; } = "i;unicode-casemap";
         public TextMatchType MatchType { get; set; }
-        public bool IsNegate { get; init; } = false;
+        public bool IsNegate { get; set; } = false;
 
         public TextMatch() { }
 
@@ -32,7 +32,27 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 
         public void ReadXml(XmlReader reader)
         {
-            throw new NotImplementedException();
+            while (reader.Read())
+            {
+                if (reader.NodeType == XmlNodeType.Attribute)
+                {
+                    if (reader.LocalName == "collation")
+                        Collation = reader.Value;
+                    if (reader.LocalName == "match-type")
+                    {
+                        MatchType = Enum.Parse<TextMatchType>(reader.Value, true);
+                    }
+                    if (reader.LocalName == "negate-condition")
+                    {
+                        IsNegate = reader.Value == "yes";
+                    }
+                }
+
+                if (reader.NodeType == XmlNodeType.Text)
+                {
+                    Text = reader.Value;
+                }
+            }
         }
 
         public void WriteXml(XmlWriter writer)
@@ -49,13 +69,13 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 
         #region Helpers
 
-        private string ConvertMatchTypeToString()
+        string ConvertMatchTypeToString()
         {
             return ToKebabCase(MatchType.ToString());
         }
 
         readonly static Regex r = new("(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z0-9])", RegexOptions.Compiled);
-        public static string ToKebabCase(string value)
+        static string ToKebabCase(string value)
         {
             if (string.IsNullOrEmpty(value))
                 return value;
@@ -65,6 +85,14 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
                 .ToLower();
         }
 
+        static string FromKebabCase(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return value;
+
+            return value.Trim().Replace("-", "");
+
+        }
         #endregion
     }
 }

@@ -9,6 +9,8 @@ namespace BrandUp.CardDav.Transport.Models.Requests
 {
     public class ReportRequest : ICardDavRequest
     {
+        public ReportRequest() { }
+
         public ReportRequest(Depth depth)
         {
             Headers.Add("Depth", depth.Value);

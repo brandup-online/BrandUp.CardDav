@@ -32,7 +32,10 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
 
         void IXmlSerializable.WriteXml(XmlWriter writer)
         {
-            throw new NotImplementedException();
+            foreach (var resource in Resources)
+            {
+                resource.WriteXml(writer);
+            }
         }
 
         #endregion

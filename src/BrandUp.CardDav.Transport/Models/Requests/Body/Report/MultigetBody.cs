@@ -9,8 +9,8 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
     [XmlRoot(ElementName = "addressbook-multiget", Namespace = "urn:ietf:params:xml:ns:carddav")]
     public class MultigetBody : IRequestBody
     {
-        internal IEnumerable<IDavProperty> PropList { get; set; }
-        internal IEnumerable<string> VCardEndpoints { get; set; }
+        public IEnumerable<IDavProperty> PropList { get; set; }
+        public IEnumerable<string> VCardEndpoints { get; set; }
 
         public MultigetBody()
         { }

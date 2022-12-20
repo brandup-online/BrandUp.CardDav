@@ -1,5 +1,6 @@
 ﻿using BrandUp.CardDav.Server.Documents;
 using BrandUp.CardDav.Server.Example.Domain.Context;
+using BrandUp.CardDav.Server.Example.Domain.Documents;
 using BrandUp.CardDav.Server.Repositories;
 using MongoDB.Driver;
 
@@ -20,27 +21,42 @@ namespace BrandUp.CardDav.Server.Example.Domain.Repositories
 
         public Task CreateAsync(IAddressBookDocument document, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return context.AddressBooks.InsertOneAsync((AddressBookDocument)document, new() { BypassDocumentValidation = false }, cancellationToken);
         }
 
-        public Task<bool> DeleteAsync(IAddressBookDocument document, CancellationToken cancellationToken)
+        public async Task<bool> DeleteAsync(IAddressBookDocument document, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var result = await context.AddressBooks.DeleteOneAsync(d => d.Id == document.Id, cancellationToken);
+
+            return result.DeletedCount == 1;
         }
 
-        public Task<IAddressBookDocument> FindByIdAsync(Guid id, CancellationToken cancellationToken)
+        public async Task<IAddressBookDocument> FindByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var cursor = await context.AddressBooks.FindAsync(u => u.Id == id, cancellationToken: cancellationToken);
+
+            return await cursor.FirstOrDefaultAsync();
         }
 
-        public Task<IEnumerable<IAddressBookDocument>> FindCollectionsByUserIdAsync(Guid userId, CancellationToken cancellationToken)
+        public async Task<IAddressBookDocument> FindByNameAsync(string name, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var cursor = await context.AddressBooks.FindAsync(u => u.Name == name, cancellationToken: cancellationToken);
+
+            return await cursor.FirstOrDefaultAsync();
         }
 
-        public Task<bool> UpdateAsync(IAddressBookDocument document, string eTag, CancellationToken cancellationToken)
+        public async Task<IEnumerable<IAddressBookDocument>> FindCollectionsByUserIdAsync(Guid userId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var cursor = await context.AddressBooks.FindAsync(u => u.UserId == userId, cancellationToken: cancellationToken);
+
+            return cursor.ToList();
+        }
+
+        public async Task<bool> UpdateAsync(IAddressBookDocument document, string eTag, CancellationToken cancellationToken)
+        {
+            var result = await context.AddressBooks.ReplaceOneAsync(d => d.Id == document.Id, (AddressBookDocument)document, cancellationToken: cancellationToken);
+
+            return result.ModifiedCount == 1;
         }
 
         #endregion

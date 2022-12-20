@@ -86,10 +86,50 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
 
         public void WriteXml(XmlWriter writer)
         {
-            throw new NotImplementedException();
+
+            writer.WriteStartElement("response", "DAV:");
+
+            writer.WriteStartElement("href", "DAV:");
+            writer.WriteString(Endpoint);
+            writer.WriteEndElement();
+
+            if (FoundProperties.Any())
+            {
+                writer.WriteStartElement("propstat", "DAV:");
+
+                writer.WriteStartElement("prop", "DAV:");
+                foreach (var prop in FoundProperties)
+                {
+                    writer.WriteElementString(prop.Key.Name, prop.Key.Namespace, prop.Value);
+                }
+                writer.WriteEndElement();
+
+                writer.WriteElementString("status", "DAV:", "HTTP/1.1 200 OK");
+
+                writer.WriteEndElement();
+            }
+
+            if (NotFoundProperties.Any())
+            {
+
+                writer.WriteStartElement("propstat", "DAV:");
+
+                writer.WriteStartElement("prop", "DAV:");
+                foreach (var prop in NotFoundProperties)
+                {
+                    prop.WriteXml(writer);
+                }
+                writer.WriteEndElement();
+
+                writer.WriteElementString("status", "DAV:", "HTTP/1.1 404 Not Found");
+
+                writer.WriteEndElement();
+            }
+            writer.WriteEndElement();
         }
 
         #region Xml Helpers
+
         private void ReadHref(XmlReader reader)
         {
             if (reader.LocalName == "href")

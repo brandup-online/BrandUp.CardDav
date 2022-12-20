@@ -2,7 +2,7 @@
 {
     public sealed class CardDavReportAttribute : CardDavAttribute
     {
-        public CardDavReportAttribute() : base("REPORT", "text/xml", "application/xml")
+        public CardDavReportAttribute() : base("REPORT", contentType: "text/xml", "application/xml")
         {
         }
 

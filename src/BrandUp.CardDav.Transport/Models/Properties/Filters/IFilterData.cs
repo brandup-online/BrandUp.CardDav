@@ -4,8 +4,8 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 {
     public interface IFilterData : IDavProperty
     {
-        public string PropName { get; set; }
-        public FilterMatchType Type { get; set; }
+        public string PropName { get; }
+        public FilterMatchType Type { get; }
         IEnumerable<TextMatch> Conditions { get; }
     }
 }

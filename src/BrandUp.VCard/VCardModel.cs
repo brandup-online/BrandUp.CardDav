@@ -19,6 +19,59 @@
 
         public override string ToString()
         {
+            var result = "BEGIN:VCARD\r\n";
+
+            result += ToVCardStringVersion();
+
+            result += ToVCardStringUID();
+
+            result += ToVCardStringName();
+
+            result += ToVCardStringFormattedName();
+
+            result += ToVCardStringAdditionalFields();
+
+            result += ToVCardStringEmailes();
+
+            result += ToVCardStringPhones();
+
+            result += "END:VCARD\r\n";
+
+            return result;
+        }
+
+        public string ToStringProps(IEnumerable<VCardProperty> properties)
+        {
+            var result = "";
+
+            if (properties.Contains(VCardProperty.VERSION))
+                result += ToVCardStringVersion();
+
+            if (properties.Contains(VCardProperty.UID))
+                result += ToVCardStringUID();
+
+            if (properties.Contains(VCardProperty.N))
+                result += ToVCardStringName();
+
+            if (properties.Contains(VCardProperty.FN))
+                result += ToVCardStringFormattedName();
+
+            if (properties.Contains(VCardProperty.EMAIL))
+                result += ToVCardStringEmailes();
+
+            if (properties.Contains(VCardProperty.TEL))
+                result += ToVCardStringPhones();
+
+            return result;
+        }
+
+        public string ToStringProps(params VCardProperty[] property)
+            => ToStringProps(property.ToArray());
+
+        #region Helpers 
+
+        string ToVCardStringVersion()
+        {
             var version = Version switch
             {
                 VCardVersion.VCard4 => "4.0",
@@ -27,24 +80,36 @@
                 VCardVersion.VCard1 => "1.0",
                 _ => throw new ArgumentException(),
             };
+            return $"VERSION:{version}\r\n";
+        }
 
-            var result = $"BEGIN:VCARD\r\nVERSION:{version}\r\n";
+        string ToVCardStringUID() => UId == null ? "" : "UID:" + UId + "\r\n";
 
-            result += UId == null ? "" : "UID:" + UId + "\r\n";
-
-            result += "N:" + string.Join(";", string.Join(",", Name.FamilyNames),
+        string ToVCardStringName()
+        {
+            return "N:" + string.Join(";", string.Join(",", Name.FamilyNames),
                                        string.Join(",", Name.GivenNames),
                                        string.Join(",", Name.AdditionalNames),
                                        string.Join(",", Name.HonorificPrefixes),
                                        string.Join(",", Name.HonorificSuffixes)) + "\r\n";
 
-            result += $"FN:{FormattedName}\r\n";
+        }
 
+        string ToVCardStringFormattedName() => $"FN:{FormattedName}\r\n";
+
+        string ToVCardStringAdditionalFields()
+        {
+            string result = "";
             foreach (var item in AdditionalFields)
             {
                 result += item.Key + ":" + item.Value + "\r\n";
             }
+            return result;
+        }
 
+        string ToVCardStringEmailes()
+        {
+            string result = "";
             foreach (var item in Emails)
             {
                 var emailStr = "EMAIL";
@@ -58,9 +123,14 @@
                 emailStr += $":{item.Email}\r\n";
 
                 result += emailStr;
-
             }
 
+            return result;
+        }
+
+        string ToVCardStringPhones()
+        {
+            string result = "";
             foreach (var item in Phones)
             {
                 var phoneStr = "TEL";
@@ -75,10 +145,9 @@
                 result += phoneStr;
             }
 
-            result += "END:VCARD\r\n";
-
             return result;
         }
+        #endregion
     }
 
     public class VCardName

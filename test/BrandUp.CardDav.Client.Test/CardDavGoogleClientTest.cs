@@ -42,9 +42,9 @@ namespace BrandUp.CardDav.Client.Test
 
             var filter = new Filter();
             filter.AddPropFilter("FN", FilterMatchType.All, TextMatch.Create("", TextMatchType.Contains));
-            var report = ReportRequest.CreateQuery(Depth.One, PropList.Create(Prop.CTag, Prop.ETag), filter);
+            var report = ReportRequest.CreateQuery(Depth.One, PropList.Create(Prop.CTag, Prop.ETag, Prop.AddressData()), filter);
 
-            var reportResponse = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists/default", report, CancellationToken.None);
+            var reportResponse = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists", report, CancellationToken.None);
 
             output.WriteLine(reportResponse.StatusCode);
             Assert.True(reportResponse.IsSuccess);

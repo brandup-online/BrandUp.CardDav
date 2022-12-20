@@ -1,5 +1,6 @@
 ﻿using BrandUp.CardDav.Server.Documents;
 using BrandUp.CardDav.Server.Example.Domain.Context;
+using BrandUp.CardDav.Server.Example.Domain.Documents;
 using BrandUp.CardDav.Server.Repositories;
 using MongoDB.Driver;
 
@@ -20,27 +21,35 @@ namespace BrandUp.CardDav.Server.Example.Domain.Repositories
 
         public Task CreateAsync(IUserDocument document, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return context.Users.InsertOneAsync((UserDocument)document, new() { BypassDocumentValidation = false }, cancellationToken);
         }
 
-        public Task<bool> DeleteAsync(IUserDocument document, CancellationToken cancellationToken)
+        public async Task<bool> DeleteAsync(IUserDocument document, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var result = await context.Users.DeleteOneAsync(d => d.Id == document.Id, cancellationToken);
+
+            return result.DeletedCount == 1;
         }
 
-        public Task<IUserDocument> FindByIdAsync(Guid id, CancellationToken cancellationToken)
+        public async Task<IUserDocument> FindByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var cursor = await context.Users.FindAsync(u => u.Id == id, cancellationToken: cancellationToken);
+
+            return await cursor.FirstOrDefaultAsync();
         }
 
-        public Task<IUserDocument> FindByNameAsync(string name, CancellationToken cancellationToken)
+        public async Task<IUserDocument> FindByNameAsync(string name, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var cursor = await context.Users.FindAsync(u => u.Name == name, cancellationToken: cancellationToken);
+
+            return await cursor.FirstOrDefaultAsync();
         }
 
-        public Task<bool> UpdateAsync(IUserDocument document, CancellationToken cancellationToken)
+        public async Task<bool> UpdateAsync(IUserDocument document, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var result = await context.Users.ReplaceOneAsync(d => d.Id == document.Id, (UserDocument)document, cancellationToken: cancellationToken);
+
+            return result.ModifiedCount == 1;
         }
 
         #endregion

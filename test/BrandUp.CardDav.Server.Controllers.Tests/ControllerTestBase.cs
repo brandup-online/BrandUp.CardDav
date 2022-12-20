@@ -1,5 +1,7 @@
 ﻿using BrandUp.CardDav.Client;
 using BrandUp.CardDav.Client.Options;
+using BrandUp.Extensions.Migrations;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit.Abstractions;
 
@@ -28,9 +30,14 @@ namespace BrandUp.CardDav.Server.Controllers.Tests
 
         #region IAsyncLifetime members
 
-        public Task InitializeAsync()
+        public async Task InitializeAsync()
         {
-            return Task.CompletedTask;
+            var scopeFactory = factory.Server.Services.GetService<IServiceScopeFactory>();
+            using var migrateScope = scopeFactory.CreateScope();
+
+            var migrationExecutor = migrateScope.ServiceProvider.GetRequiredService<MigrationExecutor>();
+
+            await migrationExecutor.UpAsync();
         }
 
         public async Task DisposeAsync()

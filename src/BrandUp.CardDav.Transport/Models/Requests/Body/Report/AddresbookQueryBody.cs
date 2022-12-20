@@ -40,16 +40,14 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
                 {
                     if (reader.LocalName == "prop")
                         continue;
-
-                    if (reader.LocalName == "address-data")
+                    else if (reader.LocalName == "address-data")
                     {
                         var addresData = new AddressData();
 
                         addresData.ReadXml(reader);
                         propList.Add(addresData);
                     }
-
-                    if (reader.LocalName == "filter")
+                    else if (reader.LocalName == "filter")
                     {
                         var filter = new Filter();
 
@@ -57,8 +55,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
 
                         Filter = filter;
                     }
-
-                    if (reader.LocalName == "limit")
+                    else if (reader.LocalName == "limit")
                     {
                         reader.Read();
                         Limit = uint.Parse(reader.Value);

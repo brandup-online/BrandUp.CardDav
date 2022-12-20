@@ -4,6 +4,8 @@ namespace BrandUp.CardDav.Server.Controllers.Tests.Controllers
 {
     public class HomeTests : ControllerTestBase
     {
+
+
         public HomeTests(ITestOutputHelper output) : base(output)
         { }
 

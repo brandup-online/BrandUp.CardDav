@@ -8,6 +8,7 @@ namespace BrandUp.CardDav.Server.Repositories
         public Task CreateAsync(IAddressBookDocument document, CancellationToken cancellationToken);
         public Task<bool> UpdateAsync(IAddressBookDocument document, string eTag, CancellationToken cancellationToken);
         public Task<IAddressBookDocument> FindByIdAsync(Guid id, CancellationToken cancellationToken);
+        public Task<IAddressBookDocument> FindByNameAsync(string name, CancellationToken cancellationToken);
         public Task<IEnumerable<IAddressBookDocument>> FindCollectionsByUserIdAsync(Guid userId, CancellationToken cancellationToken);
         public Task<bool> DeleteAsync(IAddressBookDocument document, CancellationToken cancellationToken);
     }

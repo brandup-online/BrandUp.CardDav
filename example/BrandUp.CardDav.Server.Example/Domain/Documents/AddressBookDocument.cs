@@ -9,6 +9,7 @@ namespace BrandUp.CardDav.Server.Example.Domain.Documents
     {
         [BsonId]
         public Guid Id { get; set; }
+        public string Name { get; set; }
         public Guid UserId { get; set; }
         public string ETag { get; set; }
         public List<Guid> Contacts { get; set; }

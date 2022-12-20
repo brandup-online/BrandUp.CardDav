@@ -8,10 +8,11 @@ namespace BrandUp.CardDav.Transport.Models.Properties
     public class AddressData : IDavProperty
     {
         private IEnumerable<VCardProperty> vCardProperties;
+        public IEnumerable<VCardProperty> VCardProperies => vCardProperties;
         public AddressData() { }
         public AddressData(params VCardProperty[] props)
         {
-            vCardProperties = props?.Distinct() ?? throw new ArgumentNullException(nameof(props));
+            vCardProperties = props?.Distinct() ?? new List<VCardProperty>();
         }
 
         #region IDavProperty members

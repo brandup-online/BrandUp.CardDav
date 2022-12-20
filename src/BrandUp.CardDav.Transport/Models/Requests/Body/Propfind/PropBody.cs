@@ -47,7 +47,8 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Propfind
             var props = new List<IDavProperty>();
             while (reader.Read())
             {
-                props.Add(new DefaultProp(reader.LocalName, reader.NamespaceURI));
+                if (reader.NodeType == XmlNodeType.Element && reader.LocalName != "prop")
+                    props.Add(new DefaultProp(reader.LocalName, reader.NamespaceURI));
             }
             Properties = props;
         }

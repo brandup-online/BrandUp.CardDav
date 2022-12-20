@@ -4,6 +4,7 @@ using MongoDB.Driver;
 
 namespace BrandUp.CardDav.Server.Controllers.Tests._migration
 {
+    [Setup]
     public class TestUserMigration : IMigrationHandler
     {
         readonly AppDocumentContext context;

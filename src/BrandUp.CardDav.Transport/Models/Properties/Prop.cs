@@ -1,4 +1,5 @@
 ﻿using BrandUp.CardDav.Transport.Models.Abstract;
+using BrandUp.CardDav.VCard;
 
 namespace BrandUp.CardDav.Transport.Models.Properties
 {
@@ -31,6 +32,12 @@ namespace BrandUp.CardDav.Transport.Models.Properties
         public static IDavProperty ContentType => new DefaultProp("getcontenttype");
         public static IDavProperty LastModified => new DefaultProp("getlastmodified");
         public static IDavProperty ResourceType => new DefaultProp("resourcetype");
+        public static IDavProperty AddressData(params VCardProperty[] props)
+        {
+            if (props.Length != 0)
+                return new AddressData(props);
+            else return new AddressData();
+        }
 
         #endregion
     }

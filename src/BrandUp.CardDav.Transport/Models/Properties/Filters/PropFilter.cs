@@ -5,10 +5,10 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 {
     internal class PropFilter : IFilterData
     {
-        public string PropName { get; set; }
-        public FilterMatchType Type { get; set; }
+        public string PropName { get; internal set; }
+        public FilterMatchType Type { get; internal set; }
 
-        public IEnumerable<TextMatch> Conditions { get; init; }
+        public IEnumerable<TextMatch> Conditions { get; internal set; }
 
         public string Name => "prop-filter";
 
@@ -18,7 +18,36 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 
         public void ReadXml(XmlReader reader)
         {
-            throw new NotImplementedException();
+            var conditions = new List<TextMatch>();
+            while (reader.Read())
+            {
+                if (reader.NodeType == XmlNodeType.Attribute)
+                {
+                    if (reader.LocalName == "name")
+                    {
+                        PropName = reader.Value;
+                    }
+
+                    if (reader.LocalName == "test")
+                    {
+                        if (reader.Value == "allof")
+                            Type = FilterMatchType.All;
+                        else
+                        {
+                            Type = FilterMatchType.Any;
+                        };
+                    }
+                }
+
+                if (reader.NodeType == XmlNodeType.Element)
+                    if (reader.LocalName == "text-match")
+                    {
+                        var cond = new TextMatch();
+                        cond.ReadXml(reader);
+                        conditions.Add(cond);
+                    }
+            }
+            Conditions = conditions;
         }
 
         public void WriteXml(XmlWriter writer)

@@ -38,7 +38,27 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 
         public void ReadXml(XmlReader reader)
         {
-            throw new NotImplementedException();
+            while (reader.Read())
+            {
+                if (reader.NodeType == XmlNodeType.Attribute && reader.LocalName == "test")
+                {
+                    if (reader.Value == "allof")
+                        MatchType = FilterMatchType.All;
+                    else
+                        MatchType = FilterMatchType.Any;
+                }
+                if (reader.NodeType == XmlNodeType.Element)
+                {
+                    if (reader.LocalName == "prop-filter")
+                    {
+                        var propfilter = new PropFilter();
+
+                        propfilter.ReadXml(reader);
+
+                        FilterData.Add(propfilter);
+                    }
+                }
+            }
         }
 
         public void WriteXml(XmlWriter writer)

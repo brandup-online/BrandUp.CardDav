@@ -10,6 +10,7 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
     {
         public IList<AddressDataResource> Resources { get; private set; }
         public ReportResponseBody() { }
+
         #region IResponseBody
 
         IList<IResponseResource> IResponseBody.Resources => (IList<IResponseResource>)Resources;
@@ -34,7 +35,10 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
 
         public void WriteXml(XmlWriter writer)
         {
-            throw new NotImplementedException();
+            foreach (var resource in Resources)
+            {
+                resource.WriteXml(writer);
+            }
         }
 
         #endregion

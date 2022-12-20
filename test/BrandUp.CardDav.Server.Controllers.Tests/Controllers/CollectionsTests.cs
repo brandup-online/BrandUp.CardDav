@@ -16,7 +16,7 @@ namespace BrandUp.CardDav.Server.Controllers.Tests.Controllers
         {
             var request = PropfindRequest.Create(Depth.Zero, Prop.ETag);
 
-            var propfind = await Client.PropfindAsync("Principal/user/Collections/", request, CancellationToken.None);
+            var propfind = await Client.PropfindAsync("Principal/User/Collections", request, CancellationToken.None);
 
             Output.WriteLine(propfind.StatusCode);
             Assert.True(propfind.IsSuccess);
@@ -25,14 +25,13 @@ namespace BrandUp.CardDav.Server.Controllers.Tests.Controllers
         [Fact]
         public async Task Success_Report()
         {
-            //var request = XmlQueryHelper.AddressCollection();
             var filter = new Filter()
             {
 
             };
             var request = ReportRequest.CreateQuery(Depth.Zero, PropList.Create(Prop.ETag, Prop.CTag), filter);
 
-            var propfind = await Client.ReportAsync("Principal/user/Collections/", request, CancellationToken.None);
+            var propfind = await Client.ReportAsync("Principal/User/Collections", request, CancellationToken.None);
 
             Output.WriteLine(propfind.StatusCode);
             Assert.True(propfind.IsSuccess);

@@ -1,5 +1,6 @@
 ﻿using BrandUp.CardDav.Server.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 
 namespace BrandUp.CardDav.Server.Controllers
 {
@@ -7,9 +8,12 @@ namespace BrandUp.CardDav.Server.Controllers
     [Route("")]
     public class HomeController : CardDavController
     {
-        public HomeController(IUserRepository userRepository, IContactRepository contactRepository, IAddressBookRepository addressRepository)
+        readonly IEnumerable<EndpointDataSource> endpointSources;
+
+        public HomeController(IEnumerable<EndpointDataSource> endpointSources, IUserRepository userRepository, IContactRepository contactRepository, IAddressBookRepository addressRepository)
             : base(userRepository, contactRepository, addressRepository)
         {
+            this.endpointSources = endpointSources;
         }
 
         [HttpGet]
@@ -23,7 +27,5 @@ namespace BrandUp.CardDav.Server.Controllers
         {
             return Task.FromResult(Options());
         }
-
-
     }
 }

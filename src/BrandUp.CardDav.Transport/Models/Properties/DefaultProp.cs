@@ -35,7 +35,8 @@ namespace BrandUp.CardDav.Transport.Models.Properties
 
         public void ReadXml(XmlReader reader)
         {
-            throw new NotImplementedException();
+            name = reader.LocalName;
+            @namespace = reader.NamespaceURI;
         }
 
         public void WriteXml(XmlWriter writer)
