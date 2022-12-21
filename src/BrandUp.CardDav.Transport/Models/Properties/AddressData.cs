@@ -12,7 +12,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties
         public AddressData() { }
         public AddressData(params VCardProperty[] props)
         {
-            vCardProperties = props?.Distinct() ?? new List<VCardProperty>();
+            vCardProperties = props?.Distinct().ToList() ?? new List<VCardProperty>();
         }
 
         #region IDavProperty members
@@ -33,12 +33,13 @@ namespace BrandUp.CardDav.Transport.Models.Properties
             while (reader.Read())
             {
                 if (reader.NodeType == XmlNodeType.EndElement && reader.LocalName == "address-data")
-                    return;
-
-                if (reader.NodeType == XmlNodeType.Attribute && reader.LocalName == "name")
                 {
-                    props.Add(Enum.Parse<VCardProperty>(reader.Value, true));
+                    vCardProperties = props;
+                    return;
                 }
+
+                var value = reader.GetAttribute("name", Namespace);
+                props.Add(Enum.Parse<VCardProperty>(value, true));
             }
         }
 

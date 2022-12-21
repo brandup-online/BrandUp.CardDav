@@ -5,7 +5,7 @@ namespace BrandUp.CardDav.Server.Repositories
     public interface IAddressBookRepository
     {
         public IQueryable<IAddressBookDocument> AddressBooks { get; }
-        public Task CreateAsync(IAddressBookDocument document, CancellationToken cancellationToken);
+        public Task CreateAsync(string name, Guid userId, CancellationToken cancellationToken);
         public Task<bool> UpdateAsync(IAddressBookDocument document, string eTag, CancellationToken cancellationToken);
         public Task<IAddressBookDocument> FindByIdAsync(Guid id, CancellationToken cancellationToken);
         public Task<IAddressBookDocument> FindByNameAsync(string name, CancellationToken cancellationToken);

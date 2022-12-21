@@ -1,12 +1,8 @@
 ﻿using BrandUp.CardDav.Server.Attributes;
 using BrandUp.CardDav.Server.Repositories;
-using BrandUp.CardDav.Transport.Models.Abstract;
 using BrandUp.CardDav.Transport.Models.Headers;
-using BrandUp.CardDav.Transport.Models.Properties;
 using BrandUp.CardDav.Transport.Models.Requests;
-using BrandUp.CardDav.Transport.Models.Requests.Body.Report;
 using BrandUp.CardDav.Transport.Models.Responses.Body;
-using BrandUp.CardDav.VCard;
 using Microsoft.AspNetCore.Mvc;
 using System.Xml.Serialization;
 
@@ -26,9 +22,13 @@ namespace BrandUp.CardDav.Server.Controllers
         [CardDavPropfind]
         public async Task<ActionResult<string>> PropfindAsync([FromRoute(Name = "Name")] string name, PropfindRequest request)
         {
-            var endpoint = Request.Path.Value;
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
+
+            if (request.Depth == Depth.Infinity)
+            {
+                return BadRequest("Depth: Infinity");
+            }
 
             var user = await userRepository.FindByNameAsync(name, HttpContext.RequestAborted);
 
@@ -36,43 +36,16 @@ namespace BrandUp.CardDav.Server.Controllers
                 return NotFound();
 
             var response = new PropfindResponseBody();
-            Dictionary<IDavProperty, string> propertyDictionary = new();
-            foreach (var property in request.Body.Properties)
-            {
-                if (property.Name == "getctag")
-                    propertyDictionary.Add(property, user.CTag);
-            }
 
-            response.Resources.Add(new DefaultResponseResource
-            {
-                Endpoint = endpoint,
-                FoundProperties = new(propertyDictionary),
-                NotFoundProperties = request.Body.Properties.Except(propertyDictionary.Keys, new PropertyComparer()).ToArray()
-            });
+            response.Resources.Add(GenerateResponseResource(user, request.Body.Properties));
 
-            if (request.Depth == Depth.One)
+            if (request.Depth.Value == Depth.One.Value)
             {
                 var addresBooks = await addressRepository.FindCollectionsByUserIdAsync(user.Id, HttpContext.RequestAborted);
                 foreach (var book in addresBooks)
                 {
-                    propertyDictionary = new();
-                    foreach (var property in request.Body.Properties)
-                    {
-                        if (property.Name == "getctag")
-                            propertyDictionary.Add(property, book.CTag);
-                    }
-
-                    response.Resources.Add(new DefaultResponseResource
-                    {
-                        Endpoint = endpoint,
-                        FoundProperties = new(propertyDictionary),
-                        NotFoundProperties = request.Body.Properties.Except(propertyDictionary.Keys, new PropertyComparer()).ToArray()
-                    });
+                    response.Resources.Add(GenerateResponseResource(book, request.Body.Properties, true));
                 }
-            }
-            else if (request.Depth == Depth.Infinity)
-            {
-                return BadRequest();
             }
 
             var serializer = new XmlSerializer(typeof(PropfindResponseBody));
@@ -84,90 +57,34 @@ namespace BrandUp.CardDav.Server.Controllers
         }
 
         [CardDavPropfind("{AddressBook}")]
-        public Task<ActionResult> PropfindCollectionAsync([FromRoute(Name = "Name")] string name, [FromRoute] string addressBook, PropfindRequest request)
+        public async Task<ActionResult> PropfindCollectionAsync([FromRoute(Name = "Name")] string name, [FromRoute] string addressBook, PropfindRequest request)
         {
-            var xmlString = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n  " +
-                            " <D:multistatus xmlns:D=\"DAV:\">\r\n   " +
-                            "  <D:response>\r\n      " +
-                            " <D:href>http://www.example.com/papers/</D:href>\r\n     " +
-                            "  <D:propstat>\r\n   " +
-                            "      <D:prop>\r\n        " +
-                            "     </D:prop>\r\n      " +
-                            "   <D:status>HTTP/1.1 200 OK</D:status>\r\n     " +
-                            "  </D:propstat>\r\n   " +
-                            "  </D:response>\r\n " +
-                            "  </D:multistatus>";
-
-            return Task.FromResult((ActionResult)Content(xmlString, "text/xml"));
-        }
-
-        #endregion
-
-        #region Report controllers
-
-        [CardDavReport("{AddressBook}")]
-        public async Task<ActionResult> ReportCollectionAsync([FromRoute(Name = "Name")] string name, [FromRoute] string addressBook, ReportRequest request)
-        {
-            var endpoint = Request.Path.Value;
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
+            if (request.Depth == Depth.Infinity)
+                return BadRequest("Depth: Infinity");
             var user = await userRepository.FindByNameAsync(name, HttpContext.RequestAborted);
 
             if (user == null)
                 return NotFound();
 
-            var response = new ReportResponseBody();
-            Dictionary<IDavProperty, string> propertyDictionary = new();
-            foreach (var property in request.Body.Properties)
-            {
-                if (property.Name == "getctag")
-                    propertyDictionary.Add(property, user.CTag);
-            }
+            var addresBook = await addressRepository.FindByNameAsync(addressBook, HttpContext.RequestAborted);
 
-            var addressBooks = await addressRepository.FindCollectionsByUserIdAsync(user.Id, HttpContext.RequestAborted);
-            if (!addressBooks.Select(b => b.UserId).Contains(user.Id))
+            if (addresBook?.UserId != user.Id)
                 return NotFound();
 
-            var book = addressBooks.First(b => b.Name == addressBook);
+            var response = new PropfindResponseBody();
 
-            var contacts = await contactRepository.FindAllContactsByBookIdAsync(book.Id, HttpContext.RequestAborted);
+            response.Resources.Add(GenerateResponseResource(addresBook, request.Body.Properties));
 
-            var dict = contacts.ToDictionary(k => k, v => VCardParser.Parse(v.RawVCard));
-
-            if (request.Body is AddresbookQueryBody body)
+            if (request.Depth.Value == Depth.One.Value)
             {
-
-            }
-            else if (request.Body is MultigetBody multigetBody)
-            {
-                var ids = multigetBody.VCardEndpoints.Select(s => Guid.Parse(s.Split("/").Last()));
-                contacts = dict.Keys.Where(k => ids.Contains(k.Id)).ToList();
-            }
-
-            foreach (var contact in contacts)
-            {
-                propertyDictionary = new();
-                foreach (var property in request.Body.Properties)
+                var contacts = await contactRepository.FindAllContactsByBookIdAsync(addresBook.Id, HttpContext.RequestAborted);
+                foreach (var contact in contacts)
                 {
-                    if (property.Name == "getetag")
-                        propertyDictionary.Add(property, contact.ETag);
-                    if (property is AddressData addressData)
-                    {
-                        var vCard = dict[contact];
-                        if (addressData.VCardProperies.Any())
-                            propertyDictionary.Add(property, vCard.ToStringProps(addressData.VCardProperies));
-                        else
-                            propertyDictionary.Add(property, vCard.ToString());
-                    }
+                    response.Resources.Add(GenerateResponseResource(contact, request.Body.Properties, true));
                 }
-
-                response.Resources.Add(new AddressDataResource
-                {
-                    Endpoint = endpoint,
-                    FoundProperties = new(propertyDictionary),
-                    NotFoundProperties = request.Body.Properties.Except(propertyDictionary.Keys, new PropertyComparer()).ToArray()
-                });
             }
 
             var serializer = new XmlSerializer(typeof(PropfindResponseBody));
@@ -180,42 +97,66 @@ namespace BrandUp.CardDav.Server.Controllers
 
         #endregion
 
-        #region Mkcol controllers
+        #region Report controllers
 
-        [CardDavMkcol]
-        public Task<ActionResult> MakeCollectionAsync(MkcolRequest request)
+        [CardDavReport("{AddressBook}")]
+        public async Task<ActionResult> ReportCollectionAsync([FromRoute(Name = "Name")] string name, [FromRoute] string addressBook, ReportRequest request)
         {
-            var xmlString = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n  " +
-                            " <D:multistatus xmlns:D=\"DAV:\">\r\n   " +
-                            "  <D:response>\r\n      " +
-                            " <D:href>http://www.example.com/papers/</D:href>\r\n     " +
-                            "  <D:propstat>\r\n   " +
-                            "      <D:prop>\r\n        " +
-                            "     </D:prop>\r\n      " +
-                            "   <D:status>HTTP/1.1 200 OK</D:status>\r\n     " +
-                            "  </D:propstat>\r\n   " +
-                            "  </D:response>\r\n " +
-                            "  </D:multistatus>";
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
 
-            return Task.FromResult((ActionResult)Content(xmlString, "text/xml"));
+            var user = await userRepository.FindByNameAsync(name, HttpContext.RequestAborted);
+
+            if (user == null)
+                return NotFound();
+
+            var addresBook = await addressRepository.FindByNameAsync(addressBook, HttpContext.RequestAborted);
+
+            if (addresBook?.UserId != user.Id)
+                return NotFound();
+
+            var contacts = await contactRepository.FindAllContactsByBookIdAsync(addresBook.Id, HttpContext.RequestAborted);
+
+            var response = new ReportResponseBody();
+            foreach (var contact in contacts)
+            {
+                var defaultResponce = GenerateResponseResource(contact, request.Body.Properties, true);
+                response.Resources.Add(new AddressDataResource
+                {
+                    Endpoint = defaultResponce.Endpoint,
+                    FoundProperties = defaultResponce.FoundProperties,
+                    NotFoundProperties = defaultResponce.NotFoundProperties,
+                });
+            }
+
+            var serializer = new XmlSerializer(typeof(ReportResponseBody));
+
+            Response.StatusCode = 207;
+            serializer.Serialize(Response.Body, response);
+
+            return new EmptyResult();
         }
 
-        [CardDavMkcol("{AddressBook}")]
-        public Task<ActionResult> MakeCollectionAsync([FromRoute] string addressBook)
-        {
-            var xmlString = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n  " +
-                            " <D:multistatus xmlns:D=\"DAV:\">\r\n   " +
-                            "  <D:response>\r\n      " +
-                            " <D:href>http://www.example.com/papers/</D:href>\r\n   " +
-                            "  <D:propstat>\r\n   " +
-                            "      <D:prop>\r\n        " +
-                            "     </D:prop>\r\n      " +
-                            "   <D:status>HTTP/1.1 200 OK</D:status>\r\n     " +
-                            "  </D:propstat>\r\n   " +
-                            "  </D:response>\r\n " +
-                            "  </D:multistatus>";
+        #endregion
 
-            return Task.FromResult((ActionResult)Content(xmlString, "text/xml"));
+        #region Mkcol controllers
+
+        [CardDavMkcol("{AddressBook}")]
+        public async Task<ActionResult> MakeCollectionAsync([FromRoute(Name = "Name")] string name, [FromRoute] string addressBook)
+        {
+            var user = await userRepository.FindByNameAsync(name, HttpContext.RequestAborted);
+
+            if (user == null)
+                return NotFound();
+
+            var book = await addressRepository.FindByNameAsync(addressBook, HttpContext.RequestAborted);
+
+            if (book != null)
+                return Conflict();
+
+            await addressRepository.CreateAsync(addressBook, user.Id, HttpContext.RequestAborted);
+
+            return Created(new Uri(Request.Path.Value, UriKind.Relative), addressBook);
         }
 
         #endregion

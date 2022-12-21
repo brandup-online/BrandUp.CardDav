@@ -19,9 +19,12 @@ namespace BrandUp.CardDav.Server.Example.Domain.Repositories
 
         public IQueryable<IContactDocument> Contacts => context.Contacts.AsQueryable();
 
-        public Task CreateAsync(IContactDocument document, CancellationToken cancellationToken)
+        public Task CreateAsync(string name, Guid bookId, string vCard, CancellationToken cancellationToken)
         {
-            return context.Contacts.InsertOneAsync((ContactDocument)document, new() { BypassDocumentValidation = false }, cancellationToken);
+            ContactDocument document = new();
+            document.SetForCreation(name, bookId, vCard);
+
+            return context.Contacts.InsertOneAsync(document, new() { BypassDocumentValidation = false }, cancellationToken);
         }
 
         public async Task<bool> DeleteAsync(IContactDocument document, CancellationToken cancellationToken)

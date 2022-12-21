@@ -1,11 +1,12 @@
-﻿using System.Xml;
+﻿using BrandUp.CardDav.VCard;
+using System.Xml;
 using System.Xml.Schema;
 
 namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 {
     internal class PropFilter : IFilterData
     {
-        public string PropName { get; internal set; }
+        public VCardProperty PropName { get; internal set; }
         public FilterMatchType Type { get; internal set; }
 
         public IEnumerable<TextMatch> Conditions { get; internal set; }
@@ -25,7 +26,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
                 {
                     if (reader.LocalName == "name")
                     {
-                        PropName = reader.Value;
+                        PropName = Enum.Parse<VCardProperty>(reader.Value);
                     }
 
                     if (reader.LocalName == "test")
@@ -53,7 +54,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
         public void WriteXml(XmlWriter writer)
         {
             writer.WriteStartElement(Name, Namespace);
-            writer.WriteAttributeString("name", PropName);
+            writer.WriteAttributeString("name", PropName.ToString());
             writer.WriteAttributeString("test", Type.ToString().ToLowerInvariant() + "of");
             foreach (var condition in Conditions)
             {

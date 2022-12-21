@@ -1,6 +1,7 @@
 ﻿using BrandUp.CardDav.Server.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Primitives;
 
 namespace BrandUp.CardDav.Server.Controllers
 {
@@ -23,9 +24,16 @@ namespace BrandUp.CardDav.Server.Controllers
         }
 
         [HttpOptions]
-        public Task<ActionResult> OptionsAsync()
+        protected Task<ActionResult> OptionsAsync()
         {
-            return Task.FromResult(Options());
+            var allowValues = new List<string>() { "OPTIONS", "GET", "HEAD", "POST", "PUT", "DELETE", "MKCOL", "PROPFIND", "REPORT" };
+
+            var allow = new StringValues(allowValues.ToArray());
+
+            Response.Headers.Add("Allow", allow);
+            Response.Headers.Add("DAV", "1, 3, access-control, addressbook");
+
+            return Task.FromResult((ActionResult)Ok());
         }
     }
 }

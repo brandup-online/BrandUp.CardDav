@@ -6,9 +6,4 @@ namespace BrandUp.CardDav.Transport.Models.Abstract
     {
         IEnumerable<IDavProperty> Properties { get; }
     }
-
-    public interface IRequestFilter
-    {
-
-    }
 }

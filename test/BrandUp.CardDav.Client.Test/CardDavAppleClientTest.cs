@@ -53,7 +53,7 @@ namespace BrandUp.CardDav.Client.Test
 
             var filter = new Filter();
 
-            filter.AddPropFilter("FN", FilterMatchType.All, TextMatch.Create("", TextMatchType.Contains));
+            filter.AddPropFilter(VCardProperty.FN, FilterMatchType.All, TextMatch.Create("", TextMatchType.Contains));
             var report = ReportRequest.CreateQuery(Depth.One, PropList.Create(Prop.CTag, Prop.ETag), filter);
 
             var reportResponse = await client.ReportAsync(response.Body.Resources[1].Endpoint, report, CancellationToken.None);
@@ -63,7 +63,7 @@ namespace BrandUp.CardDav.Client.Test
 
             filter = new Filter();
 
-            filter.AddPropFilter("FN", FilterMatchType.All, TextMatch.Create("ma", TextMatchType.Contains));
+            filter.AddPropFilter(VCardProperty.FN, FilterMatchType.All, TextMatch.Create("ma", TextMatchType.Contains));
             report = ReportRequest.CreateQuery(Depth.One, PropList.Create(Prop.CTag, Prop.ETag), filter);
 
             reportResponse = await client.ReportAsync(response.Body.Resources[1].Endpoint, report, CancellationToken.None);

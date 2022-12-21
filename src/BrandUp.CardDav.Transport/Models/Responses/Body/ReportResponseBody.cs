@@ -8,7 +8,7 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
     [XmlRoot(ElementName = "multistatus", Namespace = "DAV:")]
     public class ReportResponseBody : IResponseBody
     {
-        public IList<AddressDataResource> Resources { get; private set; }
+        public IList<AddressDataResource> Resources { get; private set; } = new List<AddressDataResource>();
         public ReportResponseBody() { }
 
         #region IResponseBody

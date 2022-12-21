@@ -13,14 +13,14 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
         internal IEnumerable<IDavProperty> PropList { get; set; }
         internal Filter Filter { get; set; }
 
-        internal uint Limit { get; set; } = 0;
+        public uint Limit { get; set; } = 0;
 
         public AddresbookQueryBody()
         { }
 
         #region IRequestBody members
 
-        public IEnumerable<IDavProperty> Properties => new List<IDavProperty>(PropList) { Filter };
+        public IEnumerable<IDavProperty> Properties => PropList;
 
         #endregion
 

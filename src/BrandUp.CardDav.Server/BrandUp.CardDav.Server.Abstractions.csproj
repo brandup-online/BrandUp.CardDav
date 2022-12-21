@@ -6,4 +6,8 @@
     <Nullable>disable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BrandUp.CardDav.Transport\BrandUp.CardDav.Transport.csproj" />
+  </ItemGroup>
+
 </Project>

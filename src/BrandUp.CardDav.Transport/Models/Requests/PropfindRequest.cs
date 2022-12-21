@@ -7,12 +7,13 @@ namespace BrandUp.CardDav.Transport.Models.Requests
 {
     public class PropfindRequest : ICardDavRequest
     {
-        public Depth Depth => Depth.Parse(Headers["Depth"]);
+        public Depth Depth { get; }
         public PropfindRequest() { }
 
         public PropfindRequest(IDictionary<string, string> headers)
         {
             Headers = headers;
+            Depth = Depth.Parse(Headers["Depth"]);
         }
 
         public PropfindRequest(string depth)

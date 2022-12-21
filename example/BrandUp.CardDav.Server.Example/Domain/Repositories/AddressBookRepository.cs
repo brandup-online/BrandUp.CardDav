@@ -19,9 +19,11 @@ namespace BrandUp.CardDav.Server.Example.Domain.Repositories
 
         public IQueryable<IAddressBookDocument> AddressBooks => context.AddressBooks.AsQueryable();
 
-        public Task CreateAsync(IAddressBookDocument document, CancellationToken cancellationToken)
+        public Task CreateAsync(string addressBook, Guid userId, CancellationToken cancellationToken)
         {
-            return context.AddressBooks.InsertOneAsync((AddressBookDocument)document, new() { BypassDocumentValidation = false }, cancellationToken);
+            var document = new AddressBookDocument();
+            document.SetForCreation(addressBook, userId);
+            return context.AddressBooks.InsertOneAsync(document, new() { BypassDocumentValidation = false }, cancellationToken);
         }
 
         public async Task<bool> DeleteAsync(IAddressBookDocument document, CancellationToken cancellationToken)

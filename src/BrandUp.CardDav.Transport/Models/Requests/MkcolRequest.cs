@@ -8,7 +8,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests
     {
         #region ICardDavRequest members 
 
-        public IDictionary<string, string> Headers { get; init; }
+        public IDictionary<string, string> Headers { get; init; } = new Dictionary<string, string>();
 
         public IRequestBody Body { get; init; }
 

@@ -17,8 +17,8 @@
             return s switch
             {
                 "0" => Zero,
-                "1" => Zero,
-                "infinity" => Zero,
+                "1" => One,
+                "infinity" => Infinity,
                 _ => throw new ArgumentException(nameof(s))
             };
 

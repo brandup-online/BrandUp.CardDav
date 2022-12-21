@@ -3,6 +3,7 @@ using BrandUp.CardDav.Transport.Models.Headers;
 using BrandUp.CardDav.Transport.Models.Properties;
 using BrandUp.CardDav.Transport.Models.Properties.Filters;
 using BrandUp.CardDav.Transport.Models.Requests;
+using BrandUp.CardDav.VCard;
 using BrandUp.CardDav.VCard.Builders;
 using Microsoft.Extensions.Configuration;
 using Xunit.Abstractions;
@@ -41,7 +42,7 @@ namespace BrandUp.CardDav.Client.Test
             #region Empty filter
 
             var filter = new Filter();
-            filter.AddPropFilter("FN", FilterMatchType.All, TextMatch.Create("", TextMatchType.Contains));
+            filter.AddPropFilter(VCardProperty.FN, FilterMatchType.All, TextMatch.Create("", TextMatchType.Contains));
             var report = ReportRequest.CreateQuery(Depth.One, PropList.Create(Prop.CTag, Prop.ETag, Prop.AddressData()), filter);
 
             var reportResponse = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists", report, CancellationToken.None);
@@ -57,7 +58,7 @@ namespace BrandUp.CardDav.Client.Test
         public async Task Success_Google_NotEmptyFilter()
         {
             var filter = new Filter();
-            filter.AddPropFilter("EMAIL", FilterMatchType.All, TextMatch.Create("me", TextMatchType.Contains));
+            filter.AddPropFilter(VCardProperty.EMAIL, FilterMatchType.All, TextMatch.Create("me", TextMatchType.Contains));
             var report = ReportRequest.CreateQuery(Depth.One,
                                     PropList.Create(Prop.CTag, Prop.ETag, new AddressData()),
                                     filter);
@@ -74,7 +75,7 @@ namespace BrandUp.CardDav.Client.Test
         public async Task Success_Google_Limit()
         {
             var filter = new Filter();
-            filter.AddPropFilter("FN", FilterMatchType.All, TextMatch.Create("", TextMatchType.Contains));
+            filter.AddPropFilter(VCardProperty.FN, FilterMatchType.All, TextMatch.Create("", TextMatchType.Contains));
             var report = ReportRequest.CreateQuery(Depth.One,
                                     PropList.Create(Prop.CTag, Prop.ETag, new AddressData()),
                                     filter,
