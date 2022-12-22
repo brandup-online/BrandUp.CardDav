@@ -4,16 +4,43 @@ using System.Xml.Schema;
 
 namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 {
-    internal class PropFilter : IFilterData
+    internal class PropFilter : IFilter
     {
+        #region IDavProperty members
+        public string Name => "prop-filter";
+
+        public string Namespace => "urn:ietf:params:xml:ns:carddav";
+
+        #endregion
+
+        #region IFilter members
+
         public VCardProperty PropName { get; internal set; }
         public FilterMatchType Type { get; internal set; }
 
         public IEnumerable<TextMatch> Conditions { get; internal set; }
 
-        public string Name => "prop-filter";
+        public bool CheckConditions(VCardModel vCardModel)
+        {
+            bool flag = false;
 
-        public string Namespace => "urn:ietf:params:xml:ns:carddav";
+            foreach (var condition in Conditions)
+            {
+                var values = vCardModel.GetValuesOf(PropName).Split(' ');
+                foreach (var value in values)
+                {
+                    flag = condition.Check(value);
+                    if (Type == FilterMatchType.All && flag == false)
+                        return false;
+                }
+            }
+
+            return flag;
+        }
+
+        #endregion
+
+        #region IXmlSerializable members
 
         public XmlSchema GetSchema() => null;
 
@@ -62,5 +89,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
             }
             writer.WriteEndElement();
         }
+
+        #endregion
     }
 }

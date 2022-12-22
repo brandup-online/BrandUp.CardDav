@@ -18,7 +18,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests
 
         #region Static members
 
-        public static ReportRequest CreateQuery(Depth depth, PropList propRequest, Filter filter, uint limit = 0)
+        public static ReportRequest CreateQuery(Depth depth, PropList propRequest, FilterBody filter, int limit = 0)
             => new ReportRequest(depth)
             {
                 Body = new AddresbookQueryBody()
@@ -28,7 +28,6 @@ namespace BrandUp.CardDav.Transport.Models.Requests
                     Limit = limit
                 }
             };
-
 
         public static ReportRequest CreateMultiget(Depth depth, PropList propRequest, params string[] endpoints)
             => new ReportRequest(depth)
@@ -46,7 +45,9 @@ namespace BrandUp.CardDav.Transport.Models.Requests
 
         public IDictionary<string, string> Headers { get; init; } = new Dictionary<string, string>();
 
-        public IRequestBody Body { get; init; }
+        IRequestBody ICardDavRequest.Body => Body;
+
+        public IReportBody Body { get; init; }
 
         public HttpRequestMessage ToHttpRequest()
         {

@@ -58,7 +58,7 @@ namespace BrandUp.CardDav.Server.Controllers.Tests.Controllers
         {
             #region Addresbook-query no filter, not empty address-data, no limit
 
-            var filter = new Filter()
+            var filter = new FilterBody()
             {
 
             };
@@ -75,7 +75,7 @@ namespace BrandUp.CardDav.Server.Controllers.Tests.Controllers
 
             #region Addresbook-query with filter 
 
-            filter = new Filter()
+            filter = new FilterBody()
             {
                 MatchType = FilterMatchType.All
             };
@@ -100,7 +100,7 @@ namespace BrandUp.CardDav.Server.Controllers.Tests.Controllers
 
             #region Multiget report not empty address-data
 
-            var propfindRequest = PropfindRequest.Create(Depth.Zero, Prop.ETag);
+            var propfindRequest = PropfindRequest.Create(Depth.One, Prop.ETag);
 
             var propfind = await Client.PropfindAsync("Principal/User/Collections/Default", propfindRequest, CancellationToken.None);
 

@@ -1,5 +1,5 @@
 ﻿using BrandUp.CardDav.Server.Attributes;
-using BrandUp.CardDav.Server.Repositories;
+using BrandUp.CardDav.Services;
 using BrandUp.CardDav.Transport.Models.Headers;
 using BrandUp.CardDav.Transport.Models.Requests;
 using BrandUp.CardDav.Transport.Models.Responses.Body;
@@ -12,8 +12,8 @@ namespace BrandUp.CardDav.Server.Controllers
     [Route("Principal/{Name}/{controller}")]
     public class CollectionsController : CardDavController
     {
-        public CollectionsController(IUserRepository userRepository, IContactRepository contactRepository, IAddressBookRepository addressRepository)
-            : base(userRepository, contactRepository, addressRepository)
+        public CollectionsController(IResponseService responseService)
+            : base(responseService)
         {
         }
 
@@ -22,77 +22,58 @@ namespace BrandUp.CardDav.Server.Controllers
         [CardDavPropfind]
         public async Task<ActionResult<string>> PropfindAsync([FromRoute(Name = "Name")] string name, PropfindRequest request)
         {
+
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
             if (request.Depth == Depth.Infinity)
-            {
                 return BadRequest("Depth: Infinity");
-            }
 
-            var user = await userRepository.FindByNameAsync(name, HttpContext.RequestAborted);
-
-            if (user == null)
-                return NotFound();
-
-            var response = new PropfindResponseBody();
-
-            response.Resources.Add(GenerateResponseResource(user, request.Body.Properties));
-
-            if (request.Depth.Value == Depth.One.Value)
+            try
             {
-                var addresBooks = await addressRepository.FindCollectionsByUserIdAsync(user.Id, HttpContext.RequestAborted);
-                foreach (var book in addresBooks)
-                {
-                    response.Resources.Add(GenerateResponseResource(book, request.Body.Properties, true));
-                }
+                var user = await responseService.FindUserAsync(name, HttpContext.RequestAborted);
+
+                var response = await responseService.ProcessPropfindAsync(user, request, HttpContext.RequestAborted);
+
+                var serializer = new XmlSerializer(typeof(PropfindResponseBody));
+
+                Response.StatusCode = 207;
+                serializer.Serialize(Response.Body, response);
+
+                return new EmptyResult();
             }
-
-            var serializer = new XmlSerializer(typeof(PropfindResponseBody));
-
-            Response.StatusCode = 207;
-            serializer.Serialize(Response.Body, response);
-
-            return new EmptyResult();
+            catch (ArgumentNullException ex)
+            {
+                return NotFound(ex);
+            }
         }
 
         [CardDavPropfind("{AddressBook}")]
-        public async Task<ActionResult> PropfindCollectionAsync([FromRoute(Name = "Name")] string name, [FromRoute] string addressBook, PropfindRequest request)
+        public async Task<ActionResult> PropfindCollectionAsync([FromRoute(Name = "Name")] string name, [FromRoute(Name = "AddressBook")] string addressBookName, PropfindRequest request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
             if (request.Depth == Depth.Infinity)
                 return BadRequest("Depth: Infinity");
-            var user = await userRepository.FindByNameAsync(name, HttpContext.RequestAborted);
 
-            if (user == null)
-                return NotFound();
-
-            var addresBook = await addressRepository.FindByNameAsync(addressBook, HttpContext.RequestAborted);
-
-            if (addresBook?.UserId != user.Id)
-                return NotFound();
-
-            var response = new PropfindResponseBody();
-
-            response.Resources.Add(GenerateResponseResource(addresBook, request.Body.Properties));
-
-            if (request.Depth.Value == Depth.One.Value)
+            try
             {
-                var contacts = await contactRepository.FindAllContactsByBookIdAsync(addresBook.Id, HttpContext.RequestAborted);
-                foreach (var contact in contacts)
-                {
-                    response.Resources.Add(GenerateResponseResource(contact, request.Body.Properties, true));
-                }
+                var addressBook = await responseService.FindAddressBookAsync(name, addressBookName, HttpContext.RequestAborted);
+
+                var response = await responseService.ProcessPropfindAsync(addressBook, request, HttpContext.RequestAborted);
+
+                var serializer = new XmlSerializer(typeof(PropfindResponseBody));
+
+                Response.StatusCode = 207;
+                serializer.Serialize(Response.Body, response);
+
+                return new EmptyResult();
             }
-
-            var serializer = new XmlSerializer(typeof(PropfindResponseBody));
-
-            Response.StatusCode = 207;
-            serializer.Serialize(Response.Body, response);
-
-            return new EmptyResult();
+            catch (ArgumentNullException ex)
+            {
+                return NotFound(ex);
+            }
         }
 
         #endregion
@@ -100,41 +81,28 @@ namespace BrandUp.CardDav.Server.Controllers
         #region Report controllers
 
         [CardDavReport("{AddressBook}")]
-        public async Task<ActionResult> ReportCollectionAsync([FromRoute(Name = "Name")] string name, [FromRoute] string addressBook, ReportRequest request)
+        public async Task<ActionResult> ReportCollectionAsync([FromRoute(Name = "Name")] string name, [FromRoute(Name = "AddressBook")] string addressBookName, ReportRequest request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            var user = await userRepository.FindByNameAsync(name, HttpContext.RequestAborted);
-
-            if (user == null)
-                return NotFound();
-
-            var addresBook = await addressRepository.FindByNameAsync(addressBook, HttpContext.RequestAborted);
-
-            if (addresBook?.UserId != user.Id)
-                return NotFound();
-
-            var contacts = await contactRepository.FindAllContactsByBookIdAsync(addresBook.Id, HttpContext.RequestAborted);
-
-            var response = new ReportResponseBody();
-            foreach (var contact in contacts)
+            try
             {
-                var defaultResponce = GenerateResponseResource(contact, request.Body.Properties, true);
-                response.Resources.Add(new AddressDataResource
-                {
-                    Endpoint = defaultResponce.Endpoint,
-                    FoundProperties = defaultResponce.FoundProperties,
-                    NotFoundProperties = defaultResponce.NotFoundProperties,
-                });
+                var addressBook = await responseService.FindAddressBookAsync(name, addressBookName, HttpContext.RequestAborted);
+
+                var response = await responseService.ProcessReportAsync(addressBook, request, HttpContext.RequestAborted);
+
+                var serializer = new XmlSerializer(typeof(ReportResponseBody));
+
+                Response.StatusCode = 207;
+                serializer.Serialize(Response.Body, response);
+
+                return new EmptyResult();
             }
-
-            var serializer = new XmlSerializer(typeof(ReportResponseBody));
-
-            Response.StatusCode = 207;
-            serializer.Serialize(Response.Body, response);
-
-            return new EmptyResult();
+            catch (ArgumentNullException ex)
+            {
+                return NotFound(ex);
+            }
         }
 
         #endregion
@@ -142,21 +110,23 @@ namespace BrandUp.CardDav.Server.Controllers
         #region Mkcol controllers
 
         [CardDavMkcol("{AddressBook}")]
-        public async Task<ActionResult> MakeCollectionAsync([FromRoute(Name = "Name")] string name, [FromRoute] string addressBook)
+        public async Task<ActionResult> MakeCollectionAsync([FromRoute(Name = "Name")] string name, [FromRoute(Name = "AddressBook")] string addressBook)
         {
-            var user = await userRepository.FindByNameAsync(name, HttpContext.RequestAborted);
+            try
+            {
+                if (await responseService.MakeCollectionAsync(name, addressBook, HttpContext.RequestAborted))
+                    return Created(new Uri(Request.Path.Value, UriKind.Relative), addressBook);
 
-            if (user == null)
-                return NotFound();
-
-            var book = await addressRepository.FindByNameAsync(addressBook, HttpContext.RequestAborted);
-
-            if (book != null)
-                return Conflict();
-
-            await addressRepository.CreateAsync(addressBook, user.Id, HttpContext.RequestAborted);
-
-            return Created(new Uri(Request.Path.Value, UriKind.Relative), addressBook);
+                else return BadRequest();
+            }
+            catch (ArgumentNullException ex)
+            {
+                return NotFound(ex);
+            }
+            catch (ArgumentException ex)
+            {
+                return Conflict(ex);
+            }
         }
 
         #endregion

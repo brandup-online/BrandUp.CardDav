@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BrandUp.CardDav.Attributes\BrandUp.CardDav.Attributes.csproj" />
+    <ProjectReference Include="..\BrandUp.CardDav.Server\BrandUp.CardDav.Server.Abstractions.csproj" />
     <ProjectReference Include="..\BrandUp.VCard\BrandUp.CardDav.VCard.csproj" />
   </ItemGroup>
 

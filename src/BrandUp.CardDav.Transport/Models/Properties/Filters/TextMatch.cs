@@ -22,7 +22,22 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
             return new TextMatch() { Text = matchSubstring, IsNegate = isNegate, MatchType = textMatchType, Collation = collation };
         }
 
-        #region IDavProperty
+        #region ICondition members
+
+        public bool Check(string value)
+        {
+            switch (MatchType)
+            {
+                case TextMatchType.Equals: return IsNegate ^ value.Equals(Text);
+                case TextMatchType.Contains: return IsNegate ^ value.Contains(Text);
+                case TextMatchType.StartsWith: return IsNegate ^ value.StartsWith(Text);
+                case TextMatchType.EndsWith: return IsNegate ^ value.EndsWith(Text);
+                default: throw new ArgumentException("Unexpected value of enum");
+            }
+        }
+        #endregion
+
+        #region IDavProperty members
 
         public string Name => "text-match";
 
@@ -67,7 +82,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 
         #endregion
 
-        #region Helpers
+        #region Helpers members
 
         string ConvertMatchTypeToString()
         {
@@ -93,6 +108,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
             return value.Trim().Replace("-", "");
 
         }
+
         #endregion
     }
 }

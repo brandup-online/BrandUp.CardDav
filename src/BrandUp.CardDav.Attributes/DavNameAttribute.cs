@@ -1,4 +1,4 @@
-﻿namespace BrandUp.CardDav.Transport.Attributes
+﻿namespace BrandUp.CardDav.Attributes
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public sealed class DavNameAttribute : Attribute

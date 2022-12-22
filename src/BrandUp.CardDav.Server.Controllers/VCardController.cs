@@ -1,4 +1,4 @@
-﻿using BrandUp.CardDav.Server.Repositories;
+﻿using BrandUp.CardDav.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BrandUp.CardDav.Server.Controllers
@@ -7,8 +7,8 @@ namespace BrandUp.CardDav.Server.Controllers
     [Route("Principal/{Name}/Collections/{AddressBook}/{VCard}")]
     public class VCardController : CardDavController
     {
-        public VCardController(IUserRepository userRepository, IContactRepository contactRepository, IAddressBookRepository addressRepository)
-            : base(userRepository, contactRepository, addressRepository)
+        public VCardController(IResponseService responseService)
+            : base(responseService)
         {
         }
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using BrandUp.CardDav.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BrandUp.CardDav.Server.Builder
 {
@@ -7,6 +8,15 @@ namespace BrandUp.CardDav.Server.Builder
         public CardDavServerBuilder(IServiceCollection services)
         {
             Services = services ?? throw new ArgumentNullException();
+
+            AddServices();
+        }
+
+        private void AddServices()
+        {
+            Services.AddScoped<IResponseService, ResponseService>();
+
+            Services.AddHttpContextAccessor();
         }
 
         public IServiceCollection Services { get; }

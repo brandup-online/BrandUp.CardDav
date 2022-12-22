@@ -32,7 +32,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties
             var props = new List<VCardProperty>();
             while (reader.Read())
             {
-                if (reader.NodeType == XmlNodeType.EndElement && reader.LocalName == "address-data")
+                if (reader.NodeType == XmlNodeType.EndElement && reader.LocalName == "address-data" || reader.LocalName == "prop" && reader.NamespaceURI == "DAV:")
                 {
                     vCardProperties = props;
                     return;

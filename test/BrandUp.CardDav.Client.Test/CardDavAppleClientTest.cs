@@ -51,7 +51,7 @@ namespace BrandUp.CardDav.Client.Test
 
             Assert.True(response.IsSuccess);
 
-            var filter = new Filter();
+            var filter = new FilterBody();
 
             filter.AddPropFilter(VCardProperty.FN, FilterMatchType.All, TextMatch.Create("", TextMatchType.Contains));
             var report = ReportRequest.CreateQuery(Depth.One, PropList.Create(Prop.CTag, Prop.ETag), filter);
@@ -61,7 +61,7 @@ namespace BrandUp.CardDav.Client.Test
             output.WriteLine(reportResponse.StatusCode);
             Assert.True(reportResponse.IsSuccess);
 
-            filter = new Filter();
+            filter = new FilterBody();
 
             filter.AddPropFilter(VCardProperty.FN, FilterMatchType.All, TextMatch.Create("ma", TextMatchType.Contains));
             report = ReportRequest.CreateQuery(Depth.One, PropList.Create(Prop.CTag, Prop.ETag), filter);

@@ -25,7 +25,7 @@ namespace BrandUp.CardDav.Transport.Binding
             XmlSerializer serializer = new(type);
 
             var headers = bindingContext.ActionContext.HttpContext.Request.Headers;
-            var body = (IRequestBody)serializer.Deserialize(reader);
+            var body = (IReportBody)serializer.Deserialize(reader);
 
             var model = new ReportRequest()
             {

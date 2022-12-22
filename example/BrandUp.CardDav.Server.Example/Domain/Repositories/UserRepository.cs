@@ -38,14 +38,14 @@ namespace BrandUp.CardDav.Server.Example.Domain.Repositories
         {
             var cursor = await context.Users.FindAsync(u => u.Id == id, cancellationToken: cancellationToken);
 
-            return await cursor.FirstOrDefaultAsync();
+            return await cursor.FirstOrDefaultAsync(cancellationToken);
         }
 
         public async Task<IUserDocument> FindByNameAsync(string name, CancellationToken cancellationToken)
         {
             var cursor = await context.Users.FindAsync(u => u.Name == name, cancellationToken: cancellationToken);
 
-            return await cursor.FirstOrDefaultAsync();
+            return await cursor.FirstOrDefaultAsync(cancellationToken);
         }
 
         public async Task<bool> UpdateAsync(IUserDocument document, CancellationToken cancellationToken)

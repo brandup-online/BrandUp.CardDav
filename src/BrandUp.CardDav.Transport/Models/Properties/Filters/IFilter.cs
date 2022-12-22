@@ -3,10 +3,12 @@ using BrandUp.CardDav.VCard;
 
 namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 {
-    public interface IFilterData : IDavProperty
+    public interface IFilter : IDavProperty
     {
         public VCardProperty PropName { get; }
         public FilterMatchType Type { get; }
         IEnumerable<TextMatch> Conditions { get; }
+
+        bool CheckConditions(VCardModel vCardModel);
     }
 }

@@ -40,18 +40,18 @@ namespace BrandUp.CardDav.Server.Example.Domain.Repositories
             return await cursor.FirstOrDefaultAsync();
         }
 
-        public async Task<IAddressBookDocument> FindByNameAsync(string name, CancellationToken cancellationToken)
+        public async Task<IAddressBookDocument> FindByNameAsync(string name, Guid userId, CancellationToken cancellationToken)
         {
-            var cursor = await context.AddressBooks.FindAsync(u => u.Name == name, cancellationToken: cancellationToken);
+            var cursor = await context.AddressBooks.FindAsync(u => u.Name == name && u.UserId == userId, cancellationToken: cancellationToken);
 
-            return await cursor.FirstOrDefaultAsync();
+            return await cursor.FirstOrDefaultAsync(cancellationToken);
         }
 
         public async Task<IEnumerable<IAddressBookDocument>> FindCollectionsByUserIdAsync(Guid userId, CancellationToken cancellationToken)
         {
             var cursor = await context.AddressBooks.FindAsync(u => u.UserId == userId, cancellationToken: cancellationToken);
 
-            return cursor.ToList();
+            return await cursor.ToListAsync(cancellationToken);
         }
 
         public async Task<bool> UpdateAsync(IAddressBookDocument document, string eTag, CancellationToken cancellationToken)

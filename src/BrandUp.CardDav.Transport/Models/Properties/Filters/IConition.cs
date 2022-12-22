@@ -4,5 +4,6 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 {
     public interface ICondition : IDavProperty
     {
+        bool Check(string value);
     }
 }

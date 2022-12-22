@@ -1,4 +1,4 @@
-﻿using BrandUp.CardDav.Transport.Attributes;
+﻿using BrandUp.CardDav.Attributes;
 
 namespace BrandUp.CardDav.Server.Documents
 {

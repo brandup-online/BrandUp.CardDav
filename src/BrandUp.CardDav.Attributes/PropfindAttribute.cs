@@ -1,8 +1,8 @@
 ﻿using System.Xml.Serialization;
 
-namespace BrandUp.CardDav.Transport.Attributes
+namespace BrandUp.CardDav.Attributes
 {
-    internal class PropfindAttribute : XmlRootAttribute
+    public class PropfindAttribute : XmlRootAttribute
     {
         public PropfindAttribute()
         {

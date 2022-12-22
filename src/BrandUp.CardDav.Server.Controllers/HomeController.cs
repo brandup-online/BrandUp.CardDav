@@ -1,4 +1,4 @@
-﻿using BrandUp.CardDav.Server.Repositories;
+﻿using BrandUp.CardDav.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Primitives;
@@ -9,13 +9,10 @@ namespace BrandUp.CardDav.Server.Controllers
     [Route("")]
     public class HomeController : CardDavController
     {
-        readonly IEnumerable<EndpointDataSource> endpointSources;
 
-        public HomeController(IEnumerable<EndpointDataSource> endpointSources, IUserRepository userRepository, IContactRepository contactRepository, IAddressBookRepository addressRepository)
-            : base(userRepository, contactRepository, addressRepository)
-        {
-            this.endpointSources = endpointSources;
-        }
+        public HomeController(IResponseService responseService)
+            : base(responseService)
+        { }
 
         [HttpGet]
         public Task<ActionResult> GetAsync()

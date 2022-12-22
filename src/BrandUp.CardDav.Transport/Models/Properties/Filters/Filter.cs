@@ -5,24 +5,39 @@ using System.Xml.Schema;
 
 namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 {
-    public class Filter : IDavProperty
+    public class FilterBody : IDavProperty
     {
         private const string name = "filter";
         private const string @namespace = "urn:ietf:params:xml:ns:carddav";
-        public IList<IFilterData> FilterData { get; set; }
+
+        public IList<IFilter> Filters { get; set; }
 
         public FilterMatchType MatchType { get; set; }
 
-        public Filter()
+        public FilterBody()
         {
-            FilterData = new List<IFilterData>();
+            Filters = new List<IFilter>();
         }
 
-        public Filter AddPropFilter(VCardProperty propName, FilterMatchType type, params TextMatch[] conditions)
+        public FilterBody AddPropFilter(VCardProperty propName, FilterMatchType type, params TextMatch[] conditions)
         {
-            FilterData.Add(new PropFilter { PropName = propName, Type = type, Conditions = conditions });
+            Filters.Add(new PropFilter { PropName = propName, Type = type, Conditions = conditions });
 
             return this;
+        }
+
+        internal bool ApplyFilter(VCardModel vCardModel)
+        {
+            bool flag = false;
+
+            foreach (var filter in Filters)
+            {
+                flag = filter.CheckConditions(vCardModel);
+                if (MatchType == FilterMatchType.All && flag == false)
+                    return false;
+            }
+
+            return flag;
         }
 
         #region IDavProperty members
@@ -56,7 +71,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 
                         propfilter.ReadXml(reader);
 
-                        FilterData.Add(propfilter);
+                        Filters.Add(propfilter);
                     }
                 }
             }
@@ -66,8 +81,8 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
         {
             writer.WriteStartElement(name, @namespace);
             writer.WriteAttributeString("test", MatchType.ToString().ToLowerInvariant() + "of");
-            if (FilterData != null)
-                foreach (var filter in FilterData)
+            if (Filters != null)
+                foreach (var filter in Filters)
                 {
                     filter.WriteXml(writer);
                 }

@@ -1,4 +1,5 @@
-﻿using BrandUp.CardDav.Transport.Models.Abstract;
+﻿using BrandUp.CardDav.Server.Documents;
+using BrandUp.CardDav.Transport.Models.Abstract;
 using BrandUp.CardDav.Transport.Models.Properties;
 using BrandUp.CardDav.Transport.Models.Properties.Filters;
 using System.Xml;
@@ -8,12 +9,12 @@ using System.Xml.Serialization;
 namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
 {
     [XmlRoot(ElementName = "addressbook-query", Namespace = "urn:ietf:params:xml:ns:carddav")]
-    public class AddresbookQueryBody : IRequestBody
+    public class AddresbookQueryBody : IReportBody
     {
         internal IEnumerable<IDavProperty> PropList { get; set; }
-        internal Filter Filter { get; set; }
+        internal FilterBody Filter { get; set; }
 
-        public uint Limit { get; set; } = 0;
+        public int Limit { get; set; } = 0;
 
         public AddresbookQueryBody()
         { }
@@ -21,6 +22,25 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
         #region IRequestBody members
 
         public IEnumerable<IDavProperty> Properties => PropList;
+
+        #endregion
+
+        #region IFilter member
+
+        public IEnumerable<T> FillterCollection<T>(IEnumerable<T> collection)
+        {
+            if (typeof(T).IsAssignableTo(typeof(IContactDocument)))
+            {
+                var contacts = collection.Cast<IContactDocument>();
+
+
+
+                if (Limit > 0)
+                    return contacts.Cast<T>().Take(Limit);
+                else return contacts.Cast<T>();
+            }
+            else throw new ArgumentException("Expected IContactDocument collection");
+        }
 
         #endregion
 
@@ -49,7 +69,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
                     }
                     else if (reader.LocalName == "filter")
                     {
-                        var filter = new Filter();
+                        var filter = new FilterBody();
 
                         filter.ReadXml(reader);
 
@@ -58,7 +78,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
                     else if (reader.LocalName == "limit")
                     {
                         reader.Read();
-                        Limit = uint.Parse(reader.Value);
+                        Limit = int.Parse(reader.Value);
                     }
                     else
                     {

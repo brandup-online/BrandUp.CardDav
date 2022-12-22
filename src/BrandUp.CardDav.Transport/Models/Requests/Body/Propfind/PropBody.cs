@@ -1,4 +1,4 @@
-﻿using BrandUp.CardDav.Transport.Attributes;
+﻿using BrandUp.CardDav.Attributes;
 using BrandUp.CardDav.Transport.Models.Abstract;
 using BrandUp.CardDav.Transport.Models.Properties;
 using System.Xml;

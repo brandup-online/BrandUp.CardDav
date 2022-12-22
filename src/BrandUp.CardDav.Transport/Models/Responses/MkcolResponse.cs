@@ -11,12 +11,10 @@ namespace BrandUp.CardDav.Transport.Models.Responses
 
         public static IResponse Create(HttpResponseMessage message)
         {
-            return new OptionsResponse
+            return new MkcolResponse
             {
                 IsSuccess = message.IsSuccessStatusCode,
                 StatusCode = message.StatusCode.ToString(),
-                AllowHeaderValue = message.Content.Headers.Allow.ToArray(),
-                DavHeaderValue = message.Headers.GetValues("DAV").SelectMany(s => s.Split(",")).ToArray()
             };
         }
     }
