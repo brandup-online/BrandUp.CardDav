@@ -26,7 +26,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 
             foreach (var condition in Conditions)
             {
-                var values = vCardModel.GetValuesOf(PropName).Split(' ');
+                var values = vCardModel.GetValuesOf(PropName);
                 foreach (var value in values)
                 {
                     flag = condition.Check(value);
@@ -46,27 +46,20 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 
         public void ReadXml(XmlReader reader)
         {
+            if (reader.TryGetAttribute("name", Namespace, out var value))
+                PropName = Enum.Parse<VCardProperty>(value);
+
+            if (reader.TryGetAttribute("test", Namespace, out value))
+            {
+                if (value == "allof")
+                    Type = FilterMatchType.All;
+                else
+                    Type = FilterMatchType.Any;
+            }
+
             var conditions = new List<TextMatch>();
             while (reader.Read())
             {
-                if (reader.NodeType == XmlNodeType.Attribute)
-                {
-                    if (reader.LocalName == "name")
-                    {
-                        PropName = Enum.Parse<VCardProperty>(reader.Value);
-                    }
-
-                    if (reader.LocalName == "test")
-                    {
-                        if (reader.Value == "allof")
-                            Type = FilterMatchType.All;
-                        else
-                        {
-                            Type = FilterMatchType.Any;
-                        };
-                    }
-                }
-
                 if (reader.NodeType == XmlNodeType.Element)
                     if (reader.LocalName == "text-match")
                     {
@@ -74,6 +67,9 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
                         cond.ReadXml(reader);
                         conditions.Add(cond);
                     }
+                if (reader.NodeType == XmlNodeType.EndElement && reader.LocalName == "prop-filter")
+                    break;
+
             }
             Conditions = conditions;
         }

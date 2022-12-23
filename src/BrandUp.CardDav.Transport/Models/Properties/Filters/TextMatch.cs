@@ -47,25 +47,25 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 
         public void ReadXml(XmlReader reader)
         {
+            if (reader.TryGetAttribute("collation", Namespace, out var value))
+                Collation = value;
+
+            if (reader.TryGetAttribute("match-type", Namespace, out value))
+                MatchType = Enum.Parse<TextMatchType>(FromKebabCase(value), true);
+
+            if (reader.TryGetAttribute("negate-condition", Namespace, out value))
+                IsNegate = value == "yes";
+
             while (reader.Read())
             {
-                if (reader.NodeType == XmlNodeType.Attribute)
-                {
-                    if (reader.LocalName == "collation")
-                        Collation = reader.Value;
-                    if (reader.LocalName == "match-type")
-                    {
-                        MatchType = Enum.Parse<TextMatchType>(reader.Value, true);
-                    }
-                    if (reader.LocalName == "negate-condition")
-                    {
-                        IsNegate = reader.Value == "yes";
-                    }
-                }
-
                 if (reader.NodeType == XmlNodeType.Text)
                 {
                     Text = reader.Value;
+                }
+
+                if (reader.NodeType == XmlNodeType.EndElement)
+                {
+                    return;
                 }
             }
         }

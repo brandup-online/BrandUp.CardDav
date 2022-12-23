@@ -54,7 +54,7 @@ namespace BrandUp.CardDav.Server.Controllers.Tests.Controllers
         }
 
         [Fact]
-        public async Task Success_Report_Addressbook()
+        public async Task Success_Report_Addressbook_NoFilter()
         {
             #region Addresbook-query no filter, not empty address-data, no limit
 
@@ -67,31 +67,6 @@ namespace BrandUp.CardDav.Server.Controllers.Tests.Controllers
             var request = ReportRequest.CreateQuery(Depth.Zero, PropList.Create(Prop.ETag, Prop.CTag, addressData), filter);
 
             var report = await Client.ReportAsync("Principal/User/Collections/Default", request, CancellationToken.None);
-
-            Output.WriteLine(report.StatusCode);
-            Assert.Equal(3, report.Body?.Resources.Count);
-
-            #endregion
-
-            #region Addresbook-query with filter 
-
-            filter = new FilterBody()
-            {
-                MatchType = FilterMatchType.All
-            };
-            filter.AddPropFilter(VCardProperty.EMAIL, FilterMatchType.Any, TextMatch.Create("hn", TextMatchType.Contains));
-            filter.AddPropFilter
-                (
-                    VCardProperty.ORG,
-                    FilterMatchType.All,
-                    TextMatch.Create("Example", TextMatchType.Contains),
-                    TextMatch.Create("com", TextMatchType.Contains, true)
-                );
-
-            addressData = Prop.AddressData();
-            request = ReportRequest.CreateQuery(Depth.Zero, PropList.Create(Prop.ETag, Prop.CTag, addressData), filter);
-
-            report = await Client.ReportAsync("Principal/User/Collections/Default", request, CancellationToken.None);
 
             Output.WriteLine(report.StatusCode);
             Assert.Equal(3, report.Body?.Resources.Count);
@@ -116,6 +91,31 @@ namespace BrandUp.CardDav.Server.Controllers.Tests.Controllers
             Assert.Equal(2, report.Body?.Resources.Count);
 
             #endregion
+        }
+
+        [Fact]
+        public async Task Success_Report_Addressbook_Filter()
+        {
+            var filter = new FilterBody()
+            {
+                MatchType = FilterMatchType.All
+            };
+            filter.AddPropFilter(VCardProperty.EMAIL, FilterMatchType.Any, TextMatch.Create("hn", TextMatchType.Contains));
+            filter.AddPropFilter
+                (
+                    VCardProperty.ORG,
+                    FilterMatchType.All,
+                    TextMatch.Create("Example", TextMatchType.Contains),
+                    TextMatch.Create("com", TextMatchType.Contains, true)
+                );
+
+            var addressData = Prop.AddressData();
+            var request = ReportRequest.CreateQuery(Depth.Zero, PropList.Create(Prop.ETag, Prop.CTag, addressData), filter);
+
+            var report = await Client.ReportAsync("Principal/User/Collections/Default", request, CancellationToken.None);
+
+            Output.WriteLine(report.StatusCode);
+            Assert.Equal(1, report.Body?.Resources.Count);
         }
 
         [Fact]

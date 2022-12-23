@@ -2,6 +2,7 @@
 using BrandUp.CardDav.Transport.Models.Abstract;
 using BrandUp.CardDav.Transport.Models.Properties;
 using BrandUp.CardDav.Transport.Models.Properties.Filters;
+using BrandUp.CardDav.VCard;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -31,9 +32,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
         {
             if (typeof(T).IsAssignableTo(typeof(IContactDocument)))
             {
-                var contacts = collection.Cast<IContactDocument>();
-
-
+                var contacts = collection.Cast<IContactDocument>().Where(c => Filter.ApplyFilter(VCardParser.Parse(c.RawVCard))).ToArray();
 
                 if (Limit > 0)
                     return contacts.Cast<T>().Take(Limit);
