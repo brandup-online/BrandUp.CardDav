@@ -3,6 +3,7 @@
     public class VCardBuilder : IVCardBuilder
     {
         private VCardModel vCard;
+        Dictionary<CardProperty, IEnumerable<VCardLine>> vCard1;
 
         internal VCardBuilder(VCardVersion version = VCardVersion.VCard3)
         {
@@ -11,12 +12,16 @@
 
         internal VCardBuilder(string rawVCard) : this()
         {
-            this.vCard = VCardParser.Parse(rawVCard);
+            this.vCard1 = VCardParser.Parse(rawVCard).VCardDictionary;
         }
 
         internal VCardBuilder(VCardModel vCard)
         {
             this.vCard = vCard ?? throw new ArgumentNullException(nameof(vCard));
+            if (vCard == null)
+                throw new ArgumentNullException(nameof(vCard));
+
+            vCard1 = vCard.VCardDictionary;
         }
 
         #region Static members
@@ -93,55 +98,80 @@
         {
             if (uId == null) throw new ArgumentNullException(nameof(uId));
 
-            vCard.UId = uId;
+            AddLine(CardProperty.UID, uId, true);
 
             return this;
         }
 
-        public IVCardBuilder AddEmail(string email, Kind? type, params string[] types)
+        public IVCardBuilder AddEmail(string email, params string[] types)
         {
             if (email == null) throw new ArgumentNullException(nameof(email));
 
-            vCard.Emails.Add(new() { Email = email, Kind = type, Types = types });
-
+            AddLine(CardProperty.EMAIL, email, types, false);
             return this;
         }
 
-        public IVCardBuilder UpdateEmail(string oldEmail, string email, Kind? type, params string[] types)
+        public IVCardBuilder UpdateEmail(string oldEmail, string email, params string[] types)
         {
             if (email == null) throw new ArgumentNullException(nameof(email));
             if (oldEmail == null) throw new ArgumentNullException(nameof(oldEmail));
 
-            vCard.Emails.ToList().RemoveAll(e => e.Email == oldEmail);
-
-            vCard.Emails.Add(new() { Email = email, Kind = type, Types = types });
+            ReplaceLine(CardProperty.EMAIL.ToString(), types, email, oldEmail);
 
             return this;
         }
 
-        public IVCardBuilder AddPhone(string phone, Kind? type, params string[] types)
+        public IVCardBuilder AddPhone(string phone, params string[] types)
         {
             if (phone == null) throw new ArgumentNullException(nameof(phone));
 
-            vCard.Phones.Add(new() { Phone = phone, Kind = type, Types = types });
+            AddLine(CardProperty.TEL, phone, types, true);
 
             return this;
         }
 
-        public IVCardBuilder UpdatePhone(string oldPhone, string phone, Kind? type, params string[] types)
+        public IVCardBuilder UpdatePhone(string oldPhone, string phone, params string[] types)
         {
             if (phone == null) throw new ArgumentNullException(nameof(phone));
             if (oldPhone == null) throw new ArgumentNullException(nameof(oldPhone));
 
-            vCard.Phones.ToList().RemoveAll(e => e.Phone == oldPhone);
-
-            vCard.Phones.Add(new() { Phone = phone, Kind = type, });
+            ReplaceLine(CardProperty.TEL.ToString(), types, phone, oldPhone);
 
             return this;
         }
 
 
-        public VCardModel Build() => vCard;
+        public VCardModel Build() => new();
+
+        #endregion
+
+        #region Helpers
+
+        void AddLine(CardProperty property, string value, bool canReplace)
+        {
+            AddLine(property.ToString(), value, new string[0], canReplace);
+        }
+
+        void AddLine(CardProperty property, string value, string[] parameters, bool canReplace)
+        {
+            AddLine(property.ToString(), value, parameters, canReplace);
+        }
+
+        void AddLine(string property, string value, string[] parameters, bool canReplace)
+        {
+            if (parameters.Any())
+                VCardParser.AddLineToCard(vCard1, $"{property};{string.Join(';', parameters)}:{value}", canReplace);
+            else
+                VCardParser.AddLineToCard(vCard1, $"{property}:{value}", canReplace);
+        }
+
+        void ReplaceLine(string property, string[] parameters, string value, string oldValue)
+        {
+            if (parameters.Any())
+                VCardParser.ReplaceLine(vCard1, $"{property};{string.Join(';', parameters)}:{value}", oldValue);
+            else
+                VCardParser.ReplaceLine(vCard1, $"{property}:{value}", oldValue);
+        }
 
         #endregion
     }

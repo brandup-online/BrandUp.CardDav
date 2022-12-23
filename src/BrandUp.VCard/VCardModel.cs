@@ -2,6 +2,10 @@
 {
     public class VCardModel
     {
+        private IDictionary<CardProperty, IEnumerable<VCardLine>> vCard;
+
+        internal Dictionary<CardProperty, IEnumerable<VCardLine>> VCardDictionary => vCard.ToDictionary(k => k.Key, v => v.Value);
+
         public string FormattedName { get; internal set; }
         public VCardVersion? Version { get; internal set; }
         public string UId { get; internal set; }
@@ -15,6 +19,11 @@
             Phones = new List<VCardPhone>();
             Emails = new List<VCardEmail>();
             AdditionalFields = new Dictionary<string, string>();
+        }
+
+        internal VCardModel(IDictionary<CardProperty, IEnumerable<VCardLine>> vCard)
+        {
+            this.vCard = vCard ?? throw new ArgumentNullException(nameof(vCard));
         }
 
         public override string ToString()
@@ -68,25 +77,25 @@
         public string ToStringProps(params VCardProperty[] property)
             => ToStringProps(property.ToArray());
 
-        public string GetValuesOf(VCardProperty property)
+        public string[] GetValuesOf(VCardProperty property)
         {
             switch (property)
             {
-                case VCardProperty.VERSION: return Version.Value.ToString();
-                case VCardProperty.FN: return FormattedName;
+                case VCardProperty.VERSION: return new string[1] { Version.Value.ToString() };
+                case VCardProperty.FN: return new string[1] { FormattedName };
                 case VCardProperty.N:
-                    return string.Join(";", string.Join(",", Name.FamilyNames),
+                    return new string[1] { string.Join(";", string.Join(",", Name.FamilyNames),
                                     string.Join(",", Name.GivenNames),
                                     string.Join(",", Name.AdditionalNames),
                                     string.Join(",", Name.HonorificPrefixes),
-                                    string.Join(",", Name.HonorificSuffixes));
+                                    string.Join(",", Name.HonorificSuffixes)) };
 
-                case VCardProperty.TEL: return string.Join(" ", Phones.Select(p => p.Phone));
-                case VCardProperty.EMAIL: return string.Join(" ", Emails.Select(p => p.Email));
-                case VCardProperty.UID: return UId;
+                case VCardProperty.TEL: return Phones.Select(p => p.Phone).ToArray();
+                case VCardProperty.EMAIL: return Emails.Select(p => p.Email).ToArray();
+                case VCardProperty.UID: return new string[1] { UId };
                 default:
                     if (AdditionalFields.TryGetValue(property.ToString(), out var field))
-                        return field;
+                        return new string[1] { field };
                     return null;
             }
         }
@@ -171,6 +180,13 @@
             return result;
         }
         #endregion
+
+    }
+
+    public class VCardLine
+    {
+        public string Value { get; set; }
+        public IDictionary<Parameter, IEnumerable<string>> Parameters { get; set; }
     }
 
     public class VCardName

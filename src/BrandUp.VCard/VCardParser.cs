@@ -18,6 +18,19 @@ namespace BrandUp.CardDav.VCard
             };
         }
 
+        readonly static CardProperty[] mustSingle = new CardProperty[]
+        {
+             CardProperty.KIND,
+             CardProperty.N,
+             CardProperty.BDAY,
+             CardProperty.ANNIVERSARY,
+             CardProperty.GENDER,
+             CardProperty.PRODID,
+             CardProperty.REV,
+             CardProperty.UID,
+             CardProperty.VERSION
+        };
+
         public static async Task<VCardModel> ParseAsync(Stream responseStream, CancellationToken cancellationToken)
         {
             using var reader = new StreamReader(responseStream);
@@ -52,8 +65,7 @@ namespace BrandUp.CardDav.VCard
 
         private static async Task<VCardModel> ParseAsync(TextReader reader, CancellationToken cancellationToken)
         {
-            VCardModel vCard = new();
-
+            Dictionary<CardProperty, IEnumerable<VCardLine>> vCard = new();
             bool firstline = true;
             while (true)
             {
@@ -78,31 +90,118 @@ namespace BrandUp.CardDav.VCard
                 {
                     line = await reader.ReadLineAsync(cancellationToken);
                     if (line == null)
-                        return vCard;
+                        return new(vCard);
                     else if (string.Equals(line, "BEGIN:VCARD", StringComparison.InvariantCultureIgnoreCase))
                         throw new NotSupportedException("vCard with some contacts in one file.");
                 }
 
-                bool flag = true;
-                foreach (var pair in RegexDictionary)
+
+                var split = line.Split(':');
+                var property = split[0].Split(';').First();
+                var parameters = split[0].Replace($"{property};", "").Split(';');
+                var value = split[1];
+
+                var parsedLine = ParseLine(value, parameters);
+                if (Enum.TryParse<CardProperty>(property, true, out var cardProperty))
                 {
-                    var nameMatch = pair.Key.Match(line);
-                    if (nameMatch.Success)
+                    if (vCard.TryGetValue(cardProperty, out var field))
                     {
-                        pair.Value(vCard, line);
-                        flag = false;
-                        break;
+                        field.Append(parsedLine);
+                    }
+                    else
+                    {
+                        vCard.Add(cardProperty, new List<VCardLine>() { parsedLine });
                     }
                 }
-                if (flag)
-                {
-                    var split = line.Split(':');
-                    if (split.Length == 2)
-                        vCard.AdditionalFields.Add(split[0], split[1]);
-                }
-
+                else new ArgumentException(property);
             }
-            return vCard;
+            return new(vCard);
+        }
+
+        #endregion
+
+        #region Helpers 
+
+        internal static void AddLineToCard(IDictionary<CardProperty, IEnumerable<VCardLine>> card, string line, bool canReplace = false)
+        {
+            var split = line.Split(':');
+            var property = split[0].Split(';').First();
+            var parameters = split[0].Replace($"{property};", "").Split(';');
+            var value = split[1];
+
+            var parsedLine = ParseLine(value, parameters);
+
+            if (Enum.TryParse<CardProperty>(property, true, out var cardProperty))
+            {
+                if (card.TryGetValue(cardProperty, out var field))
+                {
+                    if (!mustSingle.Contains(cardProperty))
+                        field.Append(parsedLine);
+                    else if (canReplace)
+                    {
+                        card[cardProperty] = new List<VCardLine> { parsedLine };
+                    }
+                    else throw new ArgumentException($"Incorrect vCard: field {cardProperty} must be single");
+                }
+                else
+                {
+                    card.Add(cardProperty, new List<VCardLine>() { parsedLine });
+                }
+            }
+            else new ArgumentException(property);
+        }
+
+        internal static void ReplaceLine(IDictionary<CardProperty, IEnumerable<VCardLine>> card, string line, string oldValue)
+        {
+            var split = line.Split(':');
+            var property = split[0].Split(';').First();
+            var parameters = split[0].Replace($"{property};", "").Split(';');
+            var value = split[1];
+
+            var parsedLine = ParseLine(value, parameters);
+
+            if (Enum.TryParse<CardProperty>(property, true, out var cardProperty))
+            {
+                if (card.TryGetValue(cardProperty, out var field))
+                {
+                    var temp = card[cardProperty];
+                    temp.ToList().RemoveAll(x => x.Value == oldValue);
+                    temp.Append(parsedLine);
+
+                    card[cardProperty] = temp;
+                }
+                else
+                {
+                    card.Add(cardProperty, new List<VCardLine>() { parsedLine });
+                }
+            }
+            else new ArgumentException(property);
+        }
+
+        private static VCardLine ParseLine(string value, string[] parameters)
+        {
+            var paramDict = new Dictionary<Parameter, IEnumerable<string>>();
+            foreach (var parameter in parameters)
+            {
+                var pair = parameter.Split('=');
+                if (pair.Length > 2)
+                    throw new ArgumentException("Parsing error");
+
+                if (Enum.TryParse<Parameter>(pair[0], true, out var parssedParameter))
+                {
+                    if (paramDict.TryGetValue(parssedParameter, out var paramValue))
+                    {
+                        paramValue.Append(pair[1]);
+                    }
+                    else
+                    {
+                        paramDict.Add(parssedParameter, new List<string>() { pair[1] });
+                    }
+                }
+                else new ArgumentException(pair[0]);
+            }
+
+            return new() { Value = value, Parameters = paramDict };
         }
 
         #endregion

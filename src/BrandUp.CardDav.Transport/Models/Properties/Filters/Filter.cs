@@ -35,6 +35,8 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
                 flag = filter.CheckConditions(vCardModel);
                 if (MatchType == FilterMatchType.All && flag == false)
                     return false;
+                if (MatchType == FilterMatchType.Any && flag == true)
+                    return true;
             }
 
             return flag;
@@ -54,15 +56,16 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 
         public void ReadXml(XmlReader reader)
         {
+            if (reader.TryGetAttribute("test", @namespace, out var value))
+            {
+                if (value == "allof")
+                    MatchType = FilterMatchType.All;
+                else
+                    MatchType = FilterMatchType.Any;
+            }
+
             while (reader.Read())
             {
-                if (reader.NodeType == XmlNodeType.Attribute && reader.LocalName == "test")
-                {
-                    if (reader.Value == "allof")
-                        MatchType = FilterMatchType.All;
-                    else
-                        MatchType = FilterMatchType.Any;
-                }
                 if (reader.NodeType == XmlNodeType.Element)
                 {
                     if (reader.LocalName == "prop-filter")
