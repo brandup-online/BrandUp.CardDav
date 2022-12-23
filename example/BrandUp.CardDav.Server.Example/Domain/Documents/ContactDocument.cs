@@ -19,7 +19,7 @@ namespace BrandUp.CardDav.Server.Example.Domain.Documents
             Name = name;
             Id = Guid.NewGuid();
             AddressBookId = addressBookId;
-            ETag = DateTime.UtcNow.ToString("\"yyyy-MM-dd:hh-mm-ss\"");
+            ETag = "\"" + DateTime.UtcNow.ToString("yyyy-MM-dd:hh-mm-ss") + "\"";
             RawVCard = rawVCard;
         }
     }

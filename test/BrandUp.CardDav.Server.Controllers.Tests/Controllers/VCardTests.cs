@@ -1,4 +1,7 @@
-﻿using BrandUp.CardDav.VCard.Builders;
+﻿using BrandUp.CardDav.Transport.Models.Headers;
+using BrandUp.CardDav.Transport.Models.Properties;
+using BrandUp.CardDav.Transport.Models.Requests;
+using BrandUp.CardDav.VCard.Builders;
 using Xunit.Abstractions;
 
 namespace BrandUp.CardDav.Server.Controllers.Tests.Controllers
@@ -10,39 +13,51 @@ namespace BrandUp.CardDav.Server.Controllers.Tests.Controllers
         }
 
         [Fact]
-        public async Task Success_Create()
+        public async Task Success_CRUD()
         {
+            #region Create 
+
             var vCard = VCardBuilder.Create().SetName("Doe", "Jonh").AddPhone("79921213321", VCard.Kind.Work).Build();
 
-            var response = await Client.AddContactAsync("Principal/user/Collections/default/test", vCard, CancellationToken.None);
+            var response = await Client.AddContactAsync("Principal/User/Collections/Default/test", vCard, CancellationToken.None);
 
+            Output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
-        }
 
-        [Fact]
-        public async Task Success_Get()
-        {
-            var vCard = await Client.GetAsync("Principal/user/Collections/default/test", CancellationToken.None);
+            #endregion
 
-            Assert.NotNull(vCard);
-        }
+            #region Read
 
-        [Fact]
-        public async Task Success_Update()
-        {
-            var vCard = VCardBuilder.Create().SetName("Doe", "Jonh").AddPhone("79921213321", VCard.Kind.Work).Build();
+            var vCardResponse = await Client.GetAsync("Principal/User/Collections/Default/test", CancellationToken.None);
 
-            var response = await Client.UpdateContactAsync("Principal/user/Collections/default/test", vCard, "\"etag\"", CancellationToken.None);
+            Assert.NotNull(vCardResponse);
 
+            var propfind = PropfindRequest.Create(Depth.Zero, Prop.ETag);
+
+            var propfinResponse = await Client.PropfindAsync("Principal/User/Collections/Default/test", propfind);
+
+            #endregion
+
+            #region Update
+
+            vCard = VCardBuilder.Create().SetName("Doe", "Jonh").AddPhone("79921213321", VCard.Kind.Work).Build();
+
+            var eTag = propfinResponse.Body.Resources.First().FoundProperties[Prop.ETag];
+            response = await Client.UpdateContactAsync("Principal/User/Collections/Default/test", vCard, eTag, CancellationToken.None);
+
+            Output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
-        }
 
-        [Fact]
-        public async Task Success_Delete()
-        {
-            var response = await Client.DeleteContactAsync("Principal/user/Collections/default/test", CancellationToken.None);
+            #endregion
 
+            #region Delete
+
+            response = await Client.DeleteContactAsync("Principal/user/Collections/default/test", CancellationToken.None);
+
+            Output.WriteLine(response.StatusCode);
             Assert.True(response.IsSuccess);
+
+            #endregion
         }
     }
 }

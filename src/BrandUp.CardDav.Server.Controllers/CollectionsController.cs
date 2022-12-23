@@ -22,7 +22,6 @@ namespace BrandUp.CardDav.Server.Controllers
         [CardDavPropfind]
         public async Task<ActionResult<string>> PropfindAsync([FromRoute(Name = "Name")] string name, PropfindRequest request)
         {
-
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 

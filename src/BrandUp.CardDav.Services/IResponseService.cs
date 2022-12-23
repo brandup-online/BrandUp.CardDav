@@ -42,6 +42,25 @@ namespace BrandUp.CardDav.Services
 
         #region IResponseService
 
+        public async Task<IContactDocument> FindContactAsync(string name, string addressBook, string contactName, CancellationToken cancellationToken)
+        {
+            var book = await FindAddressBookAsync(name, addressBook, cancellationToken);
+
+            var contact = await contactRepository.FindByNameAsync(contactName, book.Id, cancellationToken);
+
+            return contact;
+        }
+
+        public async Task CreateContactAsync(string name, string addressBook, string contact, string vcard, CancellationToken cancellationToken)
+        {
+            var book = await FindAddressBookAsync(name, addressBook, cancellationToken);
+
+            await contactRepository.CreateAsync(contact, book.Id, vcard, cancellationToken);
+        }
+
+        public Task<bool> UpdateContactAsync(IContactDocument contact, string eTag, CancellationToken cancellationToken)
+            => contactRepository.UpdateAsync(contact, eTag, cancellationToken);
+
         public Task<IUserDocument> FindUserAsync(string name, CancellationToken cancellationToken)
             => userRepository.FindByNameAsync(name, cancellationToken);
 
@@ -63,6 +82,9 @@ namespace BrandUp.CardDav.Services
 
             return addresBook;
         }
+
+        public Task DeleteContactAsync(IContactDocument contact, CancellationToken cancellationToken)
+           => contactRepository.DeleteAsync(contact, cancellationToken);
 
         public Task<PropfindResponseBody> ProcessPropfindAsync<T>(T document, PropfindRequest request, CancellationToken cancellationToken)
         {
@@ -117,7 +139,6 @@ namespace BrandUp.CardDav.Services
         #endregion
 
         #region Helpers
-
         async Task<PropfindResponseBody> PropfindUserAsync(IUserDocument user, PropfindRequest request, CancellationToken cancellationToken)
         {
             var response = new PropfindResponseBody();
@@ -247,7 +268,6 @@ namespace BrandUp.CardDav.Services
             };
         }
 
-
         private IEnumerable<IContactDocument> ApplyConstraints(IEnumerable<IContactDocument> contacts, IReportBody body)
         {
             return body.FillterCollection(contacts);
@@ -272,6 +292,10 @@ namespace BrandUp.CardDav.Services
 
     public interface IResponseService
     {
+        public Task<IContactDocument> FindContactAsync(string name, string addressBook, string contact, CancellationToken cancellationToken);
+        public Task CreateContactAsync(string name, string addressBook, string contact, string vcard, CancellationToken cancellationToken);
+        public Task DeleteContactAsync(IContactDocument contact, CancellationToken cancellationToken);
+        public Task<bool> UpdateContactAsync(IContactDocument contact, string eTag, CancellationToken cancellationToken);
         public Task<IUserDocument> FindUserAsync(string name, CancellationToken cancellationToken);
         public Task<IUserDocument> FindUserAsync(Guid id, CancellationToken cancellationToken);
         public Task<IAddressBookDocument> FindAddressBookAsync(string name, string addressBookName, CancellationToken cancellationToken);

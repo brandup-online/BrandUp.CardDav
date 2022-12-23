@@ -21,7 +21,7 @@ namespace BrandUp.CardDav.Server.Controllers
         }
 
         [HttpOptions]
-        protected Task<ActionResult> OptionsAsync()
+        public Task<ActionResult> OptionsAsync()
         {
             var allowValues = new List<string>() { "OPTIONS", "GET", "HEAD", "POST", "PUT", "DELETE", "MKCOL", "PROPFIND", "REPORT" };
 
