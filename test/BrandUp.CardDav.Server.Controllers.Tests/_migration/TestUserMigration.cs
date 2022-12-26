@@ -9,7 +9,7 @@ namespace BrandUp.CardDav.Server.Controllers.Tests._migration
     {
         readonly AppDocumentContext context;
 
-        const string vCard1 = "BEGIN:VCARD\r\n" +
+        public const string vCard1 = "BEGIN:VCARD\r\n" +
                             "VERSION:3.0\r\n" +
                             "N:Doe;John;;;\r\n" +
                             "FN:John Doe\r\n" +
@@ -22,7 +22,7 @@ namespace BrandUp.CardDav.Server.Controllers.Tests._migration
                             "TEL;type=HOME:+1 202 555 1212\r\n" +
                             "END:VCARD\r\n";
 
-        const string vCard2 = "BEGIN:VCARD\r\n" +
+        public const string vCard2 = "BEGIN:VCARD\r\n" +
                             "VERSION:3.0\r\n" +
                             "N:Die;Jahn;;;\r\n" +
                             "FN:Jahn Die\r\n" +
@@ -35,7 +35,7 @@ namespace BrandUp.CardDav.Server.Controllers.Tests._migration
                             "TEL;type=HOME:+1 202 555 1211\r\n" +
                             "END:VCARD\r\n";
 
-        const string vCard3 = "BEGIN:VCARD\r\n" +
+        public const string vCard3 = "BEGIN:VCARD\r\n" +
                             "VERSION:3.0\r\n" +
                             "N:Sha;Di;;;\r\n" +
                             "FN:Di Sha\r\n" +
@@ -77,7 +77,8 @@ namespace BrandUp.CardDav.Server.Controllers.Tests._migration
             await context.Users.InsertOneAsync(new()
             {
                 Id = userGuid,
-                Name = "User"
+                Name = "User",
+                CTag = DateTime.UtcNow.ToString()
             },
                 new InsertOneOptions { BypassDocumentValidation = false },
                 cancellationToken);

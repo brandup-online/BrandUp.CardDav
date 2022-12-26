@@ -17,7 +17,7 @@ namespace BrandUp.CardDav.VCard.Tests
                              "END:VCARD\r\n";
 
         [Fact]
-        public async Task Success()
+        public void Success()
         {
             var vCardBuilded = VCardBuilder.Create(VCardVersion.VCard3).SetName("Doe", "John")
                 .AddEmail("johnDoe@example.org", Kind.Work, "INTERNET", "pref")
@@ -27,7 +27,7 @@ namespace BrandUp.CardDav.VCard.Tests
                 .AddPhone("+1 202 555 1212", Kind.Home)
                 .Build();
 
-            var serialized = await VCardSerializer.SerializeAsync(vCardBuilded, CancellationToken.None);
+            var serialized = vCardBuilded.ToString();
 
             Assert.Equal(vCard, serialized, true);
         }

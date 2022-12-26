@@ -31,6 +31,9 @@ namespace BrandUp.CardDav.VCard
         public static VCardModel Parse(string vCardRaw)
             => ParseAsync(new StringReader(vCardRaw), CancellationToken.None).Result;
 
+        public static VCardModel Parse(Stream vCardStream)
+            => ParseAsync(vCardStream, CancellationToken.None).Result;
+
         public static bool TryParse(string vCardRaw, out VCardModel vCard)
         {
             try
@@ -68,10 +71,10 @@ namespace BrandUp.CardDav.VCard
                     {
                         continue;
                     }
-                    else
-                    {
-                        throw new ArgumentException("This is not VCard");
-                    }
+                    //else
+                    //{
+                    //    throw new ArgumentException("This is not VCard");
+                    //}
                 }
 
                 if (string.Equals(line, "END:VCARD", StringComparison.InvariantCultureIgnoreCase))

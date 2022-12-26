@@ -4,7 +4,7 @@
     {
         bool IsSuccess { get; init; }
         string StatusCode { get; init; }
-        IResponseBody Body { get; }
+        IResponseBody Content { get; }
 
         static abstract IResponse Create(HttpResponseMessage message);
     }

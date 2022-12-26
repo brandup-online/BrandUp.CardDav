@@ -15,7 +15,7 @@ namespace BrandUp.CardDav.Transport.Models.Responses
         public string StatusCode { get; init; }
 
         public ReportResponseBody Body { get; init; }
-        IResponseBody IResponse.Body => Body;
+        IResponseBody IResponse.Content => Body;
 
         public static IResponse Create(HttpResponseMessage message)
         {

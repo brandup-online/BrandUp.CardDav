@@ -12,7 +12,7 @@ namespace BrandUp.CardDav.Transport.Models.Responses
 
         public PropfindResponseBody Body { get; init; }
 
-        IResponseBody IResponse.Body => Body;
+        IResponseBody IResponse.Content => Body;
 
         public static IResponse Create(HttpResponseMessage message)
         {

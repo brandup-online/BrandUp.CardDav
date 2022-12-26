@@ -1,6 +1,7 @@
+using BrandUp.CardDav.Server.Controllers.Tests;
 using Xunit.Abstractions;
 
-namespace BrandUp.CardDav.Server.Controllers.Tests.Controllers
+namespace BrandUp.CardDav.Server.Tests.Controllers
 {
     public class HomeTests : ControllerTestBase
     {

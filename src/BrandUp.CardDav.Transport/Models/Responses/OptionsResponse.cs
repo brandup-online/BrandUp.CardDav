@@ -9,7 +9,7 @@ namespace BrandUp.CardDav.Transport.Models.Responses
         public string[] DavHeaderValue { get; init; }
         public string[] AllowHeaderValue { get; init; }
 
-        public IResponseBody Body { get; init; } = null;
+        public IResponseBody Content { get; init; } = null;
 
         public static IResponse Create(HttpResponseMessage message)
         {

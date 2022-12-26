@@ -12,6 +12,10 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
 
         public IList<IResponseResource> Resources { get; private set; } = new List<IResponseResource>();
 
+        #endregion
+
+        #region IXmlSerializable
+
         XmlSchema IXmlSerializable.GetSchema() => null;
 
         void IXmlSerializable.ReadXml(XmlReader reader)

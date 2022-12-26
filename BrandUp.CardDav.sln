@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Server.Abst
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Server", "src\BrandUp.CardDav.Server.Controllers\BrandUp.CardDav.Server.csproj", "{5666D37D-BCD2-4C43-9BC8-AF8E89AEF48A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Server.Controllers.Tests", "test\BrandUp.CardDav.Server.Controllers.Tests\BrandUp.CardDav.Server.Controllers.Tests.csproj", "{BBB6F529-B495-43DC-A1F4-481435C3189A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Server.Tests", "test\BrandUp.CardDav.Server.Controllers.Tests\BrandUp.CardDav.Server.Tests.csproj", "{BBB6F529-B495-43DC-A1F4-481435C3189A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Server.Example", "example\BrandUp.CardDav.Server.Example\BrandUp.CardDav.Server.Example.csproj", "{5A6F2ED2-54B7-4447-BD76-9071B9597624}"
 EndProject
@@ -29,9 +29,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Transport.B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.VCard.Tests", "test\BrandUp.VCard.Tests\BrandUp.CardDav.VCard.Tests.csproj", "{85481F14-17F4-43E7-AE44-0407C775C5E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrandUp.CardDav.Services", "src\BrandUp.CardDav.Services\BrandUp.CardDav.Services.csproj", "{A74FAF76-6B58-4ADC-A126-C1719BB3494A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Services", "src\BrandUp.CardDav.Services\BrandUp.CardDav.Services.csproj", "{A74FAF76-6B58-4ADC-A126-C1719BB3494A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrandUp.CardDav.Attributes", "src\BrandUp.CardDav.Attributes\BrandUp.CardDav.Attributes.csproj", "{EDD38BD1-BCB5-4831-B5E7-7244DD34A570}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Attributes", "src\BrandUp.CardDav.Attributes\BrandUp.CardDav.Attributes.csproj", "{EDD38BD1-BCB5-4831-B5E7-7244DD34A570}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

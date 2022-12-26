@@ -1,6 +1,6 @@
 ﻿namespace BrandUp.CardDav.VCard.Tests
 {
-    public class SerializeTest : IAsyncLifetime
+    public class VCardModelTest : IAsyncLifetime
     {
         const string vCard = "BEGIN:VCARD\r\n" +
                              "VERSION:3.0\r\n" +
@@ -23,7 +23,7 @@
 
             Assert.NotNull(result);
 
-            var serialized = await VCardSerializer.SerializeAsync(result, CancellationToken.None);
+            var serialized = result.ToString();
 
             Assert.NotNull(serialized);
             Assert.NotEmpty(serialized);

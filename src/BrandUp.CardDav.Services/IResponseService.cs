@@ -143,14 +143,14 @@ namespace BrandUp.CardDav.Services
         {
             var response = new PropfindResponseBody();
 
-            response.Resources.Add(GenerateResponseResource(user, request.Body.Properties));
+            response.Resources.Add(GeneratePropfindResource(user, request.Body.Properties));
 
             if (request.Depth.Value == Depth.One.Value)
             {
                 var addresBooks = await addressRepository.FindCollectionsByUserIdAsync(user.Id, cancellationToken);
                 foreach (var book in addresBooks)
                 {
-                    response.Resources.Add(GenerateResponseResource(book, request.Body.Properties, true));
+                    response.Resources.Add(GeneratePropfindResource(book, request.Body.Properties, true));
                 }
             }
 
@@ -161,14 +161,14 @@ namespace BrandUp.CardDav.Services
         {
             var response = new PropfindResponseBody();
 
-            response.Resources.Add(GenerateResponseResource(book, request.Body.Properties));
+            response.Resources.Add(GeneratePropfindResource(book, request.Body.Properties));
 
             if (request.Depth.Value == Depth.One.Value)
             {
                 var contacts = await contactRepository.FindAllContactsByBookIdAsync(book.Id, cancellationToken);
                 foreach (var contact in contacts)
                 {
-                    response.Resources.Add(GenerateResponseResource(contact, request.Body.Properties, true));
+                    response.Resources.Add(GeneratePropfindResource(contact, request.Body.Properties, true));
                 }
             }
 
@@ -179,27 +179,9 @@ namespace BrandUp.CardDav.Services
         {
             var response = new PropfindResponseBody();
 
-            response.Resources.Add(GenerateResponseResource(contact, request.Body.Properties));
+            response.Resources.Add(GeneratePropfindResource(contact, request.Body.Properties));
 
             return Task.FromResult(response);
-        }
-
-        object GetValueByDavProp(object obj, IDavProperty davProperty)
-        {
-            if (obj == null)
-                throw new ArgumentNullException(nameof(obj));
-
-            var properties = GetPropertiesByObject(obj);
-
-            var property = (from prop in properties
-                            from attrib in prop.GetCustomAttributes(typeof(DavNameAttribute), true).Cast<DavNameAttribute>()
-                            where attrib.Name == davProperty.Name && attrib.Namespace == davProperty.Namespace
-                            select prop).FirstOrDefault();
-
-            if (property == null)
-                return null;
-
-            return property.GetValue(obj);
         }
 
         AddressDataResource GenerateReportResource(IContactDocument contact, IEnumerable<IDavProperty> davProperties, bool withResourceName = false)
@@ -240,7 +222,7 @@ namespace BrandUp.CardDav.Services
             };
         }
 
-        DefaultResponseResource GenerateResponseResource(object innerResource, IEnumerable<IDavProperty> davProperties, bool withResourceName = false)
+        DefaultResponseResource GeneratePropfindResource(object innerResource, IEnumerable<IDavProperty> davProperties, bool withResourceName = false)
         {
             var endpoint = path;
 
@@ -249,6 +231,11 @@ namespace BrandUp.CardDav.Services
 
             Dictionary<IDavProperty, string> propertyDictionary = new();
             List<IDavProperty> notFound = new();
+
+            if (davProperties.Count() == 1 && davProperties.SingleOrDefault()?.Name == "allprop")
+            {
+                propertyDictionary = new(GetAllDavPropValues(innerResource));
+            }
 
             foreach (var property in davProperties)
             {
@@ -266,6 +253,44 @@ namespace BrandUp.CardDav.Services
                 FoundProperties = new(propertyDictionary),
                 NotFoundProperties = notFound
             };
+        }
+
+        object GetValueByDavProp(object obj, IDavProperty davProperty)
+        {
+            if (obj == null)
+                throw new ArgumentNullException(nameof(obj));
+
+            var properties = GetPropertiesByObject(obj);
+
+            var property = (from prop in properties
+                            from attrib in prop.GetCustomAttributes(typeof(DavNameAttribute), true).Cast<DavNameAttribute>()
+                            where attrib.Name == davProperty.Name && attrib.Namespace == davProperty.Namespace
+                            select prop).FirstOrDefault();
+
+            if (property == null)
+                return null;
+
+            return property.GetValue(obj);
+        }
+
+        IDictionary<IDavProperty, string> GetAllDavPropValues(object obj)
+        {
+            if (obj == null)
+                throw new ArgumentNullException(nameof(obj));
+
+            var properties = GetPropertiesByObject(obj);
+
+            var davProperties = (from prop in properties
+                                 from attrib in prop.GetCustomAttributes(typeof(DavNameAttribute), true).Cast<DavNameAttribute>()
+                                 where attrib.Name != "address-data" && attrib.Namespace != "urn:ietf:params:xml:ns:carddav"
+                                 select prop);
+
+            return davProperties.ToDictionary(k =>
+            {
+                var attr = ((DavNameAttribute)k.GetCustomAttribute(typeof(DavNameAttribute)));
+
+                return Prop.Create(attr.Name, attr.Namespace);
+            }, v => (string)v.GetValue(obj));
         }
 
         private IEnumerable<IContactDocument> ApplyConstraints(IEnumerable<IContactDocument> contacts, IReportBody body)

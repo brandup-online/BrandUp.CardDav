@@ -39,6 +39,10 @@ namespace BrandUp.CardDav.Transport.Models.Properties
             else return new AddressData();
         }
 
+        public static IDavProperty Create(string name, string namespase)
+        {
+            return new DefaultProp(name, namespase);
+        }
         #endregion
     }
 }

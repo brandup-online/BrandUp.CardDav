@@ -184,14 +184,14 @@ namespace BrandUp.CardDav.Client.Test
             var vCardResponse = await client.GetAsync(newUserEndpoint, CancellationToken.None);
             Assert.NotNull(vCardResponse);
 
-            Assert.Equal(vCard.Name.FamilyNames, vCardResponse.Name.FamilyNames);
-            Assert.Equal(vCard.Name.GivenNames, vCardResponse.Name.GivenNames);
-            Assert.Equal(vCard.Name.AdditionalNames, vCardResponse.Name.AdditionalNames);
-            Assert.Equal(vCard.Name.HonorificPrefixes, vCardResponse.Name.HonorificPrefixes);
-            Assert.Equal(vCard.Name.HonorificSuffixes, vCardResponse.Name.HonorificSuffixes);
-            Assert.Equal(vCard.FormattedName, vCardResponse.FormattedName);
-            Assert.Equal(vCard.Phones, vCardResponse.Phones, new PhonesEqualityComparer());
-            Assert.Equal(vCard.Emails, vCardResponse.Emails, new EmailsEqualityComparer());
+            Assert.Equal(vCard.Name.FamilyNames, vCardResponse.VCard.Name.FamilyNames);
+            Assert.Equal(vCard.Name.GivenNames, vCardResponse.VCard.Name.GivenNames);
+            Assert.Equal(vCard.Name.AdditionalNames, vCardResponse.VCard.Name.AdditionalNames);
+            Assert.Equal(vCard.Name.HonorificPrefixes, vCardResponse.VCard.Name.HonorificPrefixes);
+            Assert.Equal(vCard.Name.HonorificSuffixes, vCardResponse.VCard.Name.HonorificSuffixes);
+            Assert.Equal(vCard.FormattedName, vCardResponse.VCard.FormattedName);
+            Assert.Equal(vCard.Phones, vCardResponse.VCard.Phones, new PhonesEqualityComparer());
+            Assert.Equal(vCard.Emails, vCardResponse.VCard.Emails, new EmailsEqualityComparer());
 
             #endregion
 
@@ -207,7 +207,7 @@ namespace BrandUp.CardDav.Client.Test
 
             vCardResponse = await client.GetAsync(newUserEndpoint, CancellationToken.None);
             Assert.NotNull(vCardResponse);
-            Assert.Equal("test@test.org", vCardResponse.Emails.First().Email);
+            Assert.Equal("test@test.org", vCardResponse.VCard.Emails.First().Email);
 
             #endregion
 
