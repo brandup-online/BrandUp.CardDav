@@ -1,5 +1,4 @@
-﻿using BrandUp.CardDav.Services;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Primitives;
 
@@ -7,13 +6,8 @@ namespace BrandUp.CardDav.Server.Controllers
 {
     [ApiController]
     [Route("")]
-    public class HomeController : CardDavController
+    public class HomeController : ControllerBase
     {
-
-        public HomeController(IResponseService responseService)
-            : base(responseService)
-        { }
-
         [HttpGet]
         public Task<ActionResult> GetAsync()
         {

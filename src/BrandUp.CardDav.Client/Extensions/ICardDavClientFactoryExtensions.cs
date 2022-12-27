@@ -1,7 +1,7 @@
 ﻿using BrandUp.CardDav.Client.Factory;
 using BrandUp.CardDav.Client.Options;
 
-namespace BrandUp.CardDav.Client.Extensions
+namespace BrandUp.CardDav.Client
 {
     public static class ICardDavClientFactoryExtensions
     {

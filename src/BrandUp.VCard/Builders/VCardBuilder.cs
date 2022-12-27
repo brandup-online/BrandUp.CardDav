@@ -140,7 +140,6 @@
             return this;
         }
 
-
         public VCardModel Build() => vCard;
 
         #endregion

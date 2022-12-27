@@ -15,7 +15,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
         {
             var options = await Client.OptionsAsync(CancellationToken.None);
 
-            Output.WriteLine(options.StatusCode);
+            Output.WriteLine(options.StatusCode.ToString());
             Assert.True(options.IsSuccess);
             Assert.NotEmpty(options.AllowHeaderValue);
             Output.WriteLine(string.Join(" ", options.AllowHeaderValue));

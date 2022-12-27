@@ -1,5 +1,4 @@
-﻿using BrandUp.CardDav.Client.Extensions;
-using BrandUp.CardDav.Client.Factory;
+﻿using BrandUp.CardDav.Client.Factory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit.Abstractions;

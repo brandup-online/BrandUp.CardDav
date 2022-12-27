@@ -2,6 +2,7 @@
 using BrandUp.CardDav.Transport.Models.Properties;
 using System.Xml;
 using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Models.Responses.Body
 {
@@ -18,7 +19,7 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
             return null;
         }
 
-        public void ReadXml(XmlReader reader)
+        void IXmlSerializable.ReadXml(XmlReader reader)
         {
             Dictionary<IDavProperty, string> found = new();
             List<IDavProperty> notFound = new();
@@ -84,7 +85,7 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
             }
         }
 
-        public void WriteXml(XmlWriter writer)
+        void IXmlSerializable.WriteXml(XmlWriter writer)
         {
 
             writer.WriteStartElement("response", "DAV:");

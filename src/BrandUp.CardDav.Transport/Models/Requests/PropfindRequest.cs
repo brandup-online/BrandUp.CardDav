@@ -5,7 +5,7 @@ using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Models.Requests
 {
-    public class PropfindRequest : ICardDavRequest
+    public class PropfindRequest : ICardDavRequest, IHttpRequestConvertable
     {
         public Depth Depth { get; }
         public PropfindRequest() { }
@@ -41,6 +41,10 @@ namespace BrandUp.CardDav.Transport.Models.Requests
 
         public IDictionary<string, string> Headers { get; init; } = new Dictionary<string, string>();
 
+        #endregion
+
+        #region IHttpRequestConvertable members
+
         public HttpRequestMessage ToHttpRequest()
         {
             var serializer = new XmlSerializer(Body.GetType());
@@ -68,6 +72,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests
 
             return request;
         }
+
         #endregion
     }
 }

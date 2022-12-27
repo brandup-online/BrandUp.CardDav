@@ -5,7 +5,7 @@ namespace BrandUp.CardDav.Transport.Models.Responses
     public class OptionsResponse : IResponse
     {
         public bool IsSuccess { get; init; }
-        public string StatusCode { get; init; }
+        public int StatusCode { get; init; }
         public string[] DavHeaderValue { get; init; }
         public string[] AllowHeaderValue { get; init; }
 
@@ -16,7 +16,7 @@ namespace BrandUp.CardDav.Transport.Models.Responses
             return new OptionsResponse
             {
                 IsSuccess = message.IsSuccessStatusCode,
-                StatusCode = message.StatusCode.ToString(),
+                StatusCode = ((int)message.StatusCode),
                 AllowHeaderValue = message.Content.Headers.Allow.ToArray(),
                 DavHeaderValue = message.Headers.GetValues("DAV").SelectMany(s => s.Split(",")).ToArray()
             };

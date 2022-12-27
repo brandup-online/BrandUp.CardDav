@@ -14,6 +14,10 @@ namespace BrandUp.CardDav.Transport
             if (value != null)
                 return true;
 
+            value = reader.GetAttribute($"{reader.Prefix}:{name}", namespase);
+            if (value != null)
+                return true;
+
             return false;
         }
     }

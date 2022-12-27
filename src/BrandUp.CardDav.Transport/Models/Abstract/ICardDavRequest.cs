@@ -4,6 +4,11 @@
     {
         IDictionary<string, string> Headers { get; }
         IRequestBody Body { get; }
+    }
+
+    public interface IHttpRequestConvertable
+    {
         HttpRequestMessage ToHttpRequest();
     }
+
 }

@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Models.Requests
 {
-    public class ReportRequest : ICardDavRequest
+    public class ReportRequest : ICardDavRequest, IHttpRequestConvertable
     {
         public ReportRequest() { }
 
@@ -48,6 +48,10 @@ namespace BrandUp.CardDav.Transport.Models.Requests
         IRequestBody ICardDavRequest.Body => Body;
 
         public IReportBody Body { get; init; }
+
+        #endregion
+
+        #region IHttpRequestConvertable members
 
         public HttpRequestMessage ToHttpRequest()
         {

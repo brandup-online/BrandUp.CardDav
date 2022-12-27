@@ -1,4 +1,6 @@
 ﻿using BrandUp.CardDav.Server.Attributes;
+using BrandUp.CardDav.Server.Documents;
+using BrandUp.CardDav.Server.Repositories;
 using BrandUp.CardDav.Services;
 using BrandUp.CardDav.Transport.Models.Headers;
 using BrandUp.CardDav.Transport.Models.Requests;
@@ -9,22 +11,28 @@ using System.Xml.Serialization;
 namespace BrandUp.CardDav.Server.Controllers
 {
     [ApiController]
-    [Route("Principal/{Name}/Collections/{AddressBook}/{VCard}")]
-    public class VCardController : CardDavController
+    [Route("Principal/{Name}/Collections/{AddressBook}/{Contact}")]
+    public class VCardController : ControllerBase
     {
-        public VCardController(IResponseService responseService)
-            : base(responseService)
+        readonly IUserRepository userRepository;
+        readonly IAddressBookRepository addressBookRepository;
+        readonly IContactRepository contactRepository;
+
+        public VCardController(IUserRepository userRepository, IAddressBookRepository addressBookRepository, IContactRepository contactRepository)
         {
+            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            this.addressBookRepository = addressBookRepository ?? throw new ArgumentNullException(nameof(addressBookRepository));
+            this.contactRepository = contactRepository ?? throw new ArgumentNullException(nameof(contactRepository));
         }
 
         [HttpGet]
         public async Task<ActionResult> GetAsync([FromRoute(Name = "Name")] string userName,
                                                 [FromRoute(Name = "AddressBook")] string addressBook,
-                                                [FromRoute(Name = "VCard")] string vCardName)
+                                                [FromRoute(Name = "Contact")] string vCardName)
         {
             try
             {
-                var contact = await responseService.FindContactAsync(userName, addressBook, vCardName, HttpContext.RequestAborted);
+                var contact = await FindContactAsync(userName, addressBook, vCardName, HttpContext.RequestAborted);
                 if (contact == null)
                     return NotFound();
                 return Ok(contact.RawVCard);
@@ -40,25 +48,21 @@ namespace BrandUp.CardDav.Server.Controllers
         }
 
         [CardDavPropfind]
-        public async Task<ActionResult> PropfindAsync([FromRoute(Name = "Name")] string name,
-            [FromRoute(Name = "AddressBook")] string addressBookName,
-            [FromRoute(Name = "VCard")] string contact,
-            PropfindRequest request)
+        public async Task<ActionResult> PropfindAsync(IncomingRequest request, [FromHeader(Name = "Depth")] string depth, [FromServices] IResponseService responseService)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            if (request.Depth == Depth.Infinity)
+            if (depth == Depth.Infinity.Value)
                 return BadRequest("Depth: Infinity");
 
-            if (request.Depth == Depth.One)
+            if (depth == Depth.One.Value)
                 return BadRequest("Depth: One");
 
             try
             {
-                var contactDocument = await responseService.FindContactAsync(name, addressBookName, contact, HttpContext.RequestAborted);
-
-                var response = await responseService.ProcessPropfindAsync(contactDocument, request, HttpContext.RequestAborted);
+                var response = await responseService.ProcessPropfindAsync(request, depth,
+                    HttpContext.RequestAborted);
 
                 var serializer = new XmlSerializer(typeof(PropfindResponseBody));
 
@@ -78,23 +82,23 @@ namespace BrandUp.CardDav.Server.Controllers
         [Consumes("text/x-vcard", "text/plain", "text/vcard")]
         public async Task<ActionResult> AddOrUpdateAsync([FromRoute(Name = "Name")] string userName,
                                                     [FromRoute(Name = "AddressBook")] string addressBook,
-                                                    [FromRoute(Name = "VCard")] string vCardName,
+                                                    [FromRoute(Name = "Contact")] string vCardName,
                                                     [FromHeader(Name = "If-Match")] string Etag)
         {
             try
             {
-                var contact = await responseService.FindContactAsync(userName, addressBook, vCardName, HttpContext.RequestAborted);
+                var contact = await FindContactAsync(userName, addressBook, vCardName, HttpContext.RequestAborted);
 
                 using var reader = new StreamReader(Request.Body);
                 var vCard = reader.ReadToEnd();
                 if (contact == null)
                 {
-                    await responseService.CreateContactAsync(userName, addressBook, vCardName, vCard, HttpContext.RequestAborted);
+                    await CreateContactAsync(userName, addressBook, vCardName, vCard, HttpContext.RequestAborted);
                 }
                 else if (contact.ETag == Etag)
                 {
                     contact.RawVCard = vCard;
-                    if (!await responseService.UpdateContactAsync(contact, Etag, HttpContext.RequestAborted))
+                    if (!await contactRepository.UpdateAsync(contact, Etag, HttpContext.RequestAborted))
                         return StatusCode(500);
                 }
                 else return Conflict();
@@ -112,20 +116,22 @@ namespace BrandUp.CardDav.Server.Controllers
         }
 
         [HttpDelete]
-        public async Task<ActionResult> DeleteAsync([FromRoute(Name = "Name")] string userName,
-                                             [FromRoute(Name = "AddressBook")] string addressBook,
-                                             [FromRoute(Name = "VCard")] string vCardName)
+        public async Task<ActionResult> DeleteAsync(IncomingRequest request)
         {
             try
             {
-                var contact = await responseService.FindContactAsync(userName, addressBook, vCardName, HttpContext.RequestAborted);
-
-                if (contact != null)
+                if (request.Document is IContactDocument contactDocument)
                 {
-                    await responseService.DeleteContactAsync(contact, HttpContext.RequestAborted);
+                    if (contactDocument != null)
+                    {
+                        await contactRepository.DeleteAsync(contactDocument, HttpContext.RequestAborted);
+                    }
+                    else return NotFound();
                 }
-                else return NotFound();
-
+                else
+                {
+                    return BadRequest();
+                }
                 return NoContent();
             }
             catch (Exception ex)
@@ -133,5 +139,40 @@ namespace BrandUp.CardDav.Server.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        #region Helpers 
+        async Task<IContactDocument> FindContactAsync(string name, string addressBook, string contactName, CancellationToken cancellationToken)
+        {
+            var book = await FindAddressBookAsync(name, addressBook, cancellationToken);
+
+            var contact = await contactRepository.FindByNameAsync(contactName, book.Id, cancellationToken);
+
+            return contact;
+        }
+
+        async Task<IAddressBookDocument> FindAddressBookAsync(string name, string addressBookName, CancellationToken cancellationToken)
+        {
+            var user = await userRepository.FindByNameAsync(name, cancellationToken);
+
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+
+            var addresBook = await addressBookRepository.FindByNameAsync(addressBookName, user.Id, cancellationToken);
+
+            if (addresBook == null)
+                throw new ArgumentNullException(nameof(user));
+
+            return addresBook;
+        }
+
+        async Task CreateContactAsync(string name, string addressBook, string contact, string vcard, CancellationToken cancellationToken)
+        {
+            var book = await FindAddressBookAsync(name, addressBook, cancellationToken);
+
+            await contactRepository.CreateAsync(contact, book.Id, vcard, cancellationToken);
+        }
+
+        #endregion
+
     }
 }

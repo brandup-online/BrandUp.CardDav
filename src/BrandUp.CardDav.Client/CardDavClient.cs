@@ -40,9 +40,6 @@ namespace BrandUp.CardDav.Client
         public async Task<ReportResponse> ReportAsync(string endpoint, ReportRequest request, CancellationToken cancellationToken = default)
             => await ProccesResponse<ReportResponse>(endpoint, request, cancellationToken);
 
-        //public async Task<MkcolResponse> MkcolAsync(string endpoint, MkcolRequest request, CancellationToken cancellationToken = default)
-        //     => await ProccesResponse<MkcolResponse>(endpoint, request, cancellationToken);
-
         public async Task<MkcolResponse> MkcolAsync(string endpoint, CancellationToken cancellationToken = default)
             => await ProccesResponse<MkcolResponse>(endpoint, new MkcolRequest(), cancellationToken);
 
@@ -64,7 +61,7 @@ namespace BrandUp.CardDav.Client
 
         #region Helpers
 
-        private async Task<T> ProccesResponse<T>(string endpoint, ICardDavRequest request, CancellationToken cancellationToken) where T : class, IResponse, new()
+        private async Task<T> ProccesResponse<T>(string endpoint, IHttpRequestConvertable request, CancellationToken cancellationToken) where T : class, IResponse, new()
         {
             using var httpRequest = request.ToHttpRequest();
             if (httpRequest.Content != null)
@@ -84,7 +81,7 @@ namespace BrandUp.CardDav.Client
             }
             else
             {
-                return new() { IsSuccess = false, StatusCode = response.StatusCode.ToString() };
+                return new() { IsSuccess = false, StatusCode = (int)response.StatusCode };
             }
         }
 

@@ -12,8 +12,4 @@
     <ProjectReference Include="..\BrandUp.VCard\BrandUp.CardDav.VCard.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Xml\" />
-  </ItemGroup>
-
 </Project>

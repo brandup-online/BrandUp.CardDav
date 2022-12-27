@@ -25,13 +25,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Client.Test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Transport", "src\BrandUp.CardDav.Transport\BrandUp.CardDav.Transport.csproj", "{BFFA5ECE-D7B8-475B-9C0D-0A55942CD58D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Transport.Binding", "src\BrandUp.CardDav.Transport.Binding\BrandUp.CardDav.Transport.Binding.csproj", "{4C3BD281-4C3A-4DB1-8189-FE363797CF97}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.VCard.Tests", "test\BrandUp.VCard.Tests\BrandUp.CardDav.VCard.Tests.csproj", "{85481F14-17F4-43E7-AE44-0407C775C5E9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Services", "src\BrandUp.CardDav.Services\BrandUp.CardDav.Services.csproj", "{A74FAF76-6B58-4ADC-A126-C1719BB3494A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Attributes", "src\BrandUp.CardDav.Attributes\BrandUp.CardDav.Attributes.csproj", "{EDD38BD1-BCB5-4831-B5E7-7244DD34A570}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrandUp.CardDav.Transport.Binding", "src\BrandUp.CardDav.Transport.Binding\BrandUp.CardDav.Transport.Binding.csproj", "{52B098FA-30E9-4C90-838E-CEA93A27CA3C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -71,10 +71,6 @@ Global
 		{BFFA5ECE-D7B8-475B-9C0D-0A55942CD58D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BFFA5ECE-D7B8-475B-9C0D-0A55942CD58D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BFFA5ECE-D7B8-475B-9C0D-0A55942CD58D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4C3BD281-4C3A-4DB1-8189-FE363797CF97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4C3BD281-4C3A-4DB1-8189-FE363797CF97}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4C3BD281-4C3A-4DB1-8189-FE363797CF97}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4C3BD281-4C3A-4DB1-8189-FE363797CF97}.Release|Any CPU.Build.0 = Release|Any CPU
 		{85481F14-17F4-43E7-AE44-0407C775C5E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{85481F14-17F4-43E7-AE44-0407C775C5E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{85481F14-17F4-43E7-AE44-0407C775C5E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -87,6 +83,10 @@ Global
 		{EDD38BD1-BCB5-4831-B5E7-7244DD34A570}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EDD38BD1-BCB5-4831-B5E7-7244DD34A570}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EDD38BD1-BCB5-4831-B5E7-7244DD34A570}.Release|Any CPU.Build.0 = Release|Any CPU
+		{52B098FA-30E9-4C90-838E-CEA93A27CA3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52B098FA-30E9-4C90-838E-CEA93A27CA3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52B098FA-30E9-4C90-838E-CEA93A27CA3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52B098FA-30E9-4C90-838E-CEA93A27CA3C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -100,10 +100,10 @@ Global
 		{BA7354DD-5573-401D-A8AE-713A82A71DEE} = {EA4F368D-472D-4FAE-82CC-CAF8F1B8AE53}
 		{9CAF913C-A0B8-4874-ADEB-F92C3E8A307F} = {70C8043F-300F-4F04-B010-697F41437BF3}
 		{BFFA5ECE-D7B8-475B-9C0D-0A55942CD58D} = {EA4F368D-472D-4FAE-82CC-CAF8F1B8AE53}
-		{4C3BD281-4C3A-4DB1-8189-FE363797CF97} = {EA4F368D-472D-4FAE-82CC-CAF8F1B8AE53}
 		{85481F14-17F4-43E7-AE44-0407C775C5E9} = {70C8043F-300F-4F04-B010-697F41437BF3}
 		{A74FAF76-6B58-4ADC-A126-C1719BB3494A} = {EA4F368D-472D-4FAE-82CC-CAF8F1B8AE53}
 		{EDD38BD1-BCB5-4831-B5E7-7244DD34A570} = {EA4F368D-472D-4FAE-82CC-CAF8F1B8AE53}
+		{52B098FA-30E9-4C90-838E-CEA93A27CA3C} = {EA4F368D-472D-4FAE-82CC-CAF8F1B8AE53}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D47DF41B-DD5F-4EC6-B1A6-B586F8CE2E88}

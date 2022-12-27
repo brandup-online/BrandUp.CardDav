@@ -5,7 +5,7 @@ namespace BrandUp.CardDav.Transport.Models.Responses
     public class MkcolResponse : IResponse
     {
         public bool IsSuccess { get; init; }
-        public string StatusCode { get; init; }
+        public int StatusCode { get; init; }
 
         public IResponseBody Content { get; init; }
 
@@ -14,7 +14,7 @@ namespace BrandUp.CardDav.Transport.Models.Responses
             return new MkcolResponse
             {
                 IsSuccess = message.IsSuccessStatusCode,
-                StatusCode = message.StatusCode.ToString(),
+                StatusCode = ((int)message.StatusCode),
             };
         }
     }

@@ -26,9 +26,9 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
             {
                 if (reader.NodeType == XmlNodeType.Element)
                 {
-                    var resourse = new DefaultResponseResource();
+                    var resourse = (IXmlSerializable)new DefaultResponseResource();
                     resourse.ReadXml(reader);
-                    resourseList.Add(resourse);
+                    resourseList.Add(resourse as DefaultResponseResource);
                 }
             }
             Resources = resourseList.ToArray();

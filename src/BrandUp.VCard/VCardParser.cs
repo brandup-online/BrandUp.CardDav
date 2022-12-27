@@ -71,10 +71,6 @@ namespace BrandUp.CardDav.VCard
                     {
                         continue;
                     }
-                    //else
-                    //{
-                    //    throw new ArgumentException("This is not VCard");
-                    //}
                 }
 
                 if (string.Equals(line, "END:VCARD", StringComparison.InvariantCultureIgnoreCase))
@@ -120,7 +116,6 @@ namespace BrandUp.CardDav.VCard
             var name = line.Split(':')[1];
             vCard.FormattedName = name.Trim();
         }
-
 
         private static void AddName(VCardModel vCard, string line)
         {

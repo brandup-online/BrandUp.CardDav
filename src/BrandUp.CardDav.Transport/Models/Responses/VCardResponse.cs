@@ -11,7 +11,7 @@ namespace BrandUp.CardDav.Transport.Models.Responses
         #region IResponse members
 
         public bool IsSuccess { get; init; }
-        public string StatusCode { get; init; }
+        public int StatusCode { get; init; }
 
         IResponseBody IResponse.Content => null;
 
@@ -22,7 +22,7 @@ namespace BrandUp.CardDav.Transport.Models.Responses
             return new VCardResponse
             {
                 IsSuccess = message.IsSuccessStatusCode,
-                StatusCode = message.StatusCode.ToString(),
+                StatusCode = ((int)message.StatusCode),
                 ETag = message.Headers.ETag?.Tag,
                 VCard = vCard
             };

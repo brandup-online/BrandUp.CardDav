@@ -21,7 +21,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
 
             var propfind = await Client.PropfindAsync("Principal/User/Collections", request, CancellationToken.None);
 
-            Output.WriteLine(propfind.StatusCode);
+            Output.WriteLine(propfind.StatusCode.ToString());
             Assert.True(propfind.IsSuccess);
             Assert.Single(propfind.Body.Resources);
 
@@ -29,7 +29,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
 
             propfind = await Client.PropfindAsync("Principal/User/Collections", request, CancellationToken.None);
 
-            Output.WriteLine(propfind.StatusCode);
+            Output.WriteLine(propfind.StatusCode.ToString());
             Assert.True(propfind.IsSuccess);
             Assert.Equal(2, propfind.Body.Resources.Count);
 
@@ -48,7 +48,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
 
             var propfind = await Client.PropfindAsync("Principal/User/Collections/Default", request, CancellationToken.None);
 
-            Output.WriteLine(propfind.StatusCode);
+            Output.WriteLine(propfind.StatusCode.ToString());
             Assert.True(propfind.IsSuccess);
             Assert.Single(propfind.Body.Resources);
 
@@ -56,7 +56,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
 
             propfind = await Client.PropfindAsync("Principal/User/Collections/Default", request, CancellationToken.None);
 
-            Output.WriteLine(propfind.StatusCode);
+            Output.WriteLine(propfind.StatusCode.ToString());
             Assert.True(propfind.IsSuccess);
             Assert.Equal(4, propfind.Body.Resources.Count);
 
@@ -83,7 +83,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
 
             var report = await Client.ReportAsync("Principal/User/Collections/Default", request, CancellationToken.None);
 
-            Output.WriteLine(report.StatusCode);
+            Output.WriteLine(report.StatusCode.ToString());
             Assert.Equal(3, report.Body?.Resources.Count);
 
             foreach (var resource in report.Body.Resources)
@@ -101,7 +101,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
 
             var propfind = await Client.PropfindAsync("Principal/User/Collections/Default", propfindRequest, CancellationToken.None);
 
-            Output.WriteLine(propfind.StatusCode);
+            Output.WriteLine(propfind.StatusCode.ToString());
             Assert.True(propfind.IsSuccess);
 
             addressData = Prop.AddressData(VCardProperty.EMAIL, VCardProperty.TEL, VCardProperty.ORG, VCardProperty.VERSION);
@@ -109,7 +109,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
 
             report = await Client.ReportAsync("Principal/User/Collections/Default", request, CancellationToken.None);
 
-            Output.WriteLine(report.StatusCode);
+            Output.WriteLine(report.StatusCode.ToString());
             Assert.Equal(2, report.Body?.Resources.Count);
 
             foreach (var resource in report.Body.Resources)
@@ -143,7 +143,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
 
             var report = await Client.ReportAsync("Principal/User/Collections/Default", request, CancellationToken.None);
 
-            Output.WriteLine(report.StatusCode);
+            Output.WriteLine(report.StatusCode.ToString());
             Assert.Equal(1, report.Body?.Resources.Count);
             Assert.NotNull(report.Body.Resources.First().Endpoint);
             Assert.Equal(VCardParser.Parse(TestUserMigration.vCard2), report.Body.Resources.First().CardModel);
@@ -154,17 +154,28 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
         {
             var mkcol = await Client.MkcolAsync("Principal/User/Collections/New", CancellationToken.None);
 
-            Output.WriteLine(mkcol.StatusCode);
+            Output.WriteLine(mkcol.StatusCode.ToString());
             Assert.True(mkcol.IsSuccess);
 
             var request = PropfindRequest.AllProp(Depth.Zero);
             var propfind = await Client.PropfindAsync("Principal/User/Collections/New", request, CancellationToken.None);
 
-            Output.WriteLine(propfind.StatusCode);
+            Output.WriteLine(propfind.StatusCode.ToString());
             Assert.True(propfind.IsSuccess);
             Assert.Single(propfind.Body.Resources);
             Assert.Equal("/Principal/User/Collections/New", propfind.Body.Resources.First().Endpoint);
             Assert.NotNull(propfind.Body.Resources.First().FoundProperties[Prop.CTag]);
+        }
+
+        [Fact]
+        public async Task Failure_NotExistingUser()
+        {
+            var request = PropfindRequest.Create(Depth.Zero, Prop.ETag);
+
+            var propfind = await Client.PropfindAsync("Principal/NotExistingUser/Collections", request, CancellationToken.None);
+
+            Output.WriteLine(propfind.StatusCode.ToString());
+            Assert.False(propfind.IsSuccess);
         }
     }
 }

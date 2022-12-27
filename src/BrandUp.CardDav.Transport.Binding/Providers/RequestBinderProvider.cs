@@ -13,14 +13,9 @@ namespace BrandUp.CardDav.Transport.Binding.Providers
                 throw new ArgumentNullException(nameof(context));
             }
 
-            if (context.Metadata.ModelType == typeof(PropfindRequest))
+            if (context.Metadata.ModelType == typeof(IncomingRequest))
             {
-                return new BinderTypeModelBinder(typeof(PropfindRequestBinder));
-            }
-
-            if (context.Metadata.ModelType == typeof(ReportRequest))
-            {
-                return new BinderTypeModelBinder(typeof(ReportRequestBinder));
+                return new BinderTypeModelBinder(typeof(IncomingRequestBinder));
             }
 
             return null;

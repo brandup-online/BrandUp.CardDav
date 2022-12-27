@@ -12,7 +12,7 @@ namespace BrandUp.CardDav.Transport.Models.Responses
 
         public bool IsSuccess { get; init; }
 
-        public string StatusCode { get; init; }
+        public int StatusCode { get; init; }
 
         public ReportResponseBody Body { get; init; }
         IResponseBody IResponse.Content => Body;
@@ -22,7 +22,7 @@ namespace BrandUp.CardDav.Transport.Models.Responses
             var serializer = new XmlSerializer(typeof(ReportResponseBody));
 
             var body = (ReportResponseBody)serializer.Deserialize(message.Content.ReadAsStream());
-            var response = new ReportResponse { IsSuccess = message.IsSuccessStatusCode, StatusCode = message.StatusCode.ToString(), Body = body };
+            var response = new ReportResponse { IsSuccess = message.IsSuccessStatusCode, StatusCode = ((int)message.StatusCode), Body = body };
 
             return response;
         }

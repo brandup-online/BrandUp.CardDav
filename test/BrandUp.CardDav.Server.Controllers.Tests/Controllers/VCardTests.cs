@@ -22,7 +22,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
 
             var response = await Client.AddContactAsync("Principal/User/Collections/Default/test", vCard, CancellationToken.None);
 
-            Output.WriteLine(response.StatusCode);
+            Output.WriteLine(response.StatusCode.ToString());
             Assert.True(response.IsSuccess);
 
             #endregion
@@ -31,14 +31,14 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
 
             var vCardResponse = await Client.GetAsync("Principal/User/Collections/Default/test", CancellationToken.None);
 
-            Output.WriteLine(response.StatusCode);
+            Output.WriteLine(response.StatusCode.ToString());
             Assert.NotNull(vCardResponse);
 
             var propfind = PropfindRequest.Create(Depth.Zero, Prop.ETag);
 
             var propfinResponse = await Client.PropfindAsync("Principal/User/Collections/Default/test", propfind);
 
-            Output.WriteLine(response.StatusCode);
+            Output.WriteLine(response.StatusCode.ToString());
             Assert.True(propfinResponse.IsSuccess);
 
             #endregion
@@ -50,7 +50,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
             var eTag = propfinResponse.Body.Resources.First().FoundProperties[Prop.ETag];
             response = await Client.UpdateContactAsync("Principal/User/Collections/Default/test", vCard, eTag, CancellationToken.None);
 
-            Output.WriteLine(response.StatusCode);
+            Output.WriteLine(response.StatusCode.ToString());
             Assert.True(response.IsSuccess);
 
             #endregion
@@ -59,7 +59,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
 
             response = await Client.DeleteContactAsync("Principal/User/Collections/Default/test", CancellationToken.None);
 
-            Output.WriteLine(response.StatusCode);
+            Output.WriteLine(response.StatusCode.ToString());
             Assert.True(response.IsSuccess);
 
             #endregion

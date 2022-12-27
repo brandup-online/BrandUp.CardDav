@@ -25,9 +25,9 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
             {
                 if (reader.NodeType == XmlNodeType.Element)
                 {
-                    var resourse = new AddressDataResource();
+                    var resourse = (IXmlSerializable)new AddressDataResource();
                     resourse.ReadXml(reader);
-                    resourseList.Add(resourse);
+                    resourseList.Add(resourse as AddressDataResource);
                 }
             }
             Resources = resourseList.ToArray();
@@ -35,7 +35,7 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
 
         public void WriteXml(XmlWriter writer)
         {
-            foreach (var resource in Resources)
+            foreach (IXmlSerializable resource in Resources)
             {
                 resource.WriteXml(writer);
             }

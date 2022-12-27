@@ -1,7 +1,7 @@
 ﻿using BrandUp.CardDav.Client.Factory;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace BrandUp.CardDav.Client.Extensions
+namespace BrandUp.CardDav.Client
 {
     public static class IServiceCollectionExtensions
     {
@@ -12,7 +12,6 @@ namespace BrandUp.CardDav.Client.Extensions
                     {
                         AllowAutoRedirect = false,
                     });
-
 
             services.AddScoped<ICardDavClientFactory, CardDavClientFactory>();
 

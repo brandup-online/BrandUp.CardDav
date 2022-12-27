@@ -15,8 +15,6 @@ namespace BrandUp.CardDav.Server.Builder
         private void AddServices()
         {
             Services.AddScoped<IResponseService, ResponseService>();
-
-            Services.AddHttpContextAccessor();
         }
 
         public IServiceCollection Services { get; }
