@@ -4,9 +4,9 @@
     <TargetFramework>net7.0</TargetFramework>
 	  <Authors>Dmitry Shashev</Authors>
 	  <Company>BrandUp.online</Company>
-	  <Product>BrandUp.CloudStorage</Product>
-	  <RepositoryUrl>https://github.com/brandup-online/cardDav-client</RepositoryUrl>
-	  <PackageProjectUrl>https://github.com/brandup-online/cardDav-client</PackageProjectUrl>
+	  <Product>BrandUp.CardDav.Client</Product>
+	  <RepositoryUrl>https://github.com/brandup-online/BrandUp.CardDav</RepositoryUrl>
+	  <PackageProjectUrl>https://github.com/brandup-online/BrandUp.CardDav</PackageProjectUrl>
 	  
 	  <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>

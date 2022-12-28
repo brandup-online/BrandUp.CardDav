@@ -1,21 +1,28 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>disable</Nullable>
+	<TargetFramework>net7.0</TargetFramework>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<Nullable>disable</Nullable>
+
+	<Authors>Dmitry Shashev</Authors>
+	<Company>BrandUp.online</Company>
+	<Product>BrandUp.CardDav.Server</Product>
+	<RepositoryUrl>https://github.com/brandup-online/BrandUp.CardDav</RepositoryUrl>
+	<PackageProjectUrl>https://github.com/brandup-online/BrandUp.CardDav</PackageProjectUrl>
+	  
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BrandUp.MongoDB" Version="7.0.1" />
-    <PackageReference Include="BrandUp.Pages" Version="7.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+	<PackageReference Include="BrandUp.MongoDB" Version="7.0.1" />
+	<PackageReference Include="BrandUp.Pages" Version="7.0.1" />
+	<PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
+	<PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BrandUp.CardDav.Services\BrandUp.CardDav.Services.csproj" />
-    <ProjectReference Include="..\BrandUp.CardDav.Transport.Binding\BrandUp.CardDav.Transport.Binding.csproj" />
+	<ProjectReference Include="..\BrandUp.CardDav.Services\BrandUp.CardDav.Services.csproj" />
+	<ProjectReference Include="..\BrandUp.CardDav.Transport.Binding\BrandUp.CardDav.Transport.Binding.csproj" />
   </ItemGroup>
 
 </Project>
