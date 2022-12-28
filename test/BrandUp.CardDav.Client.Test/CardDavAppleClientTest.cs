@@ -15,7 +15,7 @@ namespace BrandUp.CardDav.Client.Test
         private string login;
         private string password;
 
-        readonly CardDavClient client;
+        readonly ICardDavClient client;
 
         public CardDavAppleClientTest(ITestOutputHelper output) : base(output)
         {

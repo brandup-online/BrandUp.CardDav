@@ -15,7 +15,7 @@ namespace BrandUp.CardDav.Client.Test
         private string gmail;
         private string password;
 
-        readonly CardDavClient client;
+        readonly ICardDavClient client;
 
         public CardDavGoogleClientTest(ITestOutputHelper output) : base(output)
         {
