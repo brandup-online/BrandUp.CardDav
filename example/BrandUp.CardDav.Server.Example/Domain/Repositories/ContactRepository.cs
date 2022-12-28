@@ -71,6 +71,8 @@ namespace BrandUp.CardDav.Server.Example.Domain.Repositories
 
         #endregion
 
+        #region Helpers
+
         async Task UpdateCTagAsync(Guid bookId, CancellationToken cancellationToken)
         {
             var builder = new FilterDefinitionBuilder<AddressBookDocument>();
@@ -81,5 +83,7 @@ namespace BrandUp.CardDav.Server.Example.Domain.Repositories
 
             await context.AddressBooks.UpdateOneAsync(fillter, update, cancellationToken: cancellationToken);
         }
+
+        #endregion
     }
 }

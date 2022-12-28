@@ -1,19 +1,16 @@
 using BrandUp.CardDav.Server;
 using BrandUp.CardDav.Server.Example.Domain.Context;
 using BrandUp.CardDav.Server.Example.Domain.Repositories;
-using BrandUp.CardDav.Transport.Binding.Providers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers(options =>
-{
-    options.ModelBinderProviders.Insert(0, new RequestBinderProvider());
-});
+builder.Services.AddControllers();
 
 builder.Services.AddCradDavServer()
-                .AddUsers<UserRepository>()
-                .AddAddressBooks<AddressBookRepository>()
-                .AddContacts<ContactRepository>();
+                .AddRepositories<UserRepository, AddressBookRepository, ContactRepository>();
+//.AddUsers<UserRepository>()
+//.AddAddressBooks<AddressBookRepository>()
+//.AddContacts<ContactRepository>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

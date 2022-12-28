@@ -9,32 +9,30 @@ namespace BrandUp.CardDav.Transport.Models.Requests
 {
     public class ReportRequest : ICardDavRequest, IHttpRequestConvertable
     {
-        public ReportRequest() { }
-
-        public ReportRequest(Depth depth)
+        public ReportRequest()
         {
-            Headers.Add("Depth", depth.Value);
+            Headers.Add("Depth", Depth.One.Value);
         }
 
         #region Static members
 
-        public static ReportRequest CreateQuery(Depth depth, PropList propRequest, FilterBody filter, int limit = 0)
-            => new ReportRequest(depth)
+        public static ReportRequest CreateQuery(PropList propRequest, AddressData addressData, FilterBody filter, int limit = 0)
+            => new ReportRequest()
             {
                 Body = new AddresbookQueryBody()
                 {
-                    PropList = propRequest.Properties,
+                    PropList = propRequest.Properties.Append(addressData),
                     Filter = filter,
                     Limit = limit
                 }
             };
 
-        public static ReportRequest CreateMultiget(Depth depth, PropList propRequest, params string[] endpoints)
-            => new ReportRequest(depth)
+        public static ReportRequest CreateMultiget(PropList propRequest, AddressData addressData, params string[] endpoints)
+            => new ReportRequest()
             {
                 Body = new MultigetBody()
                 {
-                    PropList = new List<IDavProperty>(propRequest.Properties),
+                    PropList = propRequest.Properties.Append(addressData),
                     VCardEndpoints = endpoints
                 }
             };

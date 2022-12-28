@@ -53,7 +53,7 @@ namespace BrandUp.CardDav.Client.Test
             var filter = new FilterBody();
 
             filter.AddPropFilter(VCardProperty.FN, FilterMatchType.All, TextMatch.Create("", TextMatchType.Contains));
-            var report = ReportRequest.CreateQuery(Depth.One, PropList.Create(Prop.CTag, Prop.ETag), filter);
+            var report = ReportRequest.CreateQuery(PropList.Create(Prop.CTag, Prop.ETag), new AddressData(), filter);
 
             var reportResponse = await client.ReportAsync(response.Body.Resources[1].Endpoint, report, CancellationToken.None);
 
@@ -63,7 +63,7 @@ namespace BrandUp.CardDav.Client.Test
             filter = new FilterBody();
 
             filter.AddPropFilter(VCardProperty.FN, FilterMatchType.All, TextMatch.Create("ma", TextMatchType.Contains));
-            report = ReportRequest.CreateQuery(Depth.One, PropList.Create(Prop.CTag, Prop.ETag), filter);
+            report = ReportRequest.CreateQuery(PropList.Create(Prop.CTag, Prop.ETag), new AddressData(), filter);
 
             reportResponse = await client.ReportAsync(response.Body.Resources[1].Endpoint, report, CancellationToken.None);
 
@@ -78,7 +78,7 @@ namespace BrandUp.CardDav.Client.Test
 
             Assert.True(response.IsSuccess);
 
-            report = ReportRequest.CreateMultiget(Depth.One, PropList.Create(Prop.CTag, Prop.ETag), response.Body.Resources[1].Endpoint);
+            report = ReportRequest.CreateMultiget(PropList.Create(Prop.CTag, Prop.ETag), new AddressData(), response.Body.Resources[1].Endpoint);
 
             reportResponse = await client.ReportAsync(response.Body.Resources[1].Endpoint, report, CancellationToken.None);
 

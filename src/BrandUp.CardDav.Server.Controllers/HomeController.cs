@@ -17,12 +17,12 @@ namespace BrandUp.CardDav.Server.Controllers
         [HttpOptions]
         public Task<ActionResult> OptionsAsync()
         {
-            var allowValues = new List<string>() { "OPTIONS", "GET", "HEAD", "POST", "PUT", "DELETE", "MKCOL", "PROPFIND", "REPORT" };
+            var allowValues = new List<string>() { "OPTIONS", "GET", "POST", "PUT", "DELETE", "MKCOL", "PROPFIND", "REPORT" };
 
             var allow = new StringValues(allowValues.ToArray());
 
             Response.Headers.Add("Allow", allow);
-            Response.Headers.Add("DAV", "1, 3, access-control, addressbook");
+            Response.Headers.Add("DAV", "1, addressbook");
 
             return Task.FromResult((ActionResult)Ok());
         }

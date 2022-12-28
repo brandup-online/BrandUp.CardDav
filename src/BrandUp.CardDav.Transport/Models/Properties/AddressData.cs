@@ -2,6 +2,7 @@
 using BrandUp.CardDav.VCard;
 using System.Xml;
 using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Models.Properties
 {
@@ -25,14 +26,15 @@ namespace BrandUp.CardDav.Transport.Models.Properties
 
         #region IXmlSerializable members
 
-        public XmlSchema GetSchema() => null;
+        XmlSchema IXmlSerializable.GetSchema() => null;
 
-        public void ReadXml(XmlReader reader)
+        void IXmlSerializable.ReadXml(XmlReader reader)
         {
             var props = new List<VCardProperty>();
+            var depth = reader.Depth;
             while (reader.Read())
             {
-                if (reader.NodeType == XmlNodeType.EndElement && reader.LocalName == "address-data" || reader.LocalName == "prop" && reader.NamespaceURI == "DAV:")
+                if (reader.Depth <= depth)
                 {
                     vCardProperties = props;
                     return;
@@ -43,7 +45,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties
             }
         }
 
-        public void WriteXml(XmlWriter writer)
+        void IXmlSerializable.WriteXml(XmlWriter writer)
         {
             writer.WriteStartElement(Name, Namespace);
             if (vCardProperties != null)

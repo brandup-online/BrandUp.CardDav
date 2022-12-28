@@ -26,5 +26,16 @@ namespace BrandUp.CardDav.Server
 
             return builder;
         }
+
+        public static ICardDavServerBuilder AddRepositories<TUser, TAddressBook, TContact>(this ICardDavServerBuilder builder) where TUser : class, IUserRepository
+                                                                                                                               where TAddressBook : class, IAddressBookRepository
+                                                                                                                               where TContact : class, IContactRepository
+        {
+            builder.Services.AddSingleton<IUserRepository, TUser>();
+            builder.Services.AddSingleton<IAddressBookRepository, TAddressBook>();
+            builder.Services.AddSingleton<IContactRepository, TContact>();
+
+            return builder;
+        }
     }
 }

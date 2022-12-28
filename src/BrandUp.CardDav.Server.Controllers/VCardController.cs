@@ -2,8 +2,8 @@
 using BrandUp.CardDav.Server.Documents;
 using BrandUp.CardDav.Server.Repositories;
 using BrandUp.CardDav.Services;
+using BrandUp.CardDav.Transport.Binding;
 using BrandUp.CardDav.Transport.Models.Headers;
-using BrandUp.CardDav.Transport.Models.Requests;
 using BrandUp.CardDav.Transport.Models.Responses.Body;
 using Microsoft.AspNetCore.Mvc;
 using System.Xml.Serialization;

@@ -42,7 +42,7 @@ namespace BrandUp.CardDav.Client.Test
 
             var filter = new FilterBody();
             filter.AddPropFilter(VCardProperty.FN, FilterMatchType.All, TextMatch.Create("", TextMatchType.Contains));
-            var report = ReportRequest.CreateQuery(Depth.One, PropList.Create(Prop.CTag, Prop.ETag, Prop.AddressData()), filter);
+            var report = ReportRequest.CreateQuery(PropList.Create(Prop.CTag, Prop.ETag), new AddressData(), filter);
 
             var reportResponse = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists/default", report, CancellationToken.None);
 
@@ -58,8 +58,8 @@ namespace BrandUp.CardDav.Client.Test
         {
             var filter = new FilterBody();
             filter.AddPropFilter(VCardProperty.EMAIL, FilterMatchType.All, TextMatch.Create("me", TextMatchType.Contains));
-            var report = ReportRequest.CreateQuery(Depth.One,
-                                    PropList.Create(Prop.CTag, Prop.ETag, new AddressData()),
+            var report = ReportRequest.CreateQuery(PropList.Create(Prop.CTag, Prop.ETag, new AddressData()),
+                                    new AddressData(),
                                     filter);
 
             var reportResponse = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists/default", report, CancellationToken.None);
@@ -75,8 +75,9 @@ namespace BrandUp.CardDav.Client.Test
         {
             var filter = new FilterBody();
             filter.AddPropFilter(VCardProperty.FN, FilterMatchType.All, TextMatch.Create("", TextMatchType.Contains));
-            var report = ReportRequest.CreateQuery(Depth.One,
-                                    PropList.Create(Prop.CTag, Prop.ETag, new AddressData()),
+            var report = ReportRequest.CreateQuery(
+                                    PropList.Create(Prop.CTag, Prop.ETag),
+                                    new AddressData(),
                                     filter,
                                     2);
 

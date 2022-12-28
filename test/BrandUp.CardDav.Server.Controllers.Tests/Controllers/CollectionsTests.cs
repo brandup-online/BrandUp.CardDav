@@ -1,5 +1,4 @@
 ﻿using BrandUp.CardDav.Server.Controllers.Tests;
-using BrandUp.CardDav.Server.Controllers.Tests._migration;
 using BrandUp.CardDav.Transport.Models.Headers;
 using BrandUp.CardDav.Transport.Models.Properties;
 using BrandUp.CardDav.Transport.Models.Properties.Filters;
@@ -78,8 +77,8 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
 
             };
 
-            var addressData = Prop.AddressData(VCardProperty.EMAIL, VCardProperty.VERSION, VCardProperty.TEL);
-            var request = ReportRequest.CreateQuery(Depth.Zero, PropList.Create(Prop.ETag, Prop.CTag, addressData), filter);
+            var addressData = new AddressData(VCardProperty.EMAIL, VCardProperty.VERSION, VCardProperty.TEL);
+            var request = ReportRequest.CreateQuery(PropList.Create(Prop.ETag, Prop.CTag), addressData, filter);
 
             var report = await Client.ReportAsync("Principal/User/Collections/Default", request, CancellationToken.None);
 
@@ -104,8 +103,8 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
             Output.WriteLine(propfind.StatusCode.ToString());
             Assert.True(propfind.IsSuccess);
 
-            addressData = Prop.AddressData(VCardProperty.EMAIL, VCardProperty.TEL, VCardProperty.ORG, VCardProperty.VERSION);
-            request = ReportRequest.CreateMultiget(Depth.Zero, PropList.Create(Prop.ETag, addressData), propfind.Body.Resources[1].Endpoint, propfind.Body.Resources[2].Endpoint);
+            addressData = new AddressData(VCardProperty.EMAIL, VCardProperty.TEL, VCardProperty.ORG, VCardProperty.VERSION);
+            request = ReportRequest.CreateMultiget(PropList.Create(Prop.ETag), addressData, propfind.Body.Resources[1].Endpoint, propfind.Body.Resources[2].Endpoint);
 
             report = await Client.ReportAsync("Principal/User/Collections/Default", request, CancellationToken.None);
 
@@ -138,15 +137,15 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
                     TextMatch.Create("com", TextMatchType.Contains, true)
                 );
 
-            var addressData = Prop.AddressData();
-            var request = ReportRequest.CreateQuery(Depth.Zero, PropList.Create(Prop.ETag, Prop.CTag, addressData), filter);
+            var addressData = new AddressData();
+            var request = ReportRequest.CreateQuery(PropList.Create(Prop.ETag, Prop.CTag), addressData, filter);
 
             var report = await Client.ReportAsync("Principal/User/Collections/Default", request, CancellationToken.None);
 
             Output.WriteLine(report.StatusCode.ToString());
             Assert.Equal(1, report.Body?.Resources.Count);
             Assert.NotNull(report.Body.Resources.First().Endpoint);
-            Assert.Equal(VCardParser.Parse(TestUserMigration.vCard2), report.Body.Resources.First().CardModel);
+            Assert.Equal(TestVCards.VCard2, report.Body.Resources.First().CardModel);
         }
 
         [Fact]

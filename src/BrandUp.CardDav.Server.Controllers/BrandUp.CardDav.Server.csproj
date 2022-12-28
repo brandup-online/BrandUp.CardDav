@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BrandUp.CardDav.Services\BrandUp.CardDav.Services.csproj" />
+    <ProjectReference Include="..\BrandUp.CardDav.Transport.Binding\BrandUp.CardDav.Transport.Binding.csproj" />
   </ItemGroup>
 
 </Project>

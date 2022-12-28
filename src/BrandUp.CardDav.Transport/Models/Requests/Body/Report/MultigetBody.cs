@@ -53,10 +53,10 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
 
                     if (reader.LocalName == "address-data")
                     {
-                        var addresData = new AddressData();
+                        var addresData = (IXmlSerializable)new AddressData();
 
                         addresData.ReadXml(reader);
-                        propList.Add(addresData);
+                        propList.Add((AddressData)addresData);
                     }
                     else if (reader.LocalName == "href")
                     {

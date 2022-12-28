@@ -2,7 +2,6 @@
 using BrandUp.CardDav.Server.Repositories;
 using BrandUp.CardDav.Transport.Binding.Exceptions;
 using BrandUp.CardDav.Transport.Models.Abstract;
-using BrandUp.CardDav.Transport.Models.Requests;
 using BrandUp.CardDav.Transport.Models.Requests.Body.Propfind;
 using BrandUp.CardDav.Transport.Models.Requests.Body.Report;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -130,18 +129,25 @@ namespace BrandUp.CardDav.Transport.Binding
 
         private IRequestBody GetReportRequest(ModelBindingContext bindingContext)
         {
-            using var ms = new MemoryStream();
-            bindingContext.ActionContext.HttpContext.Request.Body.CopyTo(ms);
-            ms.Position = 0;
+            try
+            {
+                using var ms = new MemoryStream();
+                bindingContext.ActionContext.HttpContext.Request.Body.CopyTo(ms);
+                ms.Position = 0;
 
-            using var reader = new StreamReader(ms);
+                using var reader = new StreamReader(ms);
 
-            var type = GetTypeByXml(reader);
-            XmlSerializer serializer = new(type);
+                var type = GetTypeByXml(reader);
+                XmlSerializer serializer = new(type);
 
-            var body = (IReportBody)serializer.Deserialize(reader);
+                var body = (IReportBody)serializer.Deserialize(reader);
 
-            return body;
+                return body;
+            }
+            catch (InvalidOperationException)
+            {
+                throw new XmlDeserializeException("Incorrect xml");
+            }
         }
 
         Type GetTypeByXml(StreamReader reader)

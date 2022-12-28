@@ -45,12 +45,10 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
 
         #region IXmlSerializable member
 
-        public XmlSchema GetSchema()
-        {
-            return null;
-        }
+        XmlSchema IXmlSerializable.GetSchema() => null;
 
-        public void ReadXml(XmlReader reader)
+
+        void IXmlSerializable.ReadXml(XmlReader reader)
         {
             var propList = new List<IDavProperty>();
             while (reader.Read())
@@ -61,10 +59,10 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
                         continue;
                     else if (reader.LocalName == "address-data")
                     {
-                        var addresData = new AddressData();
+                        var addresData = (IXmlSerializable)new AddressData();
 
                         addresData.ReadXml(reader);
-                        propList.Add(addresData);
+                        propList.Add((AddressData)addresData);
                     }
                     else if (reader.LocalName == "filter")
                     {
@@ -88,7 +86,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
             PropList = propList;
         }
 
-        public void WriteXml(XmlWriter writer)
+        void IXmlSerializable.WriteXml(XmlWriter writer)
         {
             writer.WriteStartElement("prop", "DAV:");
             foreach (IDavProperty prop in PropList)
