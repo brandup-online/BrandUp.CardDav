@@ -4,16 +4,27 @@ using Microsoft.Extensions.Primitives;
 
 namespace BrandUp.CardDav.Server.Controllers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [ApiController]
     [Route("")]
     public class HomeController : ControllerBase
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public Task<ActionResult> GetAsync()
         {
             return Task.FromResult((ActionResult)BadRequest());
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [HttpOptions]
         public Task<ActionResult> OptionsAsync()
         {

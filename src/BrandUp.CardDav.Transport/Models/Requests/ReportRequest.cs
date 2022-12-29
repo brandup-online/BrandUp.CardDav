@@ -7,8 +7,14 @@ using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Models.Requests
 {
+    /// <summary>
+    /// Report request object
+    /// </summary>
     public class ReportRequest : ICardDavRequest, IHttpRequestConvertable
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public ReportRequest()
         {
             Headers.Add("Depth", Depth.One.Value);
@@ -16,6 +22,14 @@ namespace BrandUp.CardDav.Transport.Models.Requests
 
         #region Static members
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="propRequest"></param>
+        /// <param name="addressData"></param>
+        /// <param name="filter"></param>
+        /// <param name="limit"></param>
+        /// <returns></returns>
         public static ReportRequest CreateQuery(PropList propRequest, AddressData addressData, FilterBody filter, int limit = 0)
             => new ReportRequest()
             {
@@ -27,6 +41,13 @@ namespace BrandUp.CardDav.Transport.Models.Requests
                 }
             };
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="propRequest"></param>
+        /// <param name="addressData"></param>
+        /// <param name="endpoints"></param>
+        /// <returns></returns>
         public static ReportRequest CreateMultiget(PropList propRequest, AddressData addressData, params string[] endpoints)
             => new ReportRequest()
             {
@@ -41,16 +62,26 @@ namespace BrandUp.CardDav.Transport.Models.Requests
 
         #region ICardDavRequest members
 
+        /// <summary>
+        /// 
+        /// </summary>
         public IDictionary<string, string> Headers { get; init; } = new Dictionary<string, string>();
 
         IRequestBody ICardDavRequest.Body => Body;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public IReportBody Body { get; init; }
 
         #endregion
 
         #region IHttpRequestConvertable members
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public HttpRequestMessage ToHttpRequest()
         {
             var serializer = new XmlSerializer(Body.GetType());

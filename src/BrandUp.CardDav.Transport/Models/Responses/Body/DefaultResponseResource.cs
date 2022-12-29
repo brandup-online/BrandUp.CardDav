@@ -6,14 +6,30 @@ using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Models.Responses.Body
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class DefaultResponseResource : IResponseResource
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public string Endpoint { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public PropertyDictionary FoundProperties { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public IEnumerable<IDavProperty> NotFoundProperties { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public XmlSchema GetSchema()
         {
             return null;
@@ -144,39 +160,6 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
             }
         }
 
-        private void ReadProp(XmlReader reader, IDictionary<IDavProperty, string> dict)
-        {
-            if (reader.LocalName != "prop")
-                throw new ArgumentException("Reader on incorrect line.");
-            var baseDepth = reader.Depth + 1;
-            DefaultProp prop = null;
-            while (reader.Read())
-            {
-                if (reader.NodeType == XmlNodeType.EndElement && reader.LocalName == "prop")
-                    return;
-
-                if (reader.NodeType == XmlNodeType.Element)
-                    if (reader.Depth == baseDepth)
-                        prop = new(reader.LocalName, reader.NamespaceURI);
-                    else
-                    {
-                        if (prop == null)
-                            throw new ArgumentNullException(nameof(prop));
-                        if (reader.NodeType == XmlNodeType.Text)
-                            dict.Add(prop, reader.Value);
-                        else
-                        {
-                            if (!dict.TryAdd(prop, reader.LocalName))
-                                dict[prop] = string.Join(", ", dict[prop], reader.LocalName);
-                        }
-                    }
-                else if (reader.NodeType == XmlNodeType.Text)
-                {
-                    if (!dict.TryAdd(prop, reader.Value))
-                        dict[prop] = reader.Value;
-                }
-            }
-        }
         #endregion
     }
 }

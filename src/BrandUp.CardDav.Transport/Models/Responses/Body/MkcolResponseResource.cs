@@ -6,14 +6,30 @@ using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Models.Responses.Body
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class MkcolResponseResource : IResponseResource
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public string Endpoint => null;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public PropertyDictionary FoundProperties { get; private set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public IEnumerable<IDavProperty> NotFoundProperties { get; private set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public XmlSchema GetSchema() => null;
 
         void IXmlSerializable.ReadXml(XmlReader reader)

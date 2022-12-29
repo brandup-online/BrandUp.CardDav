@@ -1,6 +1,7 @@
 ﻿using BrandUp.CardDav.VCard;
 using System.Xml;
 using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 {
@@ -63,9 +64,9 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
                 if (reader.NodeType == XmlNodeType.Element)
                     if (reader.LocalName == "text-match")
                     {
-                        var cond = new TextMatch();
+                        var cond = new TextMatch() as IXmlSerializable;
                         cond.ReadXml(reader);
-                        conditions.Add(cond);
+                        conditions.Add(cond as TextMatch);
                     }
                 if (reader.NodeType == XmlNodeType.EndElement && reader.LocalName == "prop-filter")
                     break;
@@ -81,7 +82,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
             writer.WriteAttributeString("test", Type.ToString().ToLowerInvariant() + "of");
             foreach (var condition in Conditions)
             {
-                condition.WriteXml(writer);
+                (condition as IXmlSerializable).WriteXml(writer);
             }
             writer.WriteEndElement();
         }

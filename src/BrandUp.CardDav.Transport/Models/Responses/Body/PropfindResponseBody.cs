@@ -5,11 +5,17 @@ using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Models.Responses.Body
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [XmlRoot(Namespace = "DAV:", ElementName = "multistatus")]
     public class PropfindResponseBody : IResponseBody
     {
         #region IResponseBody
 
+        /// <summary>
+        /// 
+        /// </summary>
         public IList<IResponseResource> Resources { get; private set; } = new List<IResponseResource>();
 
         #endregion

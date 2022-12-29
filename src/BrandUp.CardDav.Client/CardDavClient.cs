@@ -7,11 +7,16 @@ using Microsoft.Extensions.Logging;
 
 namespace BrandUp.CardDav.Client
 {
+    /// <summary>
+    /// Client for cardDav requests 
+    /// </summary>
     public class CardDavClient : ICardDavClient
     {
         readonly HttpClient httpClient;
         readonly ILogger<CardDavClient> logger;
-
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public CardDavClient(HttpClient httpClient, ILogger<CardDavClient> logger, CardDavOptions options)
         {
             this.httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
@@ -22,6 +27,10 @@ namespace BrandUp.CardDav.Client
 
         #region ICardDavClient members
 
+        /// <summary>
+        /// Request a options from server. Executes to base URL. 
+        /// </summary>
+        /// <returns><see cref="OptionsResponse"/></returns>
         public async Task<OptionsResponse> OptionsAsync(CancellationToken cancellationToken)
         {
             using var request = new HttpRequestMessage();
@@ -29,27 +38,72 @@ namespace BrandUp.CardDav.Client
             return await ProccesResponse<OptionsResponse>("", request, cancellationToken);
         }
 
-        // Must be vcard adress
-        public async Task<VCardResponse> GetAsync(string vCardEndpoint, CancellationToken cancellationToken)
-            => await ProccesResponse<VCardResponse>(vCardEndpoint, new HttpRequestMessage { Method = HttpMethod.Get }, cancellationToken);
+        /// <summary>
+        /// Gets a VCard from server
+        /// </summary>
+        /// <param name="endpoint">VCard resource endpoint</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns><see cref="VCardResponse"/></returns>
+        public async Task<VCardResponse> GetAsync(string endpoint, CancellationToken cancellationToken)
+            => await ProccesResponse<VCardResponse>(endpoint, new HttpRequestMessage { Method = HttpMethod.Get }, cancellationToken);
 
 
+        /// <summary>
+        /// Executes a propfind request to server
+        /// </summary>
+        /// <param name="endpoint">Server endpoint</param>
+        /// <param name="request">Propfind request <see cref="PropfindRequest"/></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns><see cref="PropfindResponse"/></returns>
         public async Task<PropfindResponse> PropfindAsync(string endpoint, PropfindRequest request, CancellationToken cancellationToken = default)
             => await ProccesResponse<PropfindResponse>(endpoint, request, cancellationToken);
 
+        /// <summary>
+        /// Executes a report request to server
+        /// </summary>
+        /// <param name="endpoint">Server endpoint</param>
+        /// <param name="request">Report request <see cref="PropfindRequest"/></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns><see cref="ReportResponse"/></returns>
         public async Task<ReportResponse> ReportAsync(string endpoint, ReportRequest request, CancellationToken cancellationToken = default)
             => await ProccesResponse<ReportResponse>(endpoint, request, cancellationToken);
 
+        /// <summary>
+        /// Executes a mkcol request to server
+        /// </summary>
+        /// <param name="endpoint">Server endpoint</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<MkcolResponse> MkcolAsync(string endpoint, CancellationToken cancellationToken = default)
             => await ProccesResponse<MkcolResponse>(endpoint, new MkcolRequest(), cancellationToken);
 
-
+        /// <summary>
+        /// Adds contact to a VCard collections
+        /// </summary>
+        /// <param name="endpoint">VCard resource endpoint</param>
+        /// <param name="vCard">contact <see cref="VCardModel"/></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns><see cref="BaseResponse"/></returns>
         public async Task<BaseResponse> AddContactAsync(string endpoint, VCardModel vCard, CancellationToken cancellationToken)
             => await ProccesResponse<BaseResponse>(endpoint, new HttpRequestMessage { Method = HttpMethod.Put, Content = new StringContent(vCard.ToString()) }, cancellationToken);
 
+        /// <summary>
+        /// Delete contact from a VCard collections
+        /// </summary>
+        /// <param name="endpoint">VCard resource endpoint</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns><see cref="BaseResponse"/></returns>
         public async Task<BaseResponse> DeleteContactAsync(string endpoint, CancellationToken cancellationToken)
              => await ProccesResponse<BaseResponse>(endpoint, new HttpRequestMessage { Method = HttpMethod.Delete }, cancellationToken);
 
+        /// <summary>
+        /// Updates contact to a VCard collections
+        /// </summary>
+        /// <param name="endpoint">VCard resource endpoint</param>
+        /// <param name="vCard">contact to replace <see cref="VCardModel"/></param>
+        /// <param name="ETag">Entity tag of contact</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns><see cref="BaseResponse"/></returns>
         public async Task<BaseResponse> UpdateContactAsync(string endpoint, VCardModel vCard, string ETag, CancellationToken cancellationToken)
         {
             var message = new HttpRequestMessage { Method = HttpMethod.Put, Content = new StringContent(vCard.ToString()) };

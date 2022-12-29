@@ -1,8 +1,15 @@
 ﻿namespace BrandUp.CardDav.Services.Exceptions
 {
+    /// <summary>
+    /// Throws if deserializer can't convert xml to request object.
+    /// </summary>
     public class DavPropertyException : Exception
     {
-        public DavPropertyException(Exception inner) : base("Error when convertiong to a Dav property.", inner)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="inner"></param>
+        public DavPropertyException(Exception inner) : base("Error when converting to a Dav property.", inner)
         { }
     }
 }

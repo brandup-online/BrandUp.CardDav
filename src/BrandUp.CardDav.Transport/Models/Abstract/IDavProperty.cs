@@ -1,20 +1,20 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Models.Abstract
 {
+    /// <summary>
+    /// Determine CardDav property
+    /// </summary>
     public interface IDavProperty : IXmlSerializable
     {
+        /// <summary>
+        /// Local name of property
+        /// </summary>
         string Name { get; }
+
+        /// <summary>
+        /// Xml namespase of property
+        /// </summary>
         string Namespace { get; }
-    }
-
-    public class PropertyComparer : IEqualityComparer<IDavProperty>
-    {
-        public bool Equals(IDavProperty x, IDavProperty y) => x.Name == y.Name && x.Namespace == y.Namespace;
-
-
-        public int GetHashCode([DisallowNull] IDavProperty obj) => $"{obj.Namespace}:{obj.Name}".GetHashCode();
-
     }
 }

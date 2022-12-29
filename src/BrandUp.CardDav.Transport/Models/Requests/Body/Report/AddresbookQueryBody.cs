@@ -9,25 +9,44 @@ using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
 {
+    /// <summary>
+    /// Report query body address-book <see href="https://www.rfc-editor.org/rfc/rfc6352.html#section-10.3"/>
+    /// </summary>
     [XmlRoot(ElementName = "addressbook-query", Namespace = "urn:ietf:params:xml:ns:carddav")]
     public class AddresbookQueryBody : IReportBody
     {
         internal IEnumerable<IDavProperty> PropList { get; set; }
         internal FilterBody Filter { get; set; }
 
+        /// <summary>
+        /// limit of response objects
+        /// </summary>
         public int Limit { get; set; } = 0;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public AddresbookQueryBody()
         { }
 
         #region IRequestBody members
 
+        /// <summary>
+        /// 
+        /// </summary>
         public IEnumerable<IDavProperty> Properties => PropList;
 
         #endregion
 
         #region IFilter member
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collection"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public IEnumerable<T> FillterCollection<T>(IEnumerable<T> collection)
         {
             if (typeof(T).IsAssignableTo(typeof(IContactDocument)))
@@ -66,11 +85,11 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
                     }
                     else if (reader.LocalName == "filter")
                     {
-                        var filter = new FilterBody();
+                        var filter = (IXmlSerializable)new FilterBody();
 
                         filter.ReadXml(reader);
 
-                        Filter = filter;
+                        Filter = filter as FilterBody;
                     }
                     else if (reader.LocalName == "limit")
                     {
@@ -96,7 +115,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
             writer.WriteEndElement();
 
             if (Filter != null)
-                Filter.WriteXml(writer);
+                (Filter as IXmlSerializable).WriteXml(writer);
 
             if (Limit > 0)
             {

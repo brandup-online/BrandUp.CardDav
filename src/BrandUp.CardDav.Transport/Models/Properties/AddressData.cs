@@ -6,11 +6,27 @@ using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Models.Properties
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class AddressData : IDavProperty
     {
         private IEnumerable<VCardProperty> vCardProperties;
+
+        /// <summary>
+        /// 
+        /// </summary>
         public IEnumerable<VCardProperty> VCardProperies => vCardProperties;
+
+        /// <summary>
+        /// 
+        /// </summary>
         public AddressData() { }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="props"></param>
         public AddressData(params VCardProperty[] props)
         {
             vCardProperties = props?.Distinct().ToList() ?? new List<VCardProperty>();
@@ -18,8 +34,14 @@ namespace BrandUp.CardDav.Transport.Models.Properties
 
         #region IDavProperty members
 
+        /// <summary>
+        /// 
+        /// </summary>
         public string Name => "address-data";
 
+        /// <summary>
+        /// 
+        /// </summary>
         public string Namespace => "urn:ietf:params:xml:ns:carddav";
 
         #endregion

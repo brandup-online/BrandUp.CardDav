@@ -5,19 +5,33 @@ using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Models.Responses.Body
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [XmlRoot(ElementName = "multistatus", Namespace = "DAV:")]
     public class ReportResponseBody : IResponseBody
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public IList<AddressDataResource> Resources { get; private set; } = new List<AddressDataResource>();
+
+        /// <summary>
+        /// 
+        /// </summary>
         public ReportResponseBody() { }
 
-        #region IResponseBody
+        #region IResponseBody members
 
         IList<IResponseResource> IResponseBody.Resources => (IList<IResponseResource>)Resources;
 
-        public XmlSchema GetSchema() => null;
+        #endregion
 
-        public void ReadXml(XmlReader reader)
+        #region IXmlSerializable members
+
+        XmlSchema IXmlSerializable.GetSchema() => null;
+
+        void IXmlSerializable.ReadXml(XmlReader reader)
         {
             var resourseList = new List<AddressDataResource>();
 
@@ -33,7 +47,7 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
             Resources = resourseList.ToArray();
         }
 
-        public void WriteXml(XmlWriter writer)
+        void IXmlSerializable.WriteXml(XmlWriter writer)
         {
             foreach (IXmlSerializable resource in Resources)
             {

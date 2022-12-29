@@ -9,12 +9,20 @@ using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Server.Controllers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [ApiController]
     [Route("Principal/{Name}/{controller}")]
     public class CollectionsController : ControllerBase
     {
         readonly IResponseService responseService;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="responseService"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public CollectionsController(IResponseService responseService)
         {
             this.responseService = responseService ?? throw new ArgumentNullException(nameof(responseService));
@@ -22,6 +30,13 @@ namespace BrandUp.CardDav.Server.Controllers
 
         #region Propfind controllers
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="depth"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         [CardDavPropfind]
         public async Task<ActionResult<string>> PropfindAsync(IncomingRequest request, [FromHeader(Name = "Depth")] string depth)
         {
@@ -52,6 +67,13 @@ namespace BrandUp.CardDav.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="depth"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         [CardDavPropfind("{AddressBook}")]
         public async Task<ActionResult> PropfindCollectionAsync(IncomingRequest request, [FromHeader(Name = "Depth")] string depth)
         {
@@ -86,6 +108,12 @@ namespace BrandUp.CardDav.Server.Controllers
 
         #region Report controllers
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         [CardDavReport("{AddressBook}")]
         public async Task<ActionResult> ReportCollectionAsync(IncomingRequest request)
         {
@@ -118,6 +146,12 @@ namespace BrandUp.CardDav.Server.Controllers
 
         #region Mkcol controllers
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="addressBook"></param>
+        /// <returns></returns>
         [CardDavMkcol("{AddressBook}")]
         public async Task<ActionResult> MakeCollectionAsync([FromRoute(Name = "Name")] string name, [FromRoute(Name = "AddressBook")] string addressBook)
         {

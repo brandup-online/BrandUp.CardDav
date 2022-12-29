@@ -16,6 +16,9 @@ using System.Reflection;
 
 namespace BrandUp.CardDav.Services
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class ResponseService : IResponseService
     {
         readonly IUserRepository userRepository;
@@ -24,6 +27,14 @@ namespace BrandUp.CardDav.Services
 
         readonly ILogger<ResponseService> logger;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userRepository"></param>
+        /// <param name="contactRepository"></param>
+        /// <param name="addressRepository"></param>
+        /// <param name="logger"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public ResponseService(IUserRepository userRepository, IContactRepository contactRepository, IAddressBookRepository addressRepository, ILogger<ResponseService> logger)
         {
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -35,24 +46,14 @@ namespace BrandUp.CardDav.Services
 
         #region IResponseService
 
-        //main properties
-        readonly static PropertyInfo[] userProperties;
-        readonly static PropertyInfo[] addressbookProperties;
-        readonly static PropertyInfo[] contactProperties;
-
-        //additional properties
-        readonly static PropertyInfo[] cTagProperties;
-        readonly static PropertyInfo[] SyncProperties;
-
-        static ResponseService()
-        {
-            userProperties = typeof(IUserDocument).GetProperties();
-            addressbookProperties = typeof(IAddressBookDocument).GetProperties();
-            contactProperties = typeof(IContactDocument).GetProperties();
-            cTagProperties = typeof(ICTag).GetProperties();
-            SyncProperties = typeof(ISyncToken).GetProperties();
-        }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="depth"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public Task<PropfindResponseBody> ProcessPropfindAsync(IncomingRequest request, string depth, CancellationToken cancellationToken)
         {
             if (request.Document is IUserDocument user)
@@ -70,6 +71,13 @@ namespace BrandUp.CardDav.Services
             else throw new ArgumentException("Unknow type");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public async Task<ReportResponseBody> ProcessReportAsync(IncomingRequest request, CancellationToken cancellationToken)
         {
             if (request.Document is IAddressBookDocument bookDocument)
@@ -92,6 +100,15 @@ namespace BrandUp.CardDav.Services
             else throw new ArgumentException("Unexpected type");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="addressBook"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ConflictException"></exception>
         public async Task<bool> MakeCollectionAsync(string name, string addressBook, CancellationToken cancellationToken)
         {
             var user = await userRepository.FindByNameAsync(name, cancellationToken);
@@ -112,6 +129,25 @@ namespace BrandUp.CardDav.Services
         #endregion
 
         #region Helpers
+
+        //main properties
+        readonly static PropertyInfo[] userProperties;
+        readonly static PropertyInfo[] addressbookProperties;
+        readonly static PropertyInfo[] contactProperties;
+
+        //additional properties
+        readonly static PropertyInfo[] cTagProperties;
+        readonly static PropertyInfo[] SyncProperties;
+
+        static ResponseService()
+        {
+            userProperties = typeof(IUserDocument).GetProperties();
+            addressbookProperties = typeof(IAddressBookDocument).GetProperties();
+            contactProperties = typeof(IContactDocument).GetProperties();
+            cTagProperties = typeof(ICTag).GetProperties();
+            SyncProperties = typeof(ISyncToken).GetProperties();
+        }
+
 
         async Task<PropfindResponseBody> PropfindUserAsync(IncomingRequest request, string depth, CancellationToken cancellationToken)
         {
@@ -306,10 +342,35 @@ namespace BrandUp.CardDav.Services
         #endregion
     }
 
+    /// <summary>
+    /// Creates responses for CardDav requests.
+    /// </summary>
     public interface IResponseService
     {
+        /// <summary>
+        /// Creates response for Propfind request.
+        /// </summary>
+        /// <param name="request"><see cref="IncomingRequest" /></param>
+        /// <param name="depth"><see href="https://www.rfc-editor.org/rfc/rfc4918#section-10.2" /></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task<PropfindResponseBody> ProcessPropfindAsync(IncomingRequest request, string depth, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Creates response for Report request.
+        /// </summary>
+        /// <param name="request"><see cref="IncomingRequest" /></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task<ReportResponseBody> ProcessReportAsync(IncomingRequest request, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Creates Address book collection.
+        /// </summary>
+        /// <param name="name">User name</param>
+        /// <param name="addressBook">Address book name</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task<bool> MakeCollectionAsync(string name, string addressBook, CancellationToken cancellationToken);
     }
 }

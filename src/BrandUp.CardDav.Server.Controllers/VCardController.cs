@@ -10,6 +10,9 @@ using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Server.Controllers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [ApiController]
     [Route("Principal/{Name}/Collections/{AddressBook}/{Contact}")]
     public class VCardController : ControllerBase
@@ -18,6 +21,13 @@ namespace BrandUp.CardDav.Server.Controllers
         readonly IAddressBookRepository addressBookRepository;
         readonly IContactRepository contactRepository;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userRepository"></param>
+        /// <param name="addressBookRepository"></param>
+        /// <param name="contactRepository"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public VCardController(IUserRepository userRepository, IAddressBookRepository addressBookRepository, IContactRepository contactRepository)
         {
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -25,6 +35,13 @@ namespace BrandUp.CardDav.Server.Controllers
             this.contactRepository = contactRepository ?? throw new ArgumentNullException(nameof(contactRepository));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <param name="addressBook"></param>
+        /// <param name="vCardName"></param>
+        /// <returns></returns>
         [HttpGet]
         public async Task<ActionResult> GetAsync([FromRoute(Name = "Name")] string userName,
                                                 [FromRoute(Name = "AddressBook")] string addressBook,
@@ -47,6 +64,14 @@ namespace BrandUp.CardDav.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="depth"></param>
+        /// <param name="responseService"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         [CardDavPropfind]
         public async Task<ActionResult> PropfindAsync(IncomingRequest request, [FromHeader(Name = "Depth")] string depth, [FromServices] IResponseService responseService)
         {
@@ -77,7 +102,14 @@ namespace BrandUp.CardDav.Server.Controllers
             }
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <param name="addressBook"></param>
+        /// <param name="vCardName"></param>
+        /// <param name="Etag"></param>
+        /// <returns></returns>
         [HttpPut]
         [Consumes("text/x-vcard", "text/plain", "text/vcard")]
         public async Task<ActionResult> AddOrUpdateAsync([FromRoute(Name = "Name")] string userName,
@@ -115,6 +147,11 @@ namespace BrandUp.CardDav.Server.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpDelete]
         public async Task<ActionResult> DeleteAsync(IncomingRequest request)
         {
@@ -141,6 +178,7 @@ namespace BrandUp.CardDav.Server.Controllers
         }
 
         #region Helpers 
+
         async Task<IContactDocument> FindContactAsync(string name, string addressBook, string contactName, CancellationToken cancellationToken)
         {
             var book = await FindAddressBookAsync(name, addressBook, cancellationToken);
@@ -173,6 +211,5 @@ namespace BrandUp.CardDav.Server.Controllers
         }
 
         #endregion
-
     }
 }
