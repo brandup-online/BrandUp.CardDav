@@ -23,7 +23,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests
         #region Static members
 
         /// <summary>
-        /// 
+        /// Creates Addressbook-query. <see href="https://www.rfc-editor.org/rfc/rfc6352.html#section-10.3/" />
         /// </summary>
         /// <param name="propRequest"></param>
         /// <param name="addressData"></param>
@@ -42,7 +42,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests
             };
 
         /// <summary>
-        /// 
+        /// Creates Multiget-query. <see href="https://www.rfc-editor.org/rfc/rfc6352.html#section-10.7"/>
         /// </summary>
         /// <param name="propRequest"></param>
         /// <param name="addressData"></param>

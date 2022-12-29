@@ -4,7 +4,7 @@ using System.Xml.Serialization;
 namespace BrandUp.CardDav.Transport.Models.Requests
 {
     /// <summary>
-    /// 
+    /// Mckol request object
     /// </summary>
     [XmlRoot(ElementName = "mkcol", Namespace = "DAV:")]
     public class MkcolRequest : ICardDavRequest, IHttpRequestConvertable

@@ -42,7 +42,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests
         #region Static members
 
         /// <summary>
-        /// 
+        /// Static constructor. 
         /// </summary>
         /// <param name="depth"></param>
         /// <param name="properties"></param>
@@ -53,7 +53,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests
         }
 
         /// <summary>
-        /// 
+        /// Static constructor. Request all properties that server have.
         /// </summary>
         /// <param name="depth"></param>
         /// <returns></returns>
@@ -67,12 +67,12 @@ namespace BrandUp.CardDav.Transport.Models.Requests
         #region ICardDavRequest members 
 
         /// <summary>
-        /// 
+        /// Request body 
         /// </summary>
         public IRequestBody Body { get; init; }
 
         /// <summary>
-        /// 
+        /// Reequest headers
         /// </summary>
         public IDictionary<string, string> Headers { get; init; } = new Dictionary<string, string>();
 
@@ -84,6 +84,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests
         /// 
         /// </summary>
         /// <returns></returns>
+
         public HttpRequestMessage ToHttpRequest()
         {
             var serializer = new XmlSerializer(Body.GetType());
