@@ -140,7 +140,6 @@
             return this;
         }
 
-
         public VCardModel Build() => new();
 
         #endregion
@@ -181,10 +180,10 @@
         IVCardBuilder SetUId(string uId);
         IVCardBuilder SetName(string name);
         IVCardBuilder SetName(string familyNames, string givenNames, string additionalNames = "", string honorificPrefixes = "", string honorificSuffixes = "");
-        IVCardBuilder AddPhone(string phone, Kind? type, params string[] types);
-        IVCardBuilder UpdatePhone(string oldPhone, string phone, Kind? type, params string[] types);
-        IVCardBuilder AddEmail(string email, Kind? type, params string[] types);
-        IVCardBuilder UpdateEmail(string oldEmail, string email, Kind? type, params string[] types);
+        IVCardBuilder AddPhone(string phone, params string[] types);
+        IVCardBuilder UpdatePhone(string oldPhone, string phone,  params string[] types);
+        IVCardBuilder AddEmail(string email, params string[] types);
+        IVCardBuilder UpdateEmail(string oldEmail, string email, params string[] types);
         VCardModel Build();
 
     }
