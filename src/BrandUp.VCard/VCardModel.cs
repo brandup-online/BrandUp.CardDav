@@ -49,6 +49,29 @@
             return result;
         }
 
+        public override bool Equals(object obj)
+        {
+            var other = obj as VCardModel;
+            if (other == null) return false;
+
+            if (UId != null && other.UId != null)
+                if (UId != other.UId) return false; // RFC 6450: 7.1.1. ...vCard instances for which the UID properties (Section 6.7.6) are equivalent MUST be matched.
+                else return true;
+            if (Version != other.Version) return false;
+            if (!string.Equals(FormattedName, other.FormattedName, StringComparison.OrdinalIgnoreCase)) return false;
+            if (!Name.Equals(other.Name)) return false;
+            if (!Emails.SequenceEqual(other.Emails)) return false;
+            if (!Phones.SequenceEqual(other.Phones)) return false;
+            if (!AdditionalFields.SequenceEqual(other.AdditionalFields)) return false;
+
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
         public string ToStringProps(IEnumerable<VCardProperty> properties)
         {
             var result = "";
@@ -179,6 +202,7 @@
 
             return result;
         }
+
         #endregion
 
     }
@@ -196,6 +220,34 @@
         public IEnumerable<string> AdditionalNames { get; set; }
         public IEnumerable<string> HonorificPrefixes { get; set; }
         public IEnumerable<string> HonorificSuffixes { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as VCardName;
+            if (other == null) return false;
+
+            if (FamilyNames != null && other.FamilyNames != null)
+                if (!FamilyNames.SequenceEqual(other.FamilyNames)) return false;
+
+            if (GivenNames != null && other.GivenNames != null)
+                if (!GivenNames.SequenceEqual(other.GivenNames)) return false;
+
+            if (AdditionalNames != null && other.AdditionalNames != null)
+                if (!AdditionalNames.SequenceEqual(other.AdditionalNames)) return false;
+
+            if (HonorificPrefixes != null && other.HonorificPrefixes != null)
+                if (!HonorificPrefixes.SequenceEqual(other.HonorificPrefixes)) return false;
+
+            if (HonorificSuffixes != null && other.HonorificSuffixes != null)
+                if (!HonorificSuffixes.SequenceEqual(other.HonorificSuffixes)) return false;
+
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 
     public class VCardPhone
@@ -203,6 +255,12 @@
         public string Phone { get; set; }
         public Kind? Kind { get; set; }
         public string[] Types { get; set; }
+
+        public override int GetHashCode()
+             => $"{Phone} {Kind} {string.Join(',', Types)}".GetHashCode();
+
+        public override bool Equals(object obj)
+             => GetHashCode() == obj.GetHashCode();
     }
 
     public class VCardEmail
@@ -210,6 +268,12 @@
         public string Email { get; set; }
         public Kind? Kind { get; set; }
         public string[] Types { get; set; }
+
+        public override int GetHashCode()
+             => $"{Email} {Kind} {string.Join(',', Types)}".GetHashCode();
+
+        public override bool Equals(object obj)
+            => GetHashCode() == obj.GetHashCode();
     }
 
     public enum Kind

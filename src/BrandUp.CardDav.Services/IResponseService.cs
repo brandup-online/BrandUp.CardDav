@@ -1,102 +1,114 @@
 ﻿using BrandUp.CardDav.Attributes;
+using BrandUp.CardDav.Server.Abstractions.Additional;
+using BrandUp.CardDav.Server.Abstractions.Documents;
 using BrandUp.CardDav.Server.Documents;
 using BrandUp.CardDav.Server.Repositories;
+using BrandUp.CardDav.Services.Exceptions;
+using BrandUp.CardDav.Transport.Binding;
 using BrandUp.CardDav.Transport.Models.Abstract;
 using BrandUp.CardDav.Transport.Models.Headers;
 using BrandUp.CardDav.Transport.Models.Properties;
-using BrandUp.CardDav.Transport.Models.Requests;
 using BrandUp.CardDav.Transport.Models.Responses.Body;
 using BrandUp.CardDav.VCard;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using System.ComponentModel;
 using System.Reflection;
 
 namespace BrandUp.CardDav.Services
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class ResponseService : IResponseService
     {
         readonly IUserRepository userRepository;
         readonly IContactRepository contactRepository;
         readonly IAddressBookRepository addressRepository;
-        readonly string path;
 
-        public ResponseService(IUserRepository userRepository, IContactRepository contactRepository, IAddressBookRepository addressRepository, IHttpContextAccessor httpContextAccessor)
+        readonly ILogger<ResponseService> logger;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userRepository"></param>
+        /// <param name="contactRepository"></param>
+        /// <param name="addressRepository"></param>
+        /// <param name="logger"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public ResponseService(IUserRepository userRepository, IContactRepository contactRepository, IAddressBookRepository addressRepository, ILogger<ResponseService> logger)
         {
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             this.contactRepository = contactRepository ?? throw new ArgumentNullException(nameof(contactRepository));
             this.addressRepository = addressRepository ?? throw new ArgumentNullException(nameof(addressRepository));
 
-            path = httpContextAccessor.HttpContext.Request.Path;
-        }
-
-        readonly static PropertyInfo[] userProperties;
-        readonly static PropertyInfo[] addressbookProperties;
-        readonly static PropertyInfo[] contactProperties;
-
-
-        static ResponseService()
-        {
-            userProperties = typeof(IUserDocument).GetProperties();
-            addressbookProperties = typeof(IAddressBookDocument).GetProperties();
-            contactProperties = typeof(IContactDocument).GetProperties();
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         #region IResponseService
 
-        public Task<IUserDocument> FindUserAsync(string name, CancellationToken cancellationToken)
-            => userRepository.FindByNameAsync(name, cancellationToken);
-
-        public Task<IUserDocument> FindUserAsync(Guid id, CancellationToken cancellationToken)
-            => userRepository.FindByIdAsync(id, cancellationToken);
-
-
-        public async Task<IAddressBookDocument> FindAddressBookAsync(string name, string addressBookName, CancellationToken cancellationToken)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="depth"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public Task<PropfindResponseBody> ProcessPropfindAsync(IncomingRequest request, string depth, CancellationToken cancellationToken)
         {
-            var user = await userRepository.FindByNameAsync(name, cancellationToken);
-
-            if (user == null)
-                throw new ArgumentNullException(nameof(user));
-
-            var addresBook = await addressRepository.FindByNameAsync(addressBookName, user.Id, cancellationToken);
-
-            if (addresBook == null)
-                throw new ArgumentNullException(nameof(user));
-
-            return addresBook;
-        }
-
-        public Task<PropfindResponseBody> ProcessPropfindAsync<T>(T document, PropfindRequest request, CancellationToken cancellationToken)
-        {
-            if (document is IUserDocument user)
+            if (request.Document is IUserDocument user)
             {
-                return PropfindUserAsync(user, request, cancellationToken);
+                return PropfindUserAsync(request, depth, cancellationToken);
             }
-            else if (document is IAddressBookDocument book)
+            else if (request.Document is IAddressBookDocument book)
             {
-                return PropfindAddressBookAsync(book, request, cancellationToken);
+                return PropfindAddressBookAsync(request, depth, cancellationToken);
             }
-            else if (document is IContactDocument contact)
+            else if (request.Document is IContactDocument contact)
             {
-                return PropfindContactAsync(contact, request, cancellationToken);
+                return PropfindContactAsync(request, depth, cancellationToken);
             }
             else throw new ArgumentException("Unknow type");
         }
 
-        public async Task<ReportResponseBody> ProcessReportAsync(IAddressBookDocument addressBookDocument, ReportRequest request, CancellationToken cancellationToken)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public async Task<ReportResponseBody> ProcessReportAsync(IncomingRequest request, CancellationToken cancellationToken)
         {
-            var contacts = await contactRepository.FindAllContactsByBookIdAsync(addressBookDocument.Id, cancellationToken);
-
-            contacts = ApplyConstraints(contacts, request.Body);
-
-            var response = new ReportResponseBody();
-
-            foreach (var contact in contacts)
+            if (request.Document is IAddressBookDocument bookDocument)
             {
-                response.Resources.Add(GenerateReportResource(contact, request.Body.Properties, true));
-            }
+                var contacts = await contactRepository.FindAllContactsByBookIdAsync(bookDocument.Id, cancellationToken);
 
-            return response;
+                if (request.Body is IReportBody body)
+                    contacts = ApplyConstraints(contacts, body);
+                else throw new ArgumentException("Unexpected type");
+
+                var response = new ReportResponseBody();
+
+                foreach (var contact in contacts)
+                {
+                    response.Resources.Add(GenerateReportResource(contact, request.Body.Properties, request.Endpoint, true));
+                }
+
+                return response;
+            }
+            else throw new ArgumentException("Unexpected type");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="addressBook"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ConflictException"></exception>
         public async Task<bool> MakeCollectionAsync(string name, string addressBook, CancellationToken cancellationToken)
         {
             var user = await userRepository.FindByNameAsync(name, cancellationToken);
@@ -107,7 +119,7 @@ namespace BrandUp.CardDav.Services
             var book = await addressRepository.FindByNameAsync(addressBook, user.Id, cancellationToken);
 
             if (book != null)
-                throw new ArgumentException(nameof(book));
+                throw new ConflictException(book, addressBook);
 
             await addressRepository.CreateAsync(addressBook, user.Id, cancellationToken);
 
@@ -118,73 +130,72 @@ namespace BrandUp.CardDav.Services
 
         #region Helpers
 
-        async Task<PropfindResponseBody> PropfindUserAsync(IUserDocument user, PropfindRequest request, CancellationToken cancellationToken)
+        //main properties
+        readonly static PropertyInfo[] userProperties;
+        readonly static PropertyInfo[] addressbookProperties;
+        readonly static PropertyInfo[] contactProperties;
+
+        //additional properties
+        readonly static PropertyInfo[] cTagProperties;
+        readonly static PropertyInfo[] SyncProperties;
+
+        static ResponseService()
+        {
+            userProperties = typeof(IUserDocument).GetProperties();
+            addressbookProperties = typeof(IAddressBookDocument).GetProperties();
+            contactProperties = typeof(IContactDocument).GetProperties();
+            cTagProperties = typeof(ICTag).GetProperties();
+            SyncProperties = typeof(ISyncToken).GetProperties();
+        }
+
+
+        async Task<PropfindResponseBody> PropfindUserAsync(IncomingRequest request, string depth, CancellationToken cancellationToken)
         {
             var response = new PropfindResponseBody();
 
-            response.Resources.Add(GenerateResponseResource(user, request.Body.Properties));
+            response.Resources.Add(GeneratePropfindResource(request.Document, request.Body.Properties, request.Endpoint));
 
-            if (request.Depth.Value == Depth.One.Value)
+            if (depth == Depth.One.Value)
             {
-                var addresBooks = await addressRepository.FindCollectionsByUserIdAsync(user.Id, cancellationToken);
+                var addresBooks = await addressRepository.FindCollectionsByUserIdAsync(request.Document.Id, cancellationToken);
                 foreach (var book in addresBooks)
                 {
-                    response.Resources.Add(GenerateResponseResource(book, request.Body.Properties, true));
+                    response.Resources.Add(GeneratePropfindResource(book, request.Body.Properties, request.Endpoint, true));
                 }
             }
 
             return response;
         }
 
-        async Task<PropfindResponseBody> PropfindAddressBookAsync(IAddressBookDocument book, PropfindRequest request, CancellationToken cancellationToken)
+        async Task<PropfindResponseBody> PropfindAddressBookAsync(IncomingRequest request, string depth, CancellationToken cancellationToken)
         {
             var response = new PropfindResponseBody();
 
-            response.Resources.Add(GenerateResponseResource(book, request.Body.Properties));
+            response.Resources.Add(GeneratePropfindResource(request.Document, request.Body.Properties, request.Endpoint));
 
-            if (request.Depth.Value == Depth.One.Value)
+            if (depth == Depth.One.Value)
             {
-                var contacts = await contactRepository.FindAllContactsByBookIdAsync(book.Id, cancellationToken);
+                var contacts = await contactRepository.FindAllContactsByBookIdAsync(request.Document.Id, cancellationToken);
                 foreach (var contact in contacts)
                 {
-                    response.Resources.Add(GenerateResponseResource(contact, request.Body.Properties, true));
+                    response.Resources.Add(GeneratePropfindResource(contact, request.Body.Properties, request.Endpoint, true));
                 }
             }
 
             return response;
         }
 
-        Task<PropfindResponseBody> PropfindContactAsync(IContactDocument contact, PropfindRequest request, CancellationToken cancellationToken)
+        Task<PropfindResponseBody> PropfindContactAsync(IncomingRequest request, string depth, CancellationToken cancellationToken)
         {
             var response = new PropfindResponseBody();
 
-            response.Resources.Add(GenerateResponseResource(contact, request.Body.Properties));
+            response.Resources.Add(GeneratePropfindResource(request.Document, request.Body.Properties, request.Endpoint));
 
             return Task.FromResult(response);
         }
 
-        object GetValueByDavProp(object obj, IDavProperty davProperty)
+        AddressDataResource GenerateReportResource(IContactDocument contact, IEnumerable<IDavProperty> davProperties, string endpoint, bool withResourceName = false)
         {
-            if (obj == null)
-                throw new ArgumentNullException(nameof(obj));
-
-            var properties = GetPropertiesByObject(obj);
-
-            var property = (from prop in properties
-                            from attrib in prop.GetCustomAttributes(typeof(DavNameAttribute), true).Cast<DavNameAttribute>()
-                            where attrib.Name == davProperty.Name && attrib.Namespace == davProperty.Namespace
-                            select prop).FirstOrDefault();
-
-            if (property == null)
-                return null;
-
-            return property.GetValue(obj);
-        }
-
-        AddressDataResource GenerateReportResource(IContactDocument contact, IEnumerable<IDavProperty> davProperties, bool withResourceName = false)
-        {
-            var endpoint = path;
-
             if (withResourceName)
                 endpoint = string.Join('/', endpoint, contact.Name);
 
@@ -193,7 +204,7 @@ namespace BrandUp.CardDav.Services
 
             foreach (var property in davProperties)
             {
-                var value = (string)GetValueByDavProp(contact, property);
+                var value = GetValueByDavProp(contact, property);
 
                 if (property is AddressData address)
                 {
@@ -219,25 +230,28 @@ namespace BrandUp.CardDav.Services
             };
         }
 
-        DefaultResponseResource GenerateResponseResource(object innerResource, IEnumerable<IDavProperty> davProperties, bool withResourceName = false)
+        DefaultResponseResource GeneratePropfindResource(IDavDocument document, IEnumerable<IDavProperty> davProperties, string endpoint, bool withResourceName = false)
         {
-            var endpoint = path;
-
             if (withResourceName)
-                endpoint = string.Join('/', endpoint, (string)GetPropertiesByObject(innerResource).FirstOrDefault(p => p.Name == "Name").GetValue(innerResource));
+                endpoint = string.Join('/', endpoint, document.Name);
 
             Dictionary<IDavProperty, string> propertyDictionary = new();
             List<IDavProperty> notFound = new();
 
-            foreach (var property in davProperties)
+            if (davProperties.Count() == 1 && davProperties.SingleOrDefault()?.Name == "allprop")
             {
-                var value = (string)GetValueByDavProp(innerResource, property);
-
-                if (value == null)
-                    notFound.Add(property);
-                else if (!propertyDictionary.TryAdd(property, value))
-                    continue;
+                propertyDictionary = new(GetAllDavPropValues(document));
             }
+            else
+                foreach (var property in davProperties)
+                {
+                    var value = GetValueByDavProp(document, property);
+
+                    if (value == null)
+                        notFound.Add(property);
+                    else if (!propertyDictionary.TryAdd(property, value))
+                        continue;
+                }
 
             return new()
             {
@@ -247,6 +261,58 @@ namespace BrandUp.CardDav.Services
             };
         }
 
+        string GetValueByDavProp(object obj, IDavProperty davProperty)
+        {
+            if (obj == null)
+                throw new ArgumentNullException(nameof(obj));
+            try
+            {
+                var properties = GetPropertiesByObject(obj);
+
+                var property = (from prop in properties
+                                from attrib in prop.GetCustomAttributes(typeof(DavNameAttribute), true).Cast<DavNameAttribute>()
+                                where attrib.Name == davProperty.Name && attrib.Namespace == davProperty.Namespace
+                                select prop).FirstOrDefault();
+
+                if (property == null)
+                    return null;
+
+                var converter = TypeDescriptor.GetConverter(property.PropertyType);
+                return converter.ConvertToString(property.GetValue(obj));
+            }
+            catch (Exception ex)
+            {
+                logger.LogCritical(ex.Message);
+                throw new DavPropertyException(ex);
+            }
+        }
+
+        IDictionary<IDavProperty, string> GetAllDavPropValues(object obj)
+        {
+            if (obj == null)
+                throw new ArgumentNullException(nameof(obj));
+            try
+            {
+                var properties = GetPropertiesByObject(obj);
+
+                var davProperties = (from prop in properties
+                                     from attrib in prop.GetCustomAttributes(typeof(DavNameAttribute), true).Cast<DavNameAttribute>()
+                                     where attrib.Name != "address-data" && attrib.Namespace != "urn:ietf:params:xml:ns:carddav"
+                                     select prop);
+
+                return davProperties.ToDictionary(k =>
+                {
+                    var attr = ((DavNameAttribute)k.GetCustomAttribute(typeof(DavNameAttribute)));
+
+                    return Prop.Create(attr.Name, attr.Namespace);
+                }, v => (string)v.GetValue(obj));
+            }
+            catch (Exception ex)
+            {
+                logger.LogCritical(ex.Message);
+                throw new DavPropertyException(ex);
+            }
+        }
 
         private IEnumerable<IContactDocument> ApplyConstraints(IEnumerable<IContactDocument> contacts, IReportBody body)
         {
@@ -256,27 +322,55 @@ namespace BrandUp.CardDav.Services
         static PropertyInfo[] GetPropertiesByObject(object obj)
         {
             var type = obj.GetType();
+            var members = new List<PropertyInfo>();
 
             if (type.IsAssignableTo(typeof(IUserDocument)))
-                return userProperties;
+                members.AddRange(userProperties);
             if (type.IsAssignableTo(typeof(IAddressBookDocument)))
-                return addressbookProperties;
+                members.AddRange(addressbookProperties);
             if (type.IsAssignableTo(typeof(IContactDocument)))
-                return contactProperties;
+                members.AddRange(contactProperties);
 
-            throw new ArgumentException("Unknown type");
+            if (type.IsAssignableTo(typeof(ICTag)))
+                members.AddRange(cTagProperties);
+            if (type.IsAssignableTo(typeof(ISyncToken)))
+                members.AddRange(SyncProperties);
+
+            return members.ToArray();
         }
 
         #endregion
     }
 
+    /// <summary>
+    /// Creates responses for CardDav requests.
+    /// </summary>
     public interface IResponseService
     {
-        public Task<IUserDocument> FindUserAsync(string name, CancellationToken cancellationToken);
-        public Task<IUserDocument> FindUserAsync(Guid id, CancellationToken cancellationToken);
-        public Task<IAddressBookDocument> FindAddressBookAsync(string name, string addressBookName, CancellationToken cancellationToken);
-        public Task<PropfindResponseBody> ProcessPropfindAsync<T>(T document, PropfindRequest request, CancellationToken cancellationToken);
-        public Task<ReportResponseBody> ProcessReportAsync(IAddressBookDocument addressBookDocument, ReportRequest request, CancellationToken cancellationToken);
+        /// <summary>
+        /// Creates response for Propfind request.
+        /// </summary>
+        /// <param name="request"><see cref="IncomingRequest" /></param>
+        /// <param name="depth"><see href="https://www.rfc-editor.org/rfc/rfc4918#section-10.2" /></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public Task<PropfindResponseBody> ProcessPropfindAsync(IncomingRequest request, string depth, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Creates response for Report request.
+        /// </summary>
+        /// <param name="request"><see cref="IncomingRequest" /></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public Task<ReportResponseBody> ProcessReportAsync(IncomingRequest request, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Creates Address book collection.
+        /// </summary>
+        /// <param name="name">User name</param>
+        /// <param name="addressBook">Address book name</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task<bool> MakeCollectionAsync(string name, string addressBook, CancellationToken cancellationToken);
     }
 }

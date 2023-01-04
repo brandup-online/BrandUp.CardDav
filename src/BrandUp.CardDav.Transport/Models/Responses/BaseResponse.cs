@@ -1,9 +1,35 @@
-﻿namespace BrandUp.CardDav.Transport.Models.Responses
+﻿using BrandUp.CardDav.Transport.Models.Abstract;
+
+namespace BrandUp.CardDav.Transport.Models.Responses
 {
-    public abstract class BaseContent
+    /// <summary>
+    /// 
+    /// </summary>
+    public class BaseResponse : IResponse
     {
-        public string Endpoint { get; set; }
-        public string Etag { get; set; }
-        public string Ctag { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool IsSuccess { get; init; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int StatusCode { get; init; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public IResponseBody Content => null;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public static IResponse Create(HttpResponseMessage message)
+        {
+            return new BaseResponse { IsSuccess = message.IsSuccessStatusCode, StatusCode = ((int)message.StatusCode) };
+        }
     }
 }

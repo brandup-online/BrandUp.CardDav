@@ -4,16 +4,28 @@ using System.Xml.Schema;
 
 namespace BrandUp.CardDav.Transport.Models.Requests.Body.Mkcol
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class SetPropBody : IRequestBody
     {
         private string name;
         private string description;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public SetPropBody()
         {
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="description"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public SetPropBody(string name, string description)
         {
             this.name = name ?? throw new ArgumentNullException(nameof(name));
@@ -22,14 +34,25 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Mkcol
 
         #region IRequestBody members 
 
+        /// <summary>
+        /// 
+        /// </summary>
         public IEnumerable<IDavProperty> Properties { get; }
 
         #endregion
 
         #region IXmlSerializable members
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public XmlSchema GetSchema() => null;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="reader"></param>
         public void ReadXml(XmlReader reader)
         {
             while (reader.Read())
@@ -51,6 +74,10 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Mkcol
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="writer"></param>
         public void WriteXml(XmlWriter writer)
         {
             writer.WriteStartElement("set", "DAV:");

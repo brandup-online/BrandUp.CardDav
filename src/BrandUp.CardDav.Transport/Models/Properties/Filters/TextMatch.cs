@@ -1,22 +1,60 @@
 ﻿using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 {
+    /// <summary>
+    /// Match with value of VCard property
+    /// </summary>
     public class TextMatch : ICondition
     {
+        /// <summary>
+        /// Condition value
+        /// </summary>
         public string Text { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public string Collation { get; set; } = "i;unicode-casemap";
+
+        /// <summary>
+        /// Condition type
+        /// </summary>
         public TextMatchType MatchType { get; set; }
+
+        /// <summary>
+        /// Flag: true - condition is invert, false - is positive
+        /// </summary>
         public bool IsNegate { get; set; } = false;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public TextMatch() { }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="matchSubstring"></param>
+        /// <param name="textMatchType"></param>
+        /// <param name="isNegate"></param>
+        /// <returns></returns>
         public static TextMatch Create(string matchSubstring, TextMatchType textMatchType, bool isNegate = false)
         {
             return new TextMatch() { Text = matchSubstring, IsNegate = isNegate, MatchType = textMatchType };
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="matchSubstring"></param>
+        /// <param name="textMatchType"></param>
+        /// <param name="collation"></param>
+        /// <param name="isNegate"></param>
+        /// <returns></returns>
         public static TextMatch Create(string matchSubstring, TextMatchType textMatchType, string collation, bool isNegate = false)
         {
             return new TextMatch() { Text = matchSubstring, IsNegate = isNegate, MatchType = textMatchType, Collation = collation };
@@ -24,6 +62,12 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 
         #region ICondition members
 
+        /// <summary>
+        /// Checks the condition
+        /// </summary>
+        /// <param name="value">VCard Value</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public bool Check(string value)
         {
             switch (MatchType)
@@ -39,13 +83,23 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 
         #region IDavProperty members
 
+        /// <summary>
+        /// 
+        /// </summary>
         public string Name => "text-match";
 
+        /// <summary>
+        /// 
+        /// </summary>
         public string Namespace => "urn:ietf:params:xml:ns:carddav";
 
-        public XmlSchema GetSchema() => null;
+        #endregion
 
-        public void ReadXml(XmlReader reader)
+        #region IXmlSerializable members
+
+        XmlSchema IXmlSerializable.GetSchema() => null;
+
+        void IXmlSerializable.ReadXml(XmlReader reader)
         {
             if (reader.TryGetAttribute("collation", Namespace, out var value))
                 Collation = value;
@@ -70,7 +124,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
             }
         }
 
-        public void WriteXml(XmlWriter writer)
+        void IXmlSerializable.WriteXml(XmlWriter writer)
         {
             writer.WriteStartElement(Name, Namespace);
             writer.WriteAttributeString("collation", Collation);

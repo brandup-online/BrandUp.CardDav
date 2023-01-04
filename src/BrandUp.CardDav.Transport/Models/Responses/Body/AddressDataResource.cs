@@ -3,8 +3,14 @@ using BrandUp.CardDav.VCard;
 
 namespace BrandUp.CardDav.Transport.Models.Responses.Body
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class AddressDataResource : DefaultResponseResource
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public VCardModel CardModel
         {
             get

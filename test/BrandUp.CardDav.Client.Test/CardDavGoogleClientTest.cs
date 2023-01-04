@@ -1,5 +1,4 @@
-﻿using BrandUp.CardDav.Client.Extensions;
-using BrandUp.CardDav.Transport.Models.Headers;
+﻿using BrandUp.CardDav.Transport.Models.Headers;
 using BrandUp.CardDav.Transport.Models.Properties;
 using BrandUp.CardDav.Transport.Models.Properties.Filters;
 using BrandUp.CardDav.Transport.Models.Requests;
@@ -16,7 +15,7 @@ namespace BrandUp.CardDav.Client.Test
         private string gmail;
         private string password;
 
-        readonly CardDavClient client;
+        readonly ICardDavClient client;
 
         public CardDavGoogleClientTest(ITestOutputHelper output) : base(output)
         {
@@ -36,18 +35,18 @@ namespace BrandUp.CardDav.Client.Test
 
             var propfindResponse = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default", content, CancellationToken.None);
 
-            output.WriteLine(propfindResponse.StatusCode);
+            output.WriteLine(propfindResponse.StatusCode.ToString());
             Assert.True(propfindResponse.IsSuccess);
 
             #region Empty filter
 
             var filter = new FilterBody();
             filter.AddPropFilter(VCardProperty.FN, FilterMatchType.All, TextMatch.Create("", TextMatchType.Contains));
-            var report = ReportRequest.CreateQuery(Depth.One, PropList.Create(Prop.CTag, Prop.ETag, Prop.AddressData()), filter);
+            var report = ReportRequest.CreateQuery(PropList.Create(Prop.CTag, Prop.ETag), new AddressData(), filter);
 
-            var reportResponse = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists", report, CancellationToken.None);
+            var reportResponse = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists/default", report, CancellationToken.None);
 
-            output.WriteLine(reportResponse.StatusCode);
+            output.WriteLine(reportResponse.StatusCode.ToString());
             Assert.True(reportResponse.IsSuccess);
             Assert.NotEmpty(reportResponse.Body.Resources);
 
@@ -59,13 +58,13 @@ namespace BrandUp.CardDav.Client.Test
         {
             var filter = new FilterBody();
             filter.AddPropFilter(VCardProperty.EMAIL, FilterMatchType.All, TextMatch.Create("me", TextMatchType.Contains));
-            var report = ReportRequest.CreateQuery(Depth.One,
-                                    PropList.Create(Prop.CTag, Prop.ETag, new AddressData()),
+            var report = ReportRequest.CreateQuery(PropList.Create(Prop.CTag, Prop.ETag, new AddressData()),
+                                    new AddressData(),
                                     filter);
 
             var reportResponse = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists/default", report, CancellationToken.None);
 
-            output.WriteLine(reportResponse.StatusCode);
+            output.WriteLine(reportResponse.StatusCode.ToString());
             Assert.True(reportResponse.IsSuccess);
             Assert.Single(reportResponse.Body.Resources);
             Assert.NotNull(reportResponse.Body.Resources.First().CardModel);
@@ -76,14 +75,15 @@ namespace BrandUp.CardDav.Client.Test
         {
             var filter = new FilterBody();
             filter.AddPropFilter(VCardProperty.FN, FilterMatchType.All, TextMatch.Create("", TextMatchType.Contains));
-            var report = ReportRequest.CreateQuery(Depth.One,
-                                    PropList.Create(Prop.CTag, Prop.ETag, new AddressData()),
+            var report = ReportRequest.CreateQuery(
+                                    PropList.Create(Prop.CTag, Prop.ETag),
+                                    new AddressData(),
                                     filter,
                                     2);
 
             var reportResponse = await client.ReportAsync($"carddav/v1/principals/{gmail}/lists/default", report, CancellationToken.None);
 
-            output.WriteLine(reportResponse.StatusCode);
+            output.WriteLine(reportResponse.StatusCode.ToString());
             Assert.True(reportResponse.IsSuccess);
             Assert.Equal(3, reportResponse.Body.Resources.Count);
             Assert.NotNull(reportResponse.Body.Resources.First().CardModel);
@@ -100,7 +100,7 @@ namespace BrandUp.CardDav.Client.Test
 
             propfindResponse = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default", content, CancellationToken.None);
 
-            output.WriteLine(propfindResponse.StatusCode);
+            output.WriteLine(propfindResponse.StatusCode.ToString());
             Assert.True(propfindResponse.IsSuccess);
 
             #endregion
@@ -111,7 +111,7 @@ namespace BrandUp.CardDav.Client.Test
             var name = RandomName;
             var createResponse = await client.AddContactAsync($"carddav/v1/principals/{gmail}/lists/default/{name}", vCard, CancellationToken.None);
 
-            output.WriteLine(createResponse.StatusCode);
+            output.WriteLine(createResponse.StatusCode.ToString());
             Assert.True(createResponse.IsSuccess);
 
             #endregion
@@ -122,7 +122,7 @@ namespace BrandUp.CardDav.Client.Test
 
             propfindResponse = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default/{name}", eTagRequest, CancellationToken.None);
 
-            output.WriteLine(propfindResponse.StatusCode);
+            output.WriteLine(propfindResponse.StatusCode.ToString());
             Assert.True(propfindResponse.IsSuccess);
 
             #endregion
@@ -134,12 +134,12 @@ namespace BrandUp.CardDav.Client.Test
             var etag = propfindResponse.Body.Resources.First().FoundProperties[Prop.ETag];
             var updateResponse = await client.UpdateContactAsync(endpoint, updateVCard, etag, CancellationToken.None);
 
-            output.WriteLine(updateResponse.StatusCode);
+            output.WriteLine(updateResponse.StatusCode.ToString());
             Assert.True(updateResponse.IsSuccess);
 
             var vCardResponse = await client.GetAsync($"carddav/v1/principals/{gmail}/lists/default/{name}", CancellationToken.None);
             Assert.NotNull(vCardResponse);
-            Assert.Equal("test@test.org", vCardResponse.Emails.First().Email);
+            Assert.Equal("test@test.org", vCardResponse.VCard.Emails.First().Email);
 
             #endregion
 
@@ -147,12 +147,12 @@ namespace BrandUp.CardDav.Client.Test
 
             var deleteResponse = await client.DeleteContactAsync(endpoint, CancellationToken.None);
 
-            output.WriteLine(deleteResponse.StatusCode);
+            output.WriteLine(deleteResponse.StatusCode.ToString());
             Assert.True(deleteResponse.IsSuccess);
 
             propfindResponse = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default/", eTagRequest, CancellationToken.None);
 
-            output.WriteLine(propfindResponse.StatusCode);
+            output.WriteLine(propfindResponse.StatusCode.ToString());
             Assert.True(propfindResponse.IsSuccess);
             Assert.Equal(5, propfindResponse.Body.Resources.Count());
 
@@ -168,7 +168,7 @@ namespace BrandUp.CardDav.Client.Test
 
             var response = await client.PropfindAsync($"carddav/v1/principals/{gmail}/lists/default", content, CancellationToken.None);
 
-            output.WriteLine(response.StatusCode);
+            output.WriteLine(response.StatusCode.ToString());
             Assert.True(response.IsSuccess);
 
             //Это возможно не так работает 

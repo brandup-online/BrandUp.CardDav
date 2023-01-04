@@ -1,11 +1,12 @@
-﻿using BrandUp.CardDav.Server.Documents;
+﻿using BrandUp.CardDav.Server.Abstractions.Additional;
+using BrandUp.CardDav.Server.Documents;
 using BrandUp.MongoDB;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace BrandUp.CardDav.Server.Example.Domain.Documents
 {
     [Document(CollectionName = "CardDav.Users")]
-    public class UserDocument : IUserDocument
+    public class UserDocument : IUserDocument, ICTag
     {
         [BsonId]
         public Guid Id { get; set; }

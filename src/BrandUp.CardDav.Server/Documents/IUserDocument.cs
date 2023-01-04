@@ -1,12 +1,12 @@
-﻿using BrandUp.CardDav.Attributes;
+﻿using BrandUp.CardDav.Server.Abstractions.Documents;
 
 namespace BrandUp.CardDav.Server.Documents
 {
-    public interface IUserDocument
+    /// <summary>
+    /// User entity
+    /// </summary>
+    public interface IUserDocument : IDavDocument
     {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        [DavName("getctag", "http://calendarserver.org/ns/")]
-        public string CTag { get; set; }
+
     }
 }

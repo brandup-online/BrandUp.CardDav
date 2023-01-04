@@ -44,6 +44,9 @@ namespace BrandUp.CardDav.VCard
         public static VCardModel Parse(string vCardRaw)
             => ParseAsync(new StringReader(vCardRaw), CancellationToken.None).Result;
 
+        public static VCardModel Parse(Stream vCardStream)
+            => ParseAsync(vCardStream, CancellationToken.None).Result;
+
         public static bool TryParse(string vCardRaw, out VCardModel vCard)
         {
             try
@@ -79,10 +82,6 @@ namespace BrandUp.CardDav.VCard
                     if (string.Equals(line, "BEGIN:VCARD", StringComparison.InvariantCultureIgnoreCase))
                     {
                         continue;
-                    }
-                    else
-                    {
-                        throw new ArgumentException("This is not VCard");
                     }
                 }
 
@@ -216,7 +215,6 @@ namespace BrandUp.CardDav.VCard
             var name = line.Split(':')[1];
             vCard.FormattedName = name.Trim();
         }
-
 
         private static void AddName(VCardModel vCard, string line)
         {

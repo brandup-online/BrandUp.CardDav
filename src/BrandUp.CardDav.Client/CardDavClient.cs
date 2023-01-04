@@ -1,5 +1,4 @@
 ﻿using BrandUp.CardDav.Client.Options;
-using BrandUp.CardDav.Transport;
 using BrandUp.CardDav.Transport.Models.Abstract;
 using BrandUp.CardDav.Transport.Models.Requests;
 using BrandUp.CardDav.Transport.Models.Responses;
@@ -8,11 +7,16 @@ using Microsoft.Extensions.Logging;
 
 namespace BrandUp.CardDav.Client
 {
+    /// <summary>
+    /// Client for cardDav requests 
+    /// </summary>
     public class CardDavClient : ICardDavClient
     {
         readonly HttpClient httpClient;
         readonly ILogger<CardDavClient> logger;
-
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public CardDavClient(HttpClient httpClient, ILogger<CardDavClient> logger, CardDavOptions options)
         {
             this.httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
@@ -23,6 +27,10 @@ namespace BrandUp.CardDav.Client
 
         #region ICardDavClient members
 
+        /// <summary>
+        /// Request a options from server. Executes to base URL. 
+        /// </summary>
+        /// <returns><see cref="OptionsResponse"/></returns>
         public async Task<OptionsResponse> OptionsAsync(CancellationToken cancellationToken)
         {
             using var request = new HttpRequestMessage();
@@ -30,66 +38,96 @@ namespace BrandUp.CardDav.Client
             return await ProccesResponse<OptionsResponse>("", request, cancellationToken);
         }
 
-        // Must be vcard adress
-        public async Task<VCardModel> GetAsync(string endpoint, CancellationToken cancellationToken)
-        {
-            var response = await httpClient.GetAsync(endpoint, cancellationToken);
-            if (response.IsSuccessStatusCode)
-            {
-                if (VCardParser.TryParse(await response.Content.ReadAsStringAsync(cancellationToken), out var vCard))
-                {
-                    return vCard;
-                }
-                else
-                {
-                    throw new ArgumentException("Endpoint response is not a vCard");
-                }
-            }
-            else
-            {
-                throw new HttpRequestException(response.StatusCode.ToString());
-            }
+        /// <summary>
+        /// Gets a VCard from server
+        /// </summary>
+        /// <param name="endpoint">VCard resource endpoint</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns><see cref="VCardResponse"/></returns>
+        public async Task<VCardResponse> GetAsync(string endpoint, CancellationToken cancellationToken)
+            => await ProccesResponse<VCardResponse>(endpoint, new HttpRequestMessage { Method = HttpMethod.Get }, cancellationToken);
 
-        }
 
+        /// <summary>
+        /// Executes a propfind request to server
+        /// </summary>
+        /// <param name="endpoint">Server endpoint</param>
+        /// <param name="request">Propfind request <see cref="PropfindRequest"/></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns><see cref="PropfindResponse"/></returns>
         public async Task<PropfindResponse> PropfindAsync(string endpoint, PropfindRequest request, CancellationToken cancellationToken = default)
-             => await ProccesResponse<PropfindResponse>(endpoint, request, cancellationToken);
+            => await ProccesResponse<PropfindResponse>(endpoint, request, cancellationToken);
 
+        /// <summary>
+        /// Executes a report request to server
+        /// </summary>
+        /// <param name="endpoint">Server endpoint</param>
+        /// <param name="request">Report request <see cref="PropfindRequest"/></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns><see cref="ReportResponse"/></returns>
         public async Task<ReportResponse> ReportAsync(string endpoint, ReportRequest request, CancellationToken cancellationToken = default)
-             => await ProccesResponse<ReportResponse>(endpoint, request, cancellationToken);
+            => await ProccesResponse<ReportResponse>(endpoint, request, cancellationToken);
 
-        public async Task<MkcolResponse> MkcolAsync(string endpoint, MkcolRequest request, CancellationToken cancellationToken = default)
-             => await ProccesResponse<MkcolResponse>(endpoint, request, cancellationToken);
+        /// <summary>
+        /// Executes a mkcol request to server
+        /// </summary>
+        /// <param name="endpoint">Server endpoint</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task<MkcolResponse> MkcolAsync(string endpoint, CancellationToken cancellationToken = default)
+            => await ProccesResponse<MkcolResponse>(endpoint, new MkcolRequest(), cancellationToken);
 
-        public async Task<CarddavResponse> AddContactAsync(string endpoint, VCardModel vCard, CancellationToken cancellationToken)
-            => ProccesCardDavResponse(await ExecuteAsync(endpoint, HttpMethod.Put, await VCardSerializer.SerializeAsync(vCard, cancellationToken), null, cancellationToken));
+        /// <summary>
+        /// Adds contact to a VCard collections
+        /// </summary>
+        /// <param name="endpoint">VCard resource endpoint</param>
+        /// <param name="vCard">contact <see cref="VCardModel"/></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns><see cref="BaseResponse"/></returns>
+        public async Task<BaseResponse> AddContactAsync(string endpoint, VCardModel vCard, CancellationToken cancellationToken)
+            => await ProccesResponse<BaseResponse>(endpoint, new HttpRequestMessage { Method = HttpMethod.Put, Content = new StringContent(vCard.ToString()) }, cancellationToken);
 
-        public async Task<CarddavResponse> DeleteContactAsync(string endpoint, CancellationToken cancellationToken)
-            => ProccesCardDavResponse(await ExecuteAsync(endpoint, HttpMethod.Delete, null, null, cancellationToken));
+        /// <summary>
+        /// Delete contact from a VCard collections
+        /// </summary>
+        /// <param name="endpoint">VCard resource endpoint</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns><see cref="BaseResponse"/></returns>
+        public async Task<BaseResponse> DeleteContactAsync(string endpoint, CancellationToken cancellationToken)
+             => await ProccesResponse<BaseResponse>(endpoint, new HttpRequestMessage { Method = HttpMethod.Delete }, cancellationToken);
 
-        public async Task<CarddavResponse> UpdateContactAsync(string endpoint, VCardModel vCard, string ETag, CancellationToken cancellationToken)
-            => ProccesCardDavResponse(await ExecuteAsync(endpoint, HttpMethod.Put, await VCardSerializer.SerializeAsync(vCard, cancellationToken), new() { { "If-Match", ETag } }, cancellationToken));
+        /// <summary>
+        /// Updates contact to a VCard collections
+        /// </summary>
+        /// <param name="endpoint">VCard resource endpoint</param>
+        /// <param name="vCard">contact to replace <see cref="VCardModel"/></param>
+        /// <param name="ETag">Entity tag of contact</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns><see cref="BaseResponse"/></returns>
+        public async Task<BaseResponse> UpdateContactAsync(string endpoint, VCardModel vCard, string ETag, CancellationToken cancellationToken)
+        {
+            var message = new HttpRequestMessage { Method = HttpMethod.Put, Content = new StringContent(vCard.ToString()) };
+            message.Headers.Add("If-Match", ETag);
+            return await ProccesResponse<BaseResponse>(endpoint, message, cancellationToken);
+        }
 
         #endregion
 
         #region Helpers
 
-        private async Task<HttpResponseMessage> ExecuteAsync(string endpoint, HttpRequestMessage requestMessage, CancellationToken cancellationToken)
-        {
-            requestMessage.RequestUri = new Uri(endpoint, UriKind.Relative);
-
-            return await httpClient.SendAsync(requestMessage, cancellationToken);
-        }
-
-        private async Task<T> ProccesResponse<T>(string endpoint, ICardDavRequest request, CancellationToken cancellationToken) where T : class, IResponse, new()
+        private async Task<T> ProccesResponse<T>(string endpoint, IHttpRequestConvertable request, CancellationToken cancellationToken) where T : class, IResponse, new()
         {
             using var httpRequest = request.ToHttpRequest();
+            if (httpRequest.Content != null)
+                logger.LogDebug(await httpRequest.Content.ReadAsStringAsync());
+
             return await ProccesResponse<T>(endpoint, httpRequest, cancellationToken);
         }
 
         private async Task<T> ProccesResponse<T>(string endpoint, HttpRequestMessage request, CancellationToken cancellationToken) where T : class, IResponse, new()
         {
             using var response = await ExecuteAsync(endpoint, request, cancellationToken);
+            logger.LogDebug(await response.Content.ReadAsStringAsync());
 
             if (response.IsSuccessStatusCode)
             {
@@ -97,25 +135,15 @@ namespace BrandUp.CardDav.Client
             }
             else
             {
-                return new() { IsSuccess = false, StatusCode = response.StatusCode.ToString() };
+                return new() { IsSuccess = false, StatusCode = (int)response.StatusCode };
             }
         }
 
-        private bool IsSuccessXmlResponse(HttpResponseMessage response)
+        private async Task<HttpResponseMessage> ExecuteAsync(string endpoint, HttpRequestMessage requestMessage, CancellationToken cancellationToken)
         {
-            if (!response.IsSuccessStatusCode)
-                return false;
+            requestMessage.RequestUri = new Uri(endpoint, UriKind.Relative);
 
-            if (response.Content.Headers.ContentType == null)
-                return false;
-
-            if (!response.Content.Headers.ContentType.MediaType.Contains("xml"))
-                return false;
-
-            if (response.Content.Headers.ContentLength == 0)
-                return false;
-
-            return true;
+            return await httpClient.SendAsync(requestMessage, cancellationToken);
         }
 
         private void SetOptions(CardDavOptions options)
@@ -133,68 +161,6 @@ namespace BrandUp.CardDav.Client
                 httpClient.DefaultRequestHeaders.Authorization = new($"Basic", Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes(string.Format("{0}:{1}", cred.Login, cred.Password))));
             }
         }
-
-        #region Obsolete
-
-        private async Task<HttpResponseMessage> ExecuteAsync(string endpoint, HttpMethod method, string request = null, Dictionary<string, string> headers = null, CancellationToken cancellationToken = default)
-        {
-            using var requestMessage = new HttpRequestMessage(method, endpoint);
-            if (request != null)
-            {
-                requestMessage.Content = new StringContent(request);
-                if (headers != null)
-                {
-                    if (headers.TryGetValue("Content-Type", out var contentType))
-                    {
-
-                        requestMessage.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
-                        headers.Remove("Content-Type");
-                    }
-
-                    if (headers.TryGetValue("If-Match", out var match))
-                    {
-                        requestMessage.Headers.Add("If-Match", match);
-                        headers.Remove("If-Match");
-                    }
-
-                    foreach (var header in headers)
-                        requestMessage.Content.Headers.Add(header.Key, header.Value);
-                }
-            }
-
-            return await ExecuteAsync(requestMessage, cancellationToken);
-        }
-
-        private async Task<HttpResponseMessage> ExecuteAsync(HttpRequestMessage requestMessage, CancellationToken cancellationToken)
-        {
-            requestMessage.Headers.Authorization = httpClient.DefaultRequestHeaders.Authorization;
-            return await httpClient.SendAsync(requestMessage, cancellationToken);
-        }
-
-        private CarddavResponse ProccesCardDavResponse(HttpResponseMessage response)
-        {
-            var carddavResponse = new CarddavResponse
-            {
-                IsSuccess = response.IsSuccessStatusCode,
-                StatusCode = response.StatusCode.ToString()
-            };
-
-            if (response.IsSuccessStatusCode)
-            {
-                carddavResponse.ETag = response.Headers.ETag?.Tag;
-
-                if (response.StatusCode == System.Net.HttpStatusCode.MultiStatus && response.Content.Headers.ContentType.MediaType.Contains("xml"))
-                {
-                    carddavResponse.Content = XmlParser.GenerateCarddavContent(response.Content.ReadAsStream());
-                }
-
-            }
-
-            response.Dispose();
-            return carddavResponse;
-        }
-
-        #endregion
 
         #endregion
     }

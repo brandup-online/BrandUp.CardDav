@@ -2,20 +2,37 @@
 using BrandUp.CardDav.Transport.Models.Properties;
 using System.Xml;
 using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Models.Responses.Body
 {
-    public class MkcolResponceResource : IResponseResource
+    /// <summary>
+    /// 
+    /// </summary>
+    public class MkcolResponseResource : IResponseResource
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public string Endpoint => null;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public PropertyDictionary FoundProperties { get; private set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public IEnumerable<IDavProperty> NotFoundProperties { get; private set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public XmlSchema GetSchema() => null;
 
-        public void ReadXml(XmlReader reader)
+        void IXmlSerializable.ReadXml(XmlReader reader)
         {
             var dict = new Dictionary<IDavProperty, string>();
             while (reader.Read())
@@ -33,7 +50,7 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
             }
         }
 
-        public void WriteXml(XmlWriter writer)
+        void IXmlSerializable.WriteXml(XmlWriter writer)
         {
             foreach (var item in FoundProperties)
             {

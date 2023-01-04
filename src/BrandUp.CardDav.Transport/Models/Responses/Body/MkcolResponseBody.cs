@@ -5,27 +5,37 @@ using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Models.Responses.Body
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [XmlRoot(ElementName = "mkcol-response", Namespace = "DAV:")]
-    public class MkcolResponceBody : IResponseBody
+    public class MkcolResponseBody : IResponseBody
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public IList<IResponseResource> Resources { get; private set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public XmlSchema GetSchema() => null;
 
-        public void ReadXml(XmlReader reader)
+        void IXmlSerializable.ReadXml(XmlReader reader)
         {
             while (reader.Read())
             {
                 if (reader.NodeType == XmlNodeType.Element && reader.LocalName == "prop")
                 {
-                    var resource = new MkcolResponceResource();
+                    var resource = (IXmlSerializable)new MkcolResponseResource();
                     resource.ReadXml(reader);
-                    Resources.Add(resource);
+                    Resources.Add(resource as IResponseResource);
                 }
             }
         }
 
-        public void WriteXml(XmlWriter writer)
+        void IXmlSerializable.WriteXml(XmlWriter writer)
         {
             foreach (var resource in Resources)
             {

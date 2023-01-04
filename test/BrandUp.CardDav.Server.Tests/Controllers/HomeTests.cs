@@ -1,11 +1,10 @@
+using BrandUp.CardDav.Server.Controllers.Tests;
 using Xunit.Abstractions;
 
-namespace BrandUp.CardDav.Server.Controllers.Tests.Controllers
+namespace BrandUp.CardDav.Server.Tests.Controllers
 {
     public class HomeTests : ControllerTestBase
     {
-
-
         public HomeTests(ITestOutputHelper output) : base(output)
         { }
 
@@ -14,7 +13,7 @@ namespace BrandUp.CardDav.Server.Controllers.Tests.Controllers
         {
             var options = await Client.OptionsAsync(CancellationToken.None);
 
-            Output.WriteLine(options.StatusCode);
+            Output.WriteLine(options.StatusCode.ToString());
             Assert.True(options.IsSuccess);
             Assert.NotEmpty(options.AllowHeaderValue);
             Output.WriteLine(string.Join(" ", options.AllowHeaderValue));

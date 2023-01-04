@@ -2,23 +2,43 @@
 using BrandUp.CardDav.VCard;
 using System.Xml;
 using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class FilterBody : IDavProperty
     {
         private const string name = "filter";
         private const string @namespace = "urn:ietf:params:xml:ns:carddav";
 
+        /// <summary>
+        /// 
+        /// </summary>
         public IList<IFilter> Filters { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public FilterMatchType MatchType { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public FilterBody()
         {
             Filters = new List<IFilter>();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="propName"></param>
+        /// <param name="type"></param>
+        /// <param name="conditions"></param>
+        /// <returns></returns>
         public FilterBody AddPropFilter(VCardProperty propName, FilterMatchType type, params TextMatch[] conditions)
         {
             Filters.Add(new PropFilter { PropName = propName, Type = type, Conditions = conditions });
@@ -28,7 +48,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 
         internal bool ApplyFilter(VCardModel vCardModel)
         {
-            bool flag = false;
+            bool flag = true;
 
             foreach (var filter in Filters)
             {
@@ -52,9 +72,9 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 
         #region IXmlSerializable members
 
-        public XmlSchema GetSchema() => null;
+        XmlSchema IXmlSerializable.GetSchema() => null;
 
-        public void ReadXml(XmlReader reader)
+        void IXmlSerializable.ReadXml(XmlReader reader)
         {
             if (reader.TryGetAttribute("test", @namespace, out var value))
             {
@@ -80,7 +100,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
             }
         }
 
-        public void WriteXml(XmlWriter writer)
+        void IXmlSerializable.WriteXml(XmlWriter writer)
         {
             writer.WriteStartElement(name, @namespace);
             writer.WriteAttributeString("test", MatchType.ToString().ToLowerInvariant() + "of");

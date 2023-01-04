@@ -2,7 +2,7 @@
 
 namespace BrandUp.CardDav.Transport
 {
-    public static class XmlReaderExtension
+    internal static class XmlReaderExtension
     {
         public static bool TryGetAttribute(this XmlReader reader, string name, string @namespase, out string value)
         {
@@ -11,6 +11,10 @@ namespace BrandUp.CardDav.Transport
                 return true;
 
             value = reader.GetAttribute(name, namespase);
+            if (value != null)
+                return true;
+
+            value = reader.GetAttribute($"{reader.Prefix}:{name}", namespase);
             if (value != null)
                 return true;
 
