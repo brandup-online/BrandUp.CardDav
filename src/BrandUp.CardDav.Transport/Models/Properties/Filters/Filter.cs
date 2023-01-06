@@ -39,7 +39,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
         /// <param name="type"></param>
         /// <param name="conditions"></param>
         /// <returns></returns>
-        public FilterBody AddPropFilter(VCardProperty propName, FilterMatchType type, params TextMatch[] conditions)
+        public FilterBody AddPropFilter(CardProperty propName, FilterMatchType type, params TextMatch[] conditions)
         {
             Filters.Add(new PropFilter { PropName = propName, Type = type, Conditions = conditions });
 

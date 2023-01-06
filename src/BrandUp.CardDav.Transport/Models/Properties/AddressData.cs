@@ -11,12 +11,12 @@ namespace BrandUp.CardDav.Transport.Models.Properties
     /// </summary>
     public class AddressData : IDavProperty
     {
-        private IEnumerable<VCardProperty> vCardProperties;
+        private IEnumerable<CardProperty> vCardProperties;
 
         /// <summary>
         /// 
         /// </summary>
-        public IEnumerable<VCardProperty> VCardProperies => vCardProperties;
+        public IEnumerable<CardProperty> VCardProperies => vCardProperties;
 
         /// <summary>
         /// 
@@ -27,9 +27,9 @@ namespace BrandUp.CardDav.Transport.Models.Properties
         /// 
         /// </summary>
         /// <param name="props"></param>
-        public AddressData(params VCardProperty[] props)
+        public AddressData(params CardProperty[] props)
         {
-            vCardProperties = props?.Distinct().ToList() ?? new List<VCardProperty>();
+            vCardProperties = props?.Distinct().ToList() ?? new List<CardProperty>();
         }
 
         #region IDavProperty members
@@ -52,7 +52,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties
 
         void IXmlSerializable.ReadXml(XmlReader reader)
         {
-            var props = new List<VCardProperty>();
+            var props = new List<CardProperty>();
             var depth = reader.Depth;
             while (reader.Read())
             {
@@ -63,7 +63,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties
                 }
 
                 var value = reader.GetAttribute("name", Namespace);
-                props.Add(Enum.Parse<VCardProperty>(value, true));
+                props.Add(Enum.Parse<CardProperty>(value, true));
             }
         }
 
@@ -71,7 +71,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties
         {
             writer.WriteStartElement(Name, Namespace);
             if (vCardProperties != null)
-                foreach (VCardProperty property in vCardProperties)
+                foreach (CardProperty property in vCardProperties)
                 {
                     writer.WriteStartElement("C", "prop", Namespace);
 

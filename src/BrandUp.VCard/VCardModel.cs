@@ -1,48 +1,50 @@
-﻿namespace BrandUp.CardDav.VCard
+﻿using System.Numerics;
+
+namespace BrandUp.CardDav.VCard
 {
     public class VCardModel
     {
         private IDictionary<CardProperty, IEnumerable<VCardLine>> vCard;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public IEnumerable<VCardLine> this[CardProperty key] => vCard[key];
 
-        internal Dictionary<CardProperty, IEnumerable<VCardLine>> VCardDictionary => vCard.ToDictionary(k => k.Key, v => v.Value);
-
-        public string FormattedName { get; internal set; }
-        public VCardVersion? Version { get; internal set; }
-        public string UId { get; internal set; }
-        public VCardName Name { get; internal set; }
-        public IList<VCardPhone> Phones { get; internal set; }
-        public IList<VCardEmail> Emails { get; internal set; }
-        public IDictionary<string, string> AdditionalFields { get; internal set; }
-
-        public VCardModel()
-        {
-            Phones = new List<VCardPhone>();
-            Emails = new List<VCardEmail>();
-            AdditionalFields = new Dictionary<string, string>();
-        }
+        public string FormattedName { get; private set; }
+        public VCardVersion? Version { get; private set; }
+        public string UId { get; private set; }
+        public VCardName Name { get; private set; }
+        public IList<VCardPhone> Phones { get; private set; }
+        public IList<VCardEmail> Emails { get; private set; }
 
         internal VCardModel(IDictionary<CardProperty, IEnumerable<VCardLine>> vCard)
         {
             this.vCard = vCard ?? throw new ArgumentNullException(nameof(vCard));
+
+            SetProperties();
         }
 
         public override string ToString()
         {
             var result = "BEGIN:VCARD\r\n";
 
-            result += ToVCardStringVersion();
-
-            result += ToVCardStringUID();
-
-            result += ToVCardStringName();
-
-            result += ToVCardStringFormattedName();
-
-            result += ToVCardStringAdditionalFields();
-
-            result += ToVCardStringEmailes();
-
-            result += ToVCardStringPhones();
+            foreach (var property in vCard)
+            {
+                foreach (var line in property.Value)
+                {
+                    if (line.Parameters != null)
+                    {
+                        var parameters = string.Join(';', line?.Parameters.Select(p => $"{p.Key}={p.Value}"));
+                        result += $"{property.Key};{parameters}:{line.Value}";
+                    }
+                    else
+                    {
+                        result += $"{property.Key}:{line.Value}";
+                    }
+                }
+            }
 
             result += "END:VCARD\r\n";
 
@@ -62,7 +64,6 @@
             if (!Name.Equals(other.Name)) return false;
             if (!Emails.SequenceEqual(other.Emails)) return false;
             if (!Phones.SequenceEqual(other.Phones)) return false;
-            if (!AdditionalFields.SequenceEqual(other.AdditionalFields)) return false;
 
             return true;
         }
@@ -72,56 +73,44 @@
             return base.GetHashCode();
         }
 
-        public string ToStringProps(IEnumerable<VCardProperty> properties)
+        public string ToStringProps(IEnumerable<CardProperty> properties)
         {
             var result = "";
 
-            if (properties.Contains(VCardProperty.VERSION))
+            if (properties.Contains(CardProperty.VERSION))
                 result += ToVCardStringVersion();
 
-            if (properties.Contains(VCardProperty.UID))
+            if (properties.Contains(CardProperty.UID))
                 result += ToVCardStringUID();
 
-            if (properties.Contains(VCardProperty.N))
+            if (properties.Contains(CardProperty.N))
                 result += ToVCardStringName();
 
-            if (properties.Contains(VCardProperty.FN))
+            if (properties.Contains(CardProperty.FN))
                 result += ToVCardStringFormattedName();
 
-            if (properties.Contains(VCardProperty.EMAIL))
+            if (properties.Contains(CardProperty.EMAIL))
                 result += ToVCardStringEmailes();
 
-            if (properties.Contains(VCardProperty.TEL))
+            if (properties.Contains(CardProperty.TEL))
                 result += ToVCardStringPhones();
 
             return result;
         }
 
-        public string ToStringProps(params VCardProperty[] property)
+        /// <summary>
+        /// Converts to stringprops.
+        /// </summary>
+        /// <param name="property">The property.</param>
+        /// <returns></returns>
+        public string ToStringProps(params CardProperty[] property)
             => ToStringProps(property.ToArray());
 
-        public string[] GetValuesOf(VCardProperty property)
-        {
-            switch (property)
-            {
-                case VCardProperty.VERSION: return new string[1] { Version.Value.ToString() };
-                case VCardProperty.FN: return new string[1] { FormattedName };
-                case VCardProperty.N:
-                    return new string[1] { string.Join(";", string.Join(",", Name.FamilyNames),
-                                    string.Join(",", Name.GivenNames),
-                                    string.Join(",", Name.AdditionalNames),
-                                    string.Join(",", Name.HonorificPrefixes),
-                                    string.Join(",", Name.HonorificSuffixes)) };
-
-                case VCardProperty.TEL: return Phones.Select(p => p.Phone).ToArray();
-                case VCardProperty.EMAIL: return Emails.Select(p => p.Email).ToArray();
-                case VCardProperty.UID: return new string[1] { UId };
-                default:
-                    if (AdditionalFields.TryGetValue(property.ToString(), out var field))
-                        return new string[1] { field };
-                    return null;
-            }
-        }
+        /// <summary>Converts to dictionary.</summary>
+        /// <returns>
+        ///   <br />
+        /// </returns>
+        public Dictionary<CardProperty, IEnumerable<VCardLine>> ToDictionary() => (Dictionary<CardProperty, IEnumerable<VCardLine>>)vCard;
 
         #region Helpers 
 
@@ -155,10 +144,10 @@
         string ToVCardStringAdditionalFields()
         {
             string result = "";
-            foreach (var item in AdditionalFields)
-            {
-                result += item.Key + ":" + item.Value + "\r\n";
-            }
+            //foreach (var item in AdditionalFields)
+            //{
+            //    result += item.Key + ":" + item.Value + "\r\n";
+            //}
             return result;
         }
 
@@ -171,9 +160,6 @@
 
                 if (item.Kind != null)
                     emailStr += $";TYPE={item.Kind}";
-
-                if (item.Types.Any())
-                    emailStr += ";" + string.Join(";", item.Types.Select(t => $"TYPE={t}").ToList());
 
                 emailStr += $":{item.Email}\r\n";
 
@@ -203,14 +189,181 @@
             return result;
         }
 
+        void SetProperties()
+        {
+            if (vCard.TryGetValue(CardProperty.FN, out var vCardLines))
+                SetFormattedName(vCardLines.First());
+            if (vCard.TryGetValue(CardProperty.N, out vCardLines))
+                SetName(vCardLines.First());
+            if (vCard.TryGetValue(CardProperty.TEL, out vCardLines))
+                SetPhones(vCardLines);
+            if (vCard.TryGetValue(CardProperty.EMAIL, out vCardLines))
+                SetEmails(vCardLines);
+            if (vCard.TryGetValue(CardProperty.UID, out vCardLines))
+                SetUid(vCardLines.First());
+            if (vCard.TryGetValue(CardProperty.VERSION, out vCardLines))
+                SetVersion(vCardLines.First());
+        }
+
         #endregion
 
+        #region Propertiy initializers
+
+        private void SetFormattedName(VCardLine line)
+        {
+            if (FormattedName != null)
+                throw new NotSupportedException("Cannot work with vcard that have two FN property");
+
+            if (line == null)
+                throw new ArgumentNullException(nameof(line));
+
+            var name = line.Value;
+            FormattedName = name.Trim();
+        }
+
+        private void SetName(VCardLine line)
+        {
+            if (Name != null)
+                throw new NotSupportedException("Cannot work with vcard that have two N property");
+
+            if (line == null)
+                throw new ArgumentNullException(nameof(line));
+
+            var name = line.Value.Split(';');
+            VCardName vCardName = new();
+
+            if (name[0] != "")
+                vCardName.FamilyNames = name[0].Split(',');
+            else vCardName.FamilyNames = new List<string>();
+
+            if (name[1] != "")
+                vCardName.GivenNames = name[1].Split(',');
+            else vCardName.GivenNames = new List<string>();
+
+            if (name[2] != "")
+                vCardName.AdditionalNames = name[2].Split(',');
+            else vCardName.AdditionalNames = new List<string>();
+
+            if (name[3] != "")
+                vCardName.HonorificPrefixes = name[3].Split(',');
+            else vCardName.HonorificPrefixes = new List<string>();
+
+            if (name[4] != "")
+                vCardName.HonorificSuffixes = name[4].Split(',');
+            else vCardName.HonorificSuffixes = new List<string>();
+
+            Name = vCardName;
+
+        }
+
+        private void SetPhones(IEnumerable<VCardLine> lines)
+        {
+            Phones = new List<VCardPhone>();
+
+            foreach (VCardLine line in lines)
+            {
+                var phone = new VCardPhone();
+                var types = new List<TelType>();
+
+                phone.Phone = line.Value;
+                foreach (var prop in line?.Parameters)
+                {
+                    if (prop.Key == CardParameter.TYPE)
+                    {
+                        foreach (var type in prop.Value)
+                        {
+                            if (string.Equals(type, "work", StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                phone.Kind = Kind.Work;
+                            }
+                            else if (string.Equals(type, "home", StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                phone.Kind = Kind.Home;
+                            }
+                            else
+                            {
+                                if (Enum.TryParse<TelType>(type, true, out var telType))
+                                    types.Add(telType);
+                            }
+                        }
+                    }
+                }
+
+                phone.Types = types.ToArray();
+                Phones.Add(phone);
+            }
+        }
+
+        private void SetEmails(IEnumerable<VCardLine> lines)
+        {
+            Emails = new List<VCardEmail>();
+
+            foreach (VCardLine line in lines)
+            {
+                var email = new VCardEmail();
+                var types = new List<EmailType>();
+
+                email.Email = line.Value;
+                foreach (var prop in line.Parameters)
+                {
+                    if (prop.Key == CardParameter.TYPE)
+                    {
+                        foreach (var type in prop.Value)
+                        {
+                            if (string.Equals(type, "work", StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                email.Kind = Kind.Work;
+                            }
+                            else if (string.Equals(type, "home", StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                email.Kind = Kind.Home;
+                            }
+                            else
+                            {
+                                if (Enum.TryParse<EmailType>(type, true, out var telType))
+                                    types.Add(telType);
+                            }
+                        }
+                    }
+                }
+
+                email.Types = types.ToArray();
+                Emails.Add(email);
+            }
+        }
+
+        private void SetUid(VCardLine line)
+        {
+            if (UId != null)
+                throw new NotSupportedException("cannot work with vcard that have two UID property");
+
+            var uid = line.Value;
+            UId = uid.Trim();
+        }
+
+        private void SetVersion(VCardLine line)
+        {
+            if (Version != null)
+                throw new NotSupportedException("cannot work with vcard that have two UID property");
+
+            var version = line.Value.Trim();
+            Version = version switch
+            {
+                "1.0" => VCardVersion.VCard1,
+                "2.0" => VCardVersion.VCard2,
+                "3.0" => VCardVersion.VCard3,
+                "4.0" => VCardVersion.VCard4,
+                _ => throw new ArgumentException()
+            };
+        }
+
+        #endregion
     }
 
     public class VCardLine
     {
         public string Value { get; set; }
-        public IDictionary<Parameter, IEnumerable<string>> Parameters { get; set; }
+        public IDictionary<CardParameter, IEnumerable<string>> Parameters { get; set; }
     }
 
     public class VCardName
@@ -254,7 +407,7 @@
     {
         public string Phone { get; set; }
         public Kind? Kind { get; set; }
-        public string[] Types { get; set; }
+        public TelType[] Types { get; set; }
 
         public override int GetHashCode()
              => $"{Phone} {Kind} {string.Join(',', Types)}".GetHashCode();
@@ -267,27 +420,12 @@
     {
         public string Email { get; set; }
         public Kind? Kind { get; set; }
-        public string[] Types { get; set; }
+        public EmailType[] Types { get; set; }
 
         public override int GetHashCode()
-             => $"{Email} {Kind} {string.Join(',', Types)}".GetHashCode();
+             => $"{Email} {Kind} ".GetHashCode();
 
         public override bool Equals(object obj)
             => GetHashCode() == obj.GetHashCode();
     }
-
-    public enum Kind
-    {
-        Work,
-        Home
-    }
-
-    public enum VCardVersion
-    {
-        VCard1,
-        VCard2,
-        VCard3,
-        VCard4,
-    }
-
 }

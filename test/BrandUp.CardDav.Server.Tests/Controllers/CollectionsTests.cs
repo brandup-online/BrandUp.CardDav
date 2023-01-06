@@ -77,7 +77,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
 
             };
 
-            var addressData = new AddressData(VCardProperty.EMAIL, VCardProperty.VERSION, VCardProperty.TEL);
+            var addressData = new AddressData(CardProperty.EMAIL, CardProperty.VERSION, CardProperty.TEL);
             var request = ReportRequest.CreateQuery(PropList.Create(Prop.ETag, Prop.CTag), addressData, filter);
 
             var report = await Client.ReportAsync("Principal/User/Collections/Default", request, CancellationToken.None);
@@ -103,7 +103,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
             Output.WriteLine(propfind.StatusCode.ToString());
             Assert.True(propfind.IsSuccess);
 
-            addressData = new AddressData(VCardProperty.EMAIL, VCardProperty.TEL, VCardProperty.ORG, VCardProperty.VERSION);
+            addressData = new AddressData(CardProperty.EMAIL, CardProperty.TEL, CardProperty.ORG, CardProperty.VERSION);
             request = ReportRequest.CreateMultiget(PropList.Create(Prop.ETag), addressData, propfind.Body.Resources[1].Endpoint, propfind.Body.Resources[2].Endpoint);
 
             report = await Client.ReportAsync("Principal/User/Collections/Default", request, CancellationToken.None);
@@ -128,10 +128,10 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
             {
                 MatchType = FilterMatchType.All
             };
-            filter.AddPropFilter(VCardProperty.EMAIL, FilterMatchType.Any, TextMatch.Create("hn", TextMatchType.Contains));
+            filter.AddPropFilter(CardProperty.EMAIL, FilterMatchType.Any, TextMatch.Create("hn", TextMatchType.Contains));
             filter.AddPropFilter
                 (
-                    VCardProperty.ORG,
+                    CardProperty.ORG,
                     FilterMatchType.All,
                     TextMatch.Create("Example", TextMatchType.Contains),
                     TextMatch.Create("com", TextMatchType.Contains, true)

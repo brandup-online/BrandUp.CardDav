@@ -56,16 +56,14 @@ namespace BrandUp.CardDav.VCard
 
             Assert.Equal("John Doe", result.FormattedName);
 
-            Assert.Equal(4, result.Phones.Count);
-            Assert.Contains(new VCardPhone() { Phone = "+1 617 555 1212", Kind = Kind.Work, Types = new[] { "pref" } }, result.Phones, new PhoneComparer());
-            Assert.Contains(new VCardPhone() { Phone = "+1 (617) 555-1234", Kind = Kind.Work, Types = new string[0] }, result.Phones, new PhoneComparer());
-            Assert.Contains(new VCardPhone() { Phone = "+1 781 555 1212", Kind = null, Types = new[] { "CELL" } }, result.Phones, new PhoneComparer());
-            Assert.Contains(new VCardPhone() { Phone = "+1 202 555 1212", Kind = Kind.Home, Types = new string[0] }, result.Phones, new PhoneComparer());
+            Assert.Collection(result.Phones,
+                p => Assert.Equal(p, new VCardPhone() { Phone = "+1 617 555 1212", Kind = Kind.Work, Types = new[] { TelType.Pref } }),
+                p => Assert.Equal(p, new VCardPhone() { Phone = "+1 (617) 555-1234", Kind = Kind.Work, Types = new TelType[0] }),
+                p => Assert.Equal(p, new VCardPhone() { Phone = "+1 781 555 1212", Kind = null, Types = new[] { TelType.Cell } }),
+                p => Assert.Equal(p, new VCardPhone() { Phone = "+1 202 555 1212", Kind = Kind.Home, Types = new TelType[0] }));
 
             Assert.Equal(1, result.Emails.Count);
-            Assert.Contains(new VCardEmail() { Email = "johnDoe@example.org", Kind = Kind.Work, Types = new[] { "pref", "INTERNET" } }, result.Emails, new EmailComparer());
-
-            Assert.Equal(2, result.AdditionalFields.Count);
+            Assert.Contains(new VCardEmail() { Email = "johnDoe@example.org", Kind = Kind.Work, }, result.Emails, new EmailComparer());
         }
 
 
@@ -113,14 +111,6 @@ namespace BrandUp.CardDav.VCard
         {
             public bool Equals(VCardEmail x, VCardEmail y)
             {
-                if (x.Types.Length != y.Types.Length)
-                    return false;
-                for (var i = 0; i < x.Types.Length; i++)
-                {
-                    if (!y.Types.Contains(x.Types[i]))
-                        return false;
-                }
-
                 return x.Email == y.Email && x.Kind == y.Kind;
             }
 

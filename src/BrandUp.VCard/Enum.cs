@@ -1,7 +1,13 @@
 ﻿namespace BrandUp.CardDav.VCard
 {
-    public enum Parameter
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum CardParameter
     {
+        /// <summary>
+        /// 
+        /// </summary>
         LANGUAGE,
         VALUE,
         PREF,
@@ -53,5 +59,62 @@
         FBURL,
         CALADRURI,
         CALURI
+    }
+
+    public enum Kind
+    {
+        Work,
+        Home
+    }
+
+    public enum TelType
+    {
+        Text,
+        Voice,
+        Fax,
+        Cell,
+        Video,
+        Pager,
+        Textphone,
+        MainNumber,
+        Pref
+    }
+
+    public enum EmailType
+    {
+        Internet,
+        Pref,
+        X400
+    }
+
+    public enum VCardVersion
+    {
+        VCard1,
+        VCard2,
+        VCard3,
+        VCard4,
+    }
+    public enum RelationType
+    {
+        Contact,
+        Acquaintance,
+        Friend,
+        Met,
+        CoWorker,
+        Colleague,
+        CoResiden,
+        Neighbor,
+        Child,
+        Parent,
+        Sibling,
+        Spouse,
+        Kin,
+        Muse,
+        Crush,
+        Date,
+        Sweetheart,
+        Me,
+        Agent,
+        Emergency,
     }
 }

@@ -11,7 +11,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
         /// <summary>
         /// 
         /// </summary>
-        public VCardProperty PropName { get; }
+        public CardProperty PropName { get; }
 
         /// <summary>
         /// 

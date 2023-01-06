@@ -16,7 +16,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 
         #region IFilter members
 
-        public VCardProperty PropName { get; internal set; }
+        public CardProperty PropName { get; internal set; }
         public FilterMatchType Type { get; internal set; }
 
         public IEnumerable<TextMatch> Conditions { get; internal set; }
@@ -27,10 +27,10 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 
             foreach (var condition in Conditions)
             {
-                var values = vCardModel.GetValuesOf(PropName);
+                var values = vCardModel[PropName];
                 foreach (var value in values)
                 {
-                    flag = condition.Check(value);
+                    flag = condition.Check(value.Value);
                     if (Type == FilterMatchType.All && flag == false)
                         return false;
                 }
@@ -48,7 +48,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
         public void ReadXml(XmlReader reader)
         {
             if (reader.TryGetAttribute("name", Namespace, out var value))
-                PropName = Enum.Parse<VCardProperty>(value);
+                PropName = Enum.Parse<CardProperty>(value);
 
             if (reader.TryGetAttribute("test", Namespace, out value))
             {
