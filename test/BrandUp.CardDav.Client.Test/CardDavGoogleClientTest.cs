@@ -3,7 +3,6 @@ using BrandUp.CardDav.Transport.Models.Properties;
 using BrandUp.CardDav.Transport.Models.Properties.Filters;
 using BrandUp.CardDav.Transport.Models.Requests;
 using BrandUp.CardDav.VCard;
-using BrandUp.CardDav.VCard.Builders;
 using Microsoft.Extensions.Configuration;
 using Xunit.Abstractions;
 
@@ -107,7 +106,9 @@ namespace BrandUp.CardDav.Client.Test
 
             #region Create
 
-            var vCard = VCardBuilder.Create(testPerson).SetUId("2312133421324668575897435").Build();
+            var vCard = new VCardModel(testPerson);
+            vCard.AddPropperty(CardProperty.UID, "2312133421324668575897435");
+
             var name = RandomName;
             var createResponse = await client.AddContactAsync($"carddav/v1/principals/{gmail}/lists/default/{name}", vCard, CancellationToken.None);
 
@@ -129,7 +130,7 @@ namespace BrandUp.CardDav.Client.Test
 
             #region Update
 
-            var updateVCard = VCardBuilder.Create("BEGIN:VCARD\r\nVERSION:3.0\r\nUID:2312133421324668575897435\r\nN:Doe;John;;;\r\nFN:John Doe\r\nEMAIL:test@test.org\r\nTEL;type=WORK;type=pref:+1 617 555 1212\r\nEND:VCARD\r\n").Build();
+            var updateVCard = new VCardModel("BEGIN:VCARD\r\nVERSION:3.0\r\nUID:2312133421324668575897435\r\nN:Doe;John;;;\r\nFN:John Doe\r\nEMAIL:test@test.org\r\nTEL;type=WORK;type=pref:+1 617 555 1212\r\nEND:VCARD\r\n");
             var endpoint = propfindResponse.Body.Resources.First().Endpoint;
             var etag = propfindResponse.Body.Resources.First().FoundProperties[Prop.ETag];
             var updateResponse = await client.UpdateContactAsync(endpoint, updateVCard, etag, CancellationToken.None);

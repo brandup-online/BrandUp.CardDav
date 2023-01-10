@@ -2,7 +2,6 @@ using BrandUp.CardDav.Transport.Models.Headers;
 using BrandUp.CardDav.Transport.Models.Properties;
 using BrandUp.CardDav.Transport.Models.Requests;
 using BrandUp.CardDav.VCard;
-using BrandUp.CardDav.VCard.Builders;
 using Microsoft.Extensions.Configuration;
 using System.Diagnostics.CodeAnalysis;
 using Xunit.Abstractions;
@@ -67,7 +66,8 @@ namespace BrandUp.CardDav.Client.Test
 
             #region Create
 
-            var vCard = VCardBuilder.Create(testPerson).SetUId("2312133421324668575897435").Build();
+            var vCard = new VCardModel(testPerson);
+            vCard.AddPropperty(CardProperty.UID, "2312133421324668575897435");
 
             var createResponse = await client.AddContactAsync($"/addressbook/{userName}/addressbook/new", vCard, CancellationToken.None);
 

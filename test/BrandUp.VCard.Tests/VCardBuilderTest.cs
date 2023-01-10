@@ -1,6 +1,4 @@
-﻿using BrandUp.CardDav.VCard.Builders;
-
-namespace BrandUp.CardDav.VCard.Tests
+﻿namespace BrandUp.CardDav.VCard.Tests
 {
     public class VCardBuilderTest : IAsyncLifetime
     {
@@ -19,15 +17,16 @@ namespace BrandUp.CardDav.VCard.Tests
         [Fact]
         public void Success()
         {
-            var vCardBuilded = VCardBuilder.Create(VCardVersion.VCard3).SetName("Doe", "John")
-                .AddEmail("johnDoe@example.org", Kind.Work, "INTERNET", "pref")
-                .AddPhone("+1 617 555 1212", Kind.Work, TelType.Pref)
-                .AddPhone("+1 (617) 555-1234", Kind.Work)
-                .AddPhone("+1 781 555 1212", null, TelType.Cell)
-                .AddPhone("+1 202 555 1212", Kind.Home)
-                .Build();
+            var vCardCreated = new VCardModel(VCardVersion.VCard3);
+            vCardCreated.AddPropperty(CardProperty.N, "Doe;John");
+            vCardCreated.AddPropperty(CardProperty.FN, "John Doe");
+            vCardCreated.AddPropperty(CardProperty.EMAIL, "johnDoe@example.org", new(CardParameter.TYPE, "Work"), new(CardParameter.TYPE, "INTERNET"), new(CardParameter.TYPE, "pref"));
+            vCardCreated.AddPropperty(CardProperty.TEL, "+1 617 555 1212", new(CardParameter.TYPE, "Work"), new(CardParameter.TYPE, "pref"));
+            vCardCreated.AddPropperty(CardProperty.TEL, "+1 (617) 555-1234", new VCardParameter(CardParameter.TYPE, "Work"));
+            vCardCreated.AddPropperty(CardProperty.TEL, "+1 781 555 1212", new VCardParameter(CardParameter.TYPE, "Cell"));
+            vCardCreated.AddPropperty(CardProperty.TEL, "+1 202 555 1212", new VCardParameter(CardParameter.TYPE, "Home"));
 
-            var serialized = vCardBuilded.ToString();
+            var serialized = vCardCreated.ToString();
 
             Assert.Collection(vCard.Split("\r\n"),
                c => Assert.Equal("BEGIN:VCARD", c),

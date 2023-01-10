@@ -9,61 +9,210 @@
         /// 
         /// </summary>
         LANGUAGE,
+        /// <summary>
+        /// 
+        /// </summary>
         VALUE,
+        /// <summary>
+        /// 
+        /// </summary>
         PREF,
+        /// <summary>
+        /// 
+        /// </summary>
         ALTID,
+        /// <summary>
+        /// 
+        /// </summary>
         PID,
+        /// <summary>
+        /// 
+        /// </summary>
         TYPE,
+        /// <summary>
+        /// 
+        /// </summary>
         MEDIATYPE,
+        /// <summary>
+        /// 
+        /// </summary>
         CALSCALE,
+        /// <summary>
+        /// 
+        /// </summary>
         SORTAS,
+        /// <summary>
+        /// 
+        /// </summary>
         GEO,
+        /// <summary>
+        /// 
+        /// </summary>
         TZ
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public enum CardProperty
-    {
+    {    /// <summary>
+         /// 
+         /// </summary>
         SOURCE,
+        /// <summary>
+        /// 
+        /// </summary>
         KIND,
+        /// <summary>
+        /// 
+        /// </summary>
         XML,
+        /// <summary>
+        /// 
+        /// </summary>
         FN,
+        /// <summary>
+        /// 
+        /// </summary>
         N,
+        /// <summary>
+        /// 
+        /// </summary>
         NICKNAME,
+        /// <summary>
+        /// 
+        /// </summary>
         PHOTO,
+        /// <summary>
+        /// 
+        /// </summary>
         BDAY,
+        /// <summary>
+        /// 
+        /// </summary>
         ANNIVERSARY,
+        /// <summary>
+        /// 
+        /// </summary>
         GENDER,
+        /// <summary>
+        /// 
+        /// </summary>
         ADR,
+        /// <summary>
+        /// 
+        /// </summary>
         TEL,
+        /// <summary>
+        /// 
+        /// </summary>
         EMAIL,
+        /// <summary>
+        /// 
+        /// </summary>
         IMPP,
+        /// <summary>
+        /// 
+        /// </summary>
         LANG,
+        /// <summary>
+        /// 
+        /// </summary>
         TZ,
+        /// <summary>
+        /// 
+        /// </summary>
         GEO,
+        /// <summary>
+        /// 
+        /// </summary>
         TITLE,
+        /// <summary>
+        /// 
+        /// </summary>
         ROLE,
+        /// <summary>
+        /// 
+        /// </summary>
         LOGO,
+        /// <summary>
+        /// 
+        /// </summary>
         ORG,
+        /// <summary>
+        /// 
+        /// </summary>
         MEMBER,
+        /// <summary>
+        /// 
+        /// </summary>
         RELATED,
+        /// <summary>
+        /// 
+        /// </summary>
         CATEGORIES,
+        /// <summary>
+        /// 
+        /// </summary>
         NOTE,
+        /// <summary>
+        /// 
+        /// </summary>
         PRODID,
+        /// <summary>
+        /// 
+        /// </summary>
         REV,
+        /// <summary>
+        /// 
+        /// </summary>
         SOUND,
+        /// <summary>
+        /// 
+        /// </summary>
         UID,
+        /// <summary>
+        /// 
+        /// </summary>
         CLIENTPIDMAP,
+        /// <summary>
+        /// 
+        /// </summary>
         URL,
+        /// <summary>
+        /// 
+        /// </summary>
         VERSION,
+        /// <summary>
+        /// 
+        /// </summary>
         KEY,
+        /// <summary>
+        /// 
+        /// </summary>
         FBURL,
+        /// <summary>
+        /// 
+        /// </summary>
         CALADRURI,
+        /// <summary>
+        /// 
+        /// </summary>
         CALURI
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public enum Kind
     {
+        /// <summary>
+        /// 
+        /// </summary>
         Work,
+        /// <summary>
+        /// 
+        /// </summary>
         Home
     }
 

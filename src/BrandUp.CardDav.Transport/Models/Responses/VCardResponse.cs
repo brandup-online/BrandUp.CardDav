@@ -39,7 +39,7 @@ namespace BrandUp.CardDav.Transport.Models.Responses
         /// <returns></returns>
         public static IResponse Create(HttpResponseMessage message)
         {
-            var vCard = VCardParser.Parse(message.Content.ReadAsStream());
+            var vCard = new VCardModel(message.Content.ReadAsStream());
 
             return new VCardResponse
             {

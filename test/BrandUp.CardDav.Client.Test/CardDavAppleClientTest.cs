@@ -3,7 +3,6 @@ using BrandUp.CardDav.Transport.Models.Properties;
 using BrandUp.CardDav.Transport.Models.Properties.Filters;
 using BrandUp.CardDav.Transport.Models.Requests;
 using BrandUp.CardDav.VCard;
-using BrandUp.CardDav.VCard.Builders;
 using Microsoft.Extensions.Configuration;
 using Xunit.Abstractions;
 using static BrandUp.CardDav.Client.Test.CardDavYandexClientTest;
@@ -163,10 +162,13 @@ namespace BrandUp.CardDav.Client.Test
 
             var newUserEndpoint = propfindResponse.Body.Resources[1].Endpoint + "new.vcf";
 
-            var vCard = VCardBuilder.Create(testPerson).AddEmail("milo@milo.com", Kind.Home).SetUId("2312133421324668575897435").Build();
+            var vCard = new VCardModel(testPerson);
+            vCard.AddPropperty(CardProperty.EMAIL, "milo@milo.com", new VCardParameter(CardParameter.TYPE, "Home"));
+            vCard.AddPropperty(CardProperty.UID, "2312133421324668575897435");
 
             var response1 = await client.AddContactAsync(newUserEndpoint, vCard, CancellationToken.None);
 
+            output.WriteLine(response1.StatusCode.ToString());
             Assert.True(response1.IsSuccess);
 
             #endregion
@@ -196,7 +198,7 @@ namespace BrandUp.CardDav.Client.Test
 
             #region Update 
 
-            var updateVCard = VCardBuilder.Create("BEGIN:VCARD\r\nVERSION:3.0\r\nUID:2312133421324668575897435\r\nN:Doe;John;;;\r\nFN:John Doe\r\nEMAIL;type=INTERNET;type=WORK;type=pref:test@test.org\r\nTEL;type=WORK;type=pref:+1 617 555 1212\r\nEND:VCARD\r\n").Build();
+            var updateVCard = new VCardModel("BEGIN:VCARD\r\nVERSION:3.0\r\nUID:2312133421324668575897435\r\nN:Doe;John;;;\r\nFN:John Doe\r\nEMAIL;type=INTERNET;type=WORK;type=pref:test@test.org\r\nTEL;type=WORK;type=pref:+1 617 555 1212\r\nEND:VCARD\r\n");
 
             var etag = propfindResponse.Body.Resources.First().FoundProperties[Prop.ETag];
             var updateResponse = await client.UpdateContactAsync(newUserEndpoint, updateVCard, etag, CancellationToken.None); //просто заменяет контакт

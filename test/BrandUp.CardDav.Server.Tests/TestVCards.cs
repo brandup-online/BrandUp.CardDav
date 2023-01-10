@@ -17,7 +17,7 @@ namespace BrandUp.CardDav.Server.Tests
                                             "TEL;type=HOME:+1 202 555 1212\r\n" +
                                             "END:VCARD\r\n";
 
-        public static VCardModel VCard1 => VCardParser.Parse(VCard1String);
+        public static VCardModel VCard1 => new VCardModel(VCard1String);
 
         public static string VCard2String => "BEGIN:VCARD\r\n" +
                                             "VERSION:3.0\r\n" +
@@ -32,7 +32,7 @@ namespace BrandUp.CardDav.Server.Tests
                                             "TEL;type=HOME:+1 202 555 1211\r\n" +
                                             "END:VCARD\r\n";
 
-        public static VCardModel VCard2 => VCardParser.Parse(VCard2String);
+        public static VCardModel VCard2 => new VCardModel(VCard2String);
 
         public static string VCard3String => "BEGIN:VCARD\r\n" +
                                             "VERSION:3.0\r\n" +
@@ -47,6 +47,6 @@ namespace BrandUp.CardDav.Server.Tests
                                             "TEL;type=HOME:+1 202 113 2112\r\n" +
                                             "END:VCARD\r\n";
 
-        public static VCardModel VCard3 => VCardParser.Parse(VCard3String);
+        public static VCardModel VCard3 => new VCardModel(VCard3String);
     }
 }

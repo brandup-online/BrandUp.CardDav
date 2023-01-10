@@ -51,7 +51,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
         {
             if (typeof(T).IsAssignableTo(typeof(IContactDocument)))
             {
-                var contacts = collection.Cast<IContactDocument>().Where(c => Filter.ApplyFilter(VCardParser.Parse(c.RawVCard))).ToArray();
+                var contacts = collection.Cast<IContactDocument>().Where(c => Filter.ApplyFilter(new VCardModel(c.RawVCard))).ToArray();
 
                 if (Limit > 0)
                     return contacts.Cast<T>().Take(Limit);

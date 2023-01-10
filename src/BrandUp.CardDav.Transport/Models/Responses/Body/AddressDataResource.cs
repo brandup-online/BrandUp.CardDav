@@ -16,7 +16,7 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
             get
             {
                 if (FoundProperties.TryGetValue(new DefaultProp("address-data", "urn:ietf:params:xml:ns:carddav"), out var val))
-                    return VCardParser.Parse(val);
+                    return new VCardModel(val);
                 return null;
             }
         }

@@ -70,8 +70,9 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
                     }
                 if (reader.NodeType == XmlNodeType.EndElement && reader.LocalName == "prop-filter")
                     break;
-
             }
+
+            Conditions = conditions;
         }
 
         public void WriteXml(XmlWriter writer)

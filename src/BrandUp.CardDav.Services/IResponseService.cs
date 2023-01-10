@@ -211,7 +211,7 @@ namespace BrandUp.CardDav.Services
 
                     if (address.VCardProperies.Any())
                     {
-                        var vCard = VCardParser.Parse(value);
+                        var vCard = new VCardModel(value);
                         value = vCard.ToStringProps(address.VCardProperies);
                     }
                 }

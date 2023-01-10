@@ -18,12 +18,11 @@ namespace BrandUp.CardDav.VCard
             "END:VCARD\r\n";
 
         [Fact]
-        public async Task Success_String()
+        public void Success_String()
         {
-            var result = await VCardParser.ParseAsync(vCard, CancellationToken.None);
+            var result = new VCardModel(vCard);
 
             Check(result);
-
         }
 
         [Fact]
@@ -39,7 +38,7 @@ namespace BrandUp.CardDav.VCard
 
             #endregion
 
-            var result = await VCardParser.ParseAsync(stream, CancellationToken.None);
+            var result = new VCardModel(stream);
 
             Check(result);
         }
@@ -57,13 +56,13 @@ namespace BrandUp.CardDav.VCard
             Assert.Equal("John Doe", result.FormattedName);
 
             Assert.Collection(result.Phones,
-                p => Assert.Equal(p, new VCardPhone() { Phone = "+1 617 555 1212", Kind = Kind.Work, Types = new[] { TelType.Pref } }),
-                p => Assert.Equal(p, new VCardPhone() { Phone = "+1 (617) 555-1234", Kind = Kind.Work, Types = new TelType[0] }),
-                p => Assert.Equal(p, new VCardPhone() { Phone = "+1 781 555 1212", Kind = null, Types = new[] { TelType.Cell } }),
-                p => Assert.Equal(p, new VCardPhone() { Phone = "+1 202 555 1212", Kind = Kind.Home, Types = new TelType[0] }));
+                p => Assert.Equal(p, new VCardPhone() { Phone = "+1 617 555 1212", Kind = Kind.Work, Types = new[] { TelType.Pref } }, new PhoneComparer()),
+                p => Assert.Equal(p, new VCardPhone() { Phone = "+1 (617) 555-1234", Kind = Kind.Work, Types = new TelType[0] }, new PhoneComparer()),
+                p => Assert.Equal(p, new VCardPhone() { Phone = "+1 781 555 1212", Kind = null, Types = new[] { TelType.Cell } }, new PhoneComparer()),
+                p => Assert.Equal(p, new VCardPhone() { Phone = "+1 202 555 1212", Kind = Kind.Home, Types = new TelType[0] }, new PhoneComparer()));
 
-            Assert.Equal(1, result.Emails.Count);
-            Assert.Contains(new VCardEmail() { Email = "johnDoe@example.org", Kind = Kind.Work, }, result.Emails, new EmailComparer());
+            Assert.Single(result.Emails);
+            Assert.Collection(result.Emails, p => Assert.Equal(p, new VCardEmail() { Email = "johnDoe@example.org", Kind = Kind.Work }, new EmailComparer()));
         }
 
 

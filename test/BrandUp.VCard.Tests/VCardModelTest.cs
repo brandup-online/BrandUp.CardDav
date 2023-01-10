@@ -19,7 +19,7 @@
         [Fact]
         public async Task Success()
         {
-            var result = await VCardParser.ParseAsync(vCard, CancellationToken.None);
+            var result = new VCardModel(vCard);
 
             Assert.NotNull(result);
 
