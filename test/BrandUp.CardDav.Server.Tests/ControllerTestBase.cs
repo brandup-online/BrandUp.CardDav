@@ -23,8 +23,8 @@ namespace BrandUp.CardDav.Server.Controllers.Tests
             Client = new CardDavClient(client, NullLogger<CardDavClient>.Instance, new CardDavCredentialsOptions
             {
                 BaseUrl = client.BaseAddress.ToString(),
-                Login = "",
-                Password = ""
+                Login = "User",
+                Password = "Password"
             });
         }
 

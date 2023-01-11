@@ -10,10 +10,12 @@ namespace BrandUp.CardDav.Server.Example.Domain.Documents
     {
         [BsonId]
         public Guid Id { get; set; }
+
+        public string Password { get; set; }
         public string Name { get; set; }
         public string CTag { get; set; }
 
-        public void SetDorCreatiion(string name)
+        public void SetForCreatiion(string name)
         {
             Id = Guid.NewGuid();
             Name = name;

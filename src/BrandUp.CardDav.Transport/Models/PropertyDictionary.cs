@@ -79,6 +79,5 @@ namespace BrandUp.CardDav.Transport.Models
 
 
         public int GetHashCode([DisallowNull] IDavProperty obj) => $"{obj.Namespace}:{obj.Name}".GetHashCode();
-
     }
 }

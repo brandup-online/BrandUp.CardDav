@@ -19,12 +19,11 @@ namespace BrandUp.CardDav.Server.Example.Domain.Repositories
 
         public IQueryable<IUserDocument> Users => context.Users.AsQueryable();
 
-        public Task CreateAsync(string name, CancellationToken cancellationToken)
+        public Task CreateAsync(IUserDocument user, CancellationToken cancellationToken)
         {
-            UserDocument document = new();
-            document.SetDorCreatiion(name);
-
-            return context.Users.InsertOneAsync(document, new() { BypassDocumentValidation = false }, cancellationToken);
+            if (user is UserDocument document)
+                return context.Users.InsertOneAsync(document, new() { BypassDocumentValidation = false }, cancellationToken);
+            else throw new ArgumentException($"Unexpected type {user.GetType()}");
         }
 
         public async Task<bool> DeleteAsync(IUserDocument document, CancellationToken cancellationToken)

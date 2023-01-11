@@ -40,6 +40,7 @@ namespace BrandUp.CardDav.Server.Controllers.Tests._migration
             {
                 Id = userGuid,
                 Name = "User",
+                Password = "Password",
                 CTag = DateTime.UtcNow.ToString()
             },
                 new InsertOneOptions { BypassDocumentValidation = false },

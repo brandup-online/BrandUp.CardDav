@@ -15,10 +15,10 @@ namespace BrandUp.CardDav.Server.Repositories
         /// <summary>
         /// Creates a new contact.
         /// </summary>
-        /// <param name="name">User name.</param>
+        /// <param name="user">User document.</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task CreateAsync(string name, CancellationToken cancellationToken);
+        public Task CreateAsync(IUserDocument user, CancellationToken cancellationToken);
 
         /// <summary>
         /// Updates user

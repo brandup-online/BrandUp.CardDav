@@ -83,6 +83,8 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
             var report = await Client.ReportAsync("Principal/User/Collections/Default", request, CancellationToken.None);
 
             Output.WriteLine(report.StatusCode.ToString());
+
+            Assert.True(report.IsSuccess);
             Assert.Equal(3, report.Body?.Resources.Count);
 
             foreach (var resource in report.Body.Resources)
@@ -143,6 +145,8 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
             var report = await Client.ReportAsync("Principal/User/Collections/Default", request, CancellationToken.None);
 
             Output.WriteLine(report.StatusCode.ToString());
+
+            Assert.True(report.IsSuccess);
             Assert.Equal(1, report.Body?.Resources.Count);
             Assert.NotNull(report.Body.Resources.First().Endpoint);
             Assert.Equal(TestVCards.VCard2, report.Body.Resources.First().CardModel);

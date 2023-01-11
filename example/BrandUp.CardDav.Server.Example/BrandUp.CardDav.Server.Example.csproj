@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="BrandUp.Extensions.Migrations" Version="7.0.1" />
     <PackageReference Include="BrandUp.MongoDB" Version="7.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
