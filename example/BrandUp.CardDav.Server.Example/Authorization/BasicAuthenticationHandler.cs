@@ -41,7 +41,7 @@ namespace BrandUp.CardDav.Server.Example.Authorization
 
                 var claims = new[]
                 {
-                    new Claim(ClaimTypes.NameIdentifier, user.Name),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(ClaimTypes.Name, user.Name),
                 };
                 var identity = new ClaimsIdentity(claims, Scheme.Name);

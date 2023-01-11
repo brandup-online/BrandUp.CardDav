@@ -96,7 +96,7 @@ namespace BrandUp.CardDav.Server.Example._migrations
             await context.Contacts.InsertOneAsync(new()
             {
                 AddressBookId = bookGuid,
-                Name = "first",
+                Name = $"\"231312-31231232\"",
                 ETag = "cxzvm",
                 Id = Guid.NewGuid(),
                 RawVCard = VCard1String
@@ -108,7 +108,7 @@ namespace BrandUp.CardDav.Server.Example._migrations
             {
                 AddressBookId = bookGuid,
                 Name = "second",
-                ETag = "cx4vm",
+                ETag = $"\"231232-56646543\"",
                 Id = Guid.NewGuid(),
                 RawVCard = VCard2String
             },
@@ -119,7 +119,7 @@ namespace BrandUp.CardDav.Server.Example._migrations
             {
                 AddressBookId = bookGuid,
                 Name = "third",
-                ETag = "c3zvm",
+                ETag = $"\"12657-213465787\"",
                 Id = Guid.NewGuid(),
                 RawVCard = VCard3String
             },

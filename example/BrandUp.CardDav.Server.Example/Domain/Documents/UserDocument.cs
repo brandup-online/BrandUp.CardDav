@@ -19,7 +19,7 @@ namespace BrandUp.CardDav.Server.Example.Domain.Documents
         {
             Id = Guid.NewGuid();
             Name = name;
-            CTag = CTag = DateTime.UtcNow.ToString("\"yyyy-MM-dd:hh-mm-ss\""); ;
+            CTag = DateTime.UtcNow.ToString("\"yyyy-MM-dd:hh-mm-ss\"");
         }
     }
 }
