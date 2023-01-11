@@ -72,7 +72,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests
         /// <summary>
         /// 
         /// </summary>
-        public IReportBody Body { get; init; }
+        public IRequestBody Body { get; init; }
 
         #endregion
 

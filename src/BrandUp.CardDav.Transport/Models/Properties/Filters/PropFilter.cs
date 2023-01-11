@@ -5,7 +5,7 @@ using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 {
-    internal class PropFilter : IFilter
+    internal class PropFilter : IFilterProperty
     {
         #region IDavProperty members
         public string Name => "prop-filter";

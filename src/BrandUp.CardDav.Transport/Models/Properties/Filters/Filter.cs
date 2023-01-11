@@ -17,7 +17,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
         /// <summary>
         /// 
         /// </summary>
-        public IList<IFilter> Filters { get; set; }
+        public IList<IFilterProperty> Filters { get; set; }
 
         /// <summary>
         /// 
@@ -29,7 +29,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
         /// </summary>
         public FilterBody()
         {
-            Filters = new List<IFilter>();
+            Filters = new List<IFilterProperty>();
         }
 
         /// <summary>

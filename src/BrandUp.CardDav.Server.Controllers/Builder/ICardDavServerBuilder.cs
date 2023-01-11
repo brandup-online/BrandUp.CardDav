@@ -1,5 +1,4 @@
-﻿using BrandUp.CardDav.Services;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace BrandUp.CardDav.Server.Builder
 {
@@ -22,7 +21,7 @@ namespace BrandUp.CardDav.Server.Builder
 
         private void AddServices()
         {
-            Services.AddScoped<IResponseService, ResponseService>();
+
         }
 
         /// <summary>

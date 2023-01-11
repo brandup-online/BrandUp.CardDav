@@ -1,6 +1,8 @@
-﻿using BrandUp.CardDav.Server.Documents;
+﻿using BrandUp.CardDav.Server.Abstractions.Documents;
+using BrandUp.CardDav.Transport.Helpers;
 using BrandUp.CardDav.Transport.Models.Abstract;
 using BrandUp.CardDav.Transport.Models.Properties;
+using BrandUp.CardDav.Transport.Models.Responses.Body;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -11,7 +13,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
     /// <see href="https://www.rfc-editor.org/rfc/rfc6352.html#section-10.7"/>
     /// </summary>
     [XmlRoot(ElementName = "addressbook-multiget", Namespace = "urn:ietf:params:xml:ns:carddav")]
-    public class MultigetBody : IReportBody
+    public class MultigetBody : IRequestBody, IResponseCreator
     {
         /// <summary>
         /// 
@@ -37,23 +39,40 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
 
         #endregion
 
-        #region IVCardCondition members
+        #region IResponseCreator members
 
         /// <summary>
         /// 
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="collection"></param>
         /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
-        public IEnumerable<T> FillterCollection<T>(IEnumerable<T> collection)
+        public IResponseBody CreateResponse(IDictionary<string, IDavDocument> collection)
+        {
+            var response = new ReportResponseBody();
+
+            var filtered = FillterCollection(collection);
+
+            foreach (var pair in filtered)
+            {
+
+                (var found, var notFound) = ResponseResourseHelper.GeneratePropfindResource(pair.Value, Properties);
+
+                response.Resources.Add(new AddressDataResource() { Endpoint = pair.Key, FoundProperties = found, NotFoundProperties = notFound });
+            }
+
+            return response;
+        }
+
+        #endregion
+
+        #region IVCardCondition members
+
+
+        IDictionary<string, IDavDocument> FillterCollection(IDictionary<string, IDavDocument> collection)
         {
             var endpoints = VCardEndpoints.Select(e => e.Split('/').Last()).ToArray();
 
-            if (!typeof(T).IsAssignableTo(typeof(IContactDocument)))
-                throw new ArgumentException("Expected IContactDocument collection");
-
-            return collection.Cast<IContactDocument>().Where(c => endpoints.Contains(c.Name)).Cast<T>().ToArray();
+            return collection.Where(c => endpoints.Contains(c.Value.Name)).ToDictionary(k => k.Key, v => v.Value);
         }
 
         #endregion

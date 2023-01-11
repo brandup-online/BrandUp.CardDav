@@ -71,14 +71,14 @@ namespace BrandUp.CardDav.Transport.Models
         IEnumerator IEnumerable.GetEnumerator() => properties.GetEnumerator();
 
         #endregion
+    }
 
-        private class PropertyComparer : IEqualityComparer<IDavProperty>
-        {
-            public bool Equals(IDavProperty x, IDavProperty y) => x.Name == y.Name && x.Namespace == y.Namespace;
+    internal class PropertyComparer : IEqualityComparer<IDavProperty>
+    {
+        public bool Equals(IDavProperty x, IDavProperty y) => x.Name == y.Name && x.Namespace == y.Namespace;
 
 
-            public int GetHashCode([DisallowNull] IDavProperty obj) => $"{obj.Namespace}:{obj.Name}".GetHashCode();
+        public int GetHashCode([DisallowNull] IDavProperty obj) => $"{obj.Namespace}:{obj.Name}".GetHashCode();
 
-        }
     }
 }

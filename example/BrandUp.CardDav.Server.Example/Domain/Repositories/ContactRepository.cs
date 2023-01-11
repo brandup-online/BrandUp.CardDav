@@ -1,4 +1,4 @@
-﻿using BrandUp.CardDav.Server.Documents;
+﻿using BrandUp.CardDav.Server.Abstractions.Documents;
 using BrandUp.CardDav.Server.Example.Domain.Context;
 using BrandUp.CardDav.Server.Example.Domain.Documents;
 using BrandUp.CardDav.Server.Repositories;

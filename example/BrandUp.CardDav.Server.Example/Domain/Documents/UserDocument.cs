@@ -1,5 +1,5 @@
 ﻿using BrandUp.CardDav.Server.Abstractions.Additional;
-using BrandUp.CardDav.Server.Documents;
+using BrandUp.CardDav.Server.Abstractions.Documents;
 using BrandUp.MongoDB;
 using MongoDB.Bson.Serialization.Attributes;
 

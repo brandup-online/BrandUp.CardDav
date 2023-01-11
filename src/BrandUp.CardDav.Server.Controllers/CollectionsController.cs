@@ -1,5 +1,6 @@
-﻿using BrandUp.CardDav.Server.Attributes;
-using BrandUp.CardDav.Services;
+﻿using BrandUp.CardDav.Server.Abstractions.Documents;
+using BrandUp.CardDav.Server.Attributes;
+using BrandUp.CardDav.Server.Repositories;
 using BrandUp.CardDav.Services.Exceptions;
 using BrandUp.CardDav.Transport.Binding;
 using BrandUp.CardDav.Transport.Models.Headers;
@@ -16,18 +17,23 @@ namespace BrandUp.CardDav.Server.Controllers
     [Route("Principal/{Name}/{controller}")]
     public class CollectionsController : ControllerBase
     {
-        readonly IResponseService responseService;
+        readonly IUserRepository userRepository;
+        readonly IAddressBookRepository addressBookRepository;
+        readonly IContactRepository contactRepository;
 
         /// <summary>
-        /// Constructor
+        /// 
         /// </summary>
-        /// <param name="responseService"></param>
+        /// <param name="userRepository"></param>
+        /// <param name="addressBookRepository"></param>
+        /// <param name="contactRepository"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public CollectionsController(IResponseService responseService)
+        public CollectionsController(IUserRepository userRepository, IAddressBookRepository addressBookRepository, IContactRepository contactRepository)
         {
-            this.responseService = responseService ?? throw new ArgumentNullException(nameof(responseService));
+            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            this.addressBookRepository = addressBookRepository ?? throw new ArgumentNullException(nameof(addressBookRepository));
+            this.contactRepository = contactRepository ?? throw new ArgumentNullException(nameof(contactRepository));
         }
-
         #region Propfind controllers
 
         /// <summary>
@@ -48,7 +54,17 @@ namespace BrandUp.CardDav.Server.Controllers
 
             try
             {
-                var response = await responseService.ProcessPropfindAsync(request, depth, HttpContext.RequestAborted);
+                var dictionary = new Dictionary<string, IDavDocument> { { request.Endpoint, request.Document } };
+                if (depth == Depth.One.Value)
+                {
+                    var documents = await addressBookRepository.FindCollectionsByUserIdAsync(request.Document.Id, HttpContext.RequestAborted);
+                    foreach (var document in documents)
+                    {
+                        dictionary.Add(string.Join('/', request.Endpoint, document.Name), document);
+                    }
+                }
+
+                var response = request.Body.CreateResponse(dictionary);
 
                 var serializer = new XmlSerializer(typeof(PropfindResponseBody));
 
@@ -85,7 +101,17 @@ namespace BrandUp.CardDav.Server.Controllers
 
             try
             {
-                var response = await responseService.ProcessPropfindAsync(request, depth, HttpContext.RequestAborted);
+                var dictionary = new Dictionary<string, IDavDocument> { { request.Endpoint, request.Document } };
+                if (depth == Depth.One.Value)
+                {
+                    var documents = await contactRepository.FindAllContactsByBookIdAsync(request.Document.Id, HttpContext.RequestAborted);
+                    foreach (var document in documents)
+                    {
+                        dictionary.Add(string.Join('/', request.Endpoint, document.Name), document);
+                    }
+                }
+
+                var response = request.Body.CreateResponse(dictionary);
 
                 var serializer = new XmlSerializer(typeof(PropfindResponseBody));
 
@@ -122,7 +148,15 @@ namespace BrandUp.CardDav.Server.Controllers
 
             try
             {
-                var response = await responseService.ProcessReportAsync(request, HttpContext.RequestAborted);
+                var dictionary = new Dictionary<string, IDavDocument>();
+
+                var documents = await contactRepository.FindAllContactsByBookIdAsync(request.Document.Id, HttpContext.RequestAborted);
+                foreach (var document in documents)
+                {
+                    dictionary.Add(string.Join('/', request.Endpoint, document.Name), document);
+                }
+
+                var response = request.Body.CreateResponse(dictionary);
 
                 var serializer = new XmlSerializer(typeof(ReportResponseBody));
 
@@ -157,10 +191,19 @@ namespace BrandUp.CardDav.Server.Controllers
         {
             try
             {
-                if (await responseService.MakeCollectionAsync(name, addressBook, HttpContext.RequestAborted))
-                    return Created(new Uri(Request.Path.Value, UriKind.Relative), addressBook);
+                var user = await userRepository.FindByNameAsync(name, HttpContext.RequestAborted);
 
-                else return BadRequest();
+                if (user == null)
+                    throw new ArgumentNullException(nameof(user));
+
+                var book = await addressBookRepository.FindByNameAsync(addressBook, user.Id, HttpContext.RequestAborted);
+
+                if (book != null)
+                    throw new ConflictException(book, addressBook);
+
+                await addressBookRepository.CreateAsync(addressBook, user.Id, HttpContext.RequestAborted);
+
+                return Created(new Uri(Request.Path.Value, UriKind.Relative), addressBook);
             }
             catch (ArgumentNullException)
             {
@@ -169,6 +212,10 @@ namespace BrandUp.CardDav.Server.Controllers
             catch (ConflictException)
             {
                 return Conflict();
+            }
+            catch
+            {
+                return BadRequest();
             }
         }
 

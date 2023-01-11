@@ -1,4 +1,4 @@
-﻿using BrandUp.CardDav.Server.Documents;
+﻿using BrandUp.CardDav.Server.Abstractions.Documents;
 
 namespace BrandUp.CardDav.Server.Repositories
 {

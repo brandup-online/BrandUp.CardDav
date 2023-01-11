@@ -9,7 +9,7 @@ namespace BrandUp.CardDav.Transport.Binding
     {
         public IDavDocument Document { get; init; }
 
-        public IRequestBody Body { get; init; }
+        public IResponseCreator Body { get; init; }
 
         public string Endpoint { get; init; }
     }

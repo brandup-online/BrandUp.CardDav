@@ -1,6 +1,9 @@
 ﻿using BrandUp.CardDav.Attributes;
+using BrandUp.CardDav.Server.Abstractions.Documents;
+using BrandUp.CardDav.Transport.Helpers;
 using BrandUp.CardDav.Transport.Models.Abstract;
 using BrandUp.CardDav.Transport.Models.Properties;
+using BrandUp.CardDav.Transport.Models.Responses.Body;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -11,7 +14,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Propfind
     /// Body of propfind request. 
     /// </summary>
     [Propfind]
-    public class PropBody : IRequestBody
+    public class PropBody : IRequestBody, IResponseCreator
     {
         private string name;
         private string @namespace;
@@ -22,6 +25,29 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Propfind
         /// Requested properties.
         /// </summary>
         public IEnumerable<IDavProperty> Properties { get; set; }
+
+        #endregion
+
+        #region IResponseCreator members
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <returns></returns>
+        public IResponseBody CreateResponse(IDictionary<string, IDavDocument> collection)
+        {
+            var response = new PropfindResponseBody();
+
+            foreach (var pair in collection)
+            {
+
+                (var found, var notFound) = ResponseResourseHelper.GeneratePropfindResource(pair.Value, Properties);
+
+                response.Resources.Add(new DefaultResponseResource() { Endpoint = pair.Key, FoundProperties = found, NotFoundProperties = notFound });
+            }
+
+            return response;
+        }
 
         #endregion
 

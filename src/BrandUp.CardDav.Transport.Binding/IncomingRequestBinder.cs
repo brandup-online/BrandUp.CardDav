@@ -31,7 +31,7 @@ namespace BrandUp.CardDav.Transport.Binding
             {
                 var method = bindingContext.HttpContext.Request.Method;
 
-                IRequestBody body = null;
+                IResponseCreator body = null;
                 if (method == "PROPFIND")
                 {
                     body = GetPropfindRequest(bindingContext);
@@ -109,7 +109,7 @@ namespace BrandUp.CardDav.Transport.Binding
             }
         }
 
-        private IRequestBody GetPropfindRequest(ModelBindingContext bindingContext)
+        private IResponseCreator GetPropfindRequest(ModelBindingContext bindingContext)
         {
             try
             {
@@ -117,7 +117,7 @@ namespace BrandUp.CardDav.Transport.Binding
 
                 var reader = new StreamReader(bindingContext.ActionContext.HttpContext.Request.Body);
 
-                var body = (PropBody)serializer.Deserialize(reader);
+                var body = (IResponseCreator)serializer.Deserialize(reader);
 
                 return body;
             }
@@ -127,7 +127,7 @@ namespace BrandUp.CardDav.Transport.Binding
             }
         }
 
-        private IRequestBody GetReportRequest(ModelBindingContext bindingContext)
+        private IResponseCreator GetReportRequest(ModelBindingContext bindingContext)
         {
             try
             {
@@ -140,7 +140,7 @@ namespace BrandUp.CardDav.Transport.Binding
                 var type = GetTypeByXml(reader);
                 XmlSerializer serializer = new(type);
 
-                var body = (IReportBody)serializer.Deserialize(reader);
+                var body = (IResponseCreator)serializer.Deserialize(reader);
 
                 return body;
             }

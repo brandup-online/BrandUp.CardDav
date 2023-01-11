@@ -1,7 +1,6 @@
-﻿using BrandUp.CardDav.Server.Attributes;
-using BrandUp.CardDav.Server.Documents;
+﻿using BrandUp.CardDav.Server.Abstractions.Documents;
+using BrandUp.CardDav.Server.Attributes;
 using BrandUp.CardDav.Server.Repositories;
-using BrandUp.CardDav.Services;
 using BrandUp.CardDav.Transport.Binding;
 using BrandUp.CardDav.Transport.Models.Headers;
 using BrandUp.CardDav.Transport.Models.Responses.Body;
@@ -73,7 +72,7 @@ namespace BrandUp.CardDav.Server.Controllers
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         [CardDavPropfind]
-        public async Task<ActionResult> PropfindAsync(IncomingRequest request, [FromHeader(Name = "Depth")] string depth, [FromServices] IResponseService responseService)
+        public ActionResult PropfindAsync(IncomingRequest request, [FromHeader(Name = "Depth")] string depth)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
@@ -81,13 +80,9 @@ namespace BrandUp.CardDav.Server.Controllers
             if (depth == Depth.Infinity.Value)
                 return BadRequest("Depth: Infinity");
 
-            if (depth == Depth.One.Value)
-                return BadRequest("Depth: One");
-
             try
             {
-                var response = await responseService.ProcessPropfindAsync(request, depth,
-                    HttpContext.RequestAborted);
+                var response = request.Body.CreateResponse(new Dictionary<string, IDavDocument> { { request.Endpoint, request.Document } });
 
                 var serializer = new XmlSerializer(typeof(PropfindResponseBody));
 

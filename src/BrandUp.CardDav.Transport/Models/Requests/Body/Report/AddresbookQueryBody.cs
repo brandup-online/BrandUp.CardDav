@@ -1,7 +1,9 @@
-﻿using BrandUp.CardDav.Server.Documents;
+﻿using BrandUp.CardDav.Server.Abstractions.Documents;
+using BrandUp.CardDav.Transport.Helpers;
 using BrandUp.CardDav.Transport.Models.Abstract;
 using BrandUp.CardDav.Transport.Models.Properties;
 using BrandUp.CardDav.Transport.Models.Properties.Filters;
+using BrandUp.CardDav.Transport.Models.Responses.Body;
 using BrandUp.CardDav.VCard;
 using System.Xml;
 using System.Xml.Schema;
@@ -13,7 +15,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
     /// Report query body address-book <see href="https://www.rfc-editor.org/rfc/rfc6352.html#section-10.3"/>
     /// </summary>
     [XmlRoot(ElementName = "addressbook-query", Namespace = "urn:ietf:params:xml:ns:carddav")]
-    public class AddresbookQueryBody : IReportBody
+    public class AddresbookQueryBody : IRequestBody, IResponseCreator
     {
         internal IEnumerable<IDavProperty> PropList { get; set; }
         internal FilterBody Filter { get; set; }
@@ -38,29 +40,45 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
 
         #endregion
 
-        #region IFilter member
+        #region IResponseCreator members 
 
         /// <summary>
         /// 
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="collection"></param>
         /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
-        public IEnumerable<T> FillterCollection<T>(IEnumerable<T> collection)
+        public IResponseBody CreateResponse(IDictionary<string, IDavDocument> collection)
         {
-            if (typeof(T).IsAssignableTo(typeof(IContactDocument)))
-            {
-                var contacts = collection.Cast<IContactDocument>().Where(c => Filter.ApplyFilter(new VCardModel(c.RawVCard))).ToArray();
+            var response = new ReportResponseBody();
 
-                if (Limit > 0)
-                    return contacts.Cast<T>().Take(Limit);
-                else return contacts.Cast<T>();
+            var filtered = FillterCollection(collection);
+
+            foreach (var pair in filtered)
+            {
+
+                (var found, var notFound) = ResponseResourseHelper.GeneratePropfindResource(pair.Value, Properties);
+
+                response.Resources.Add(new AddressDataResource() { Endpoint = pair.Key, FoundProperties = found, NotFoundProperties = notFound });
             }
-            else throw new ArgumentException("Expected IContactDocument collection");
+
+            return response;
         }
 
         #endregion
+
+        IDictionary<string, IDavDocument> FillterCollection(IDictionary<string, IDavDocument> collection)
+        {
+            try
+            {
+                return collection.ToDictionary(_ => _.Key, _ => (IContactDocument)_.Value)
+                                    .Where(c => Filter.ApplyFilter(new VCardModel(c.Value.RawVCard)))
+                                    .ToDictionary(_ => _.Key, _ => (IDavDocument)_.Value);
+            }
+            catch (InvalidCastException)
+            {
+                throw new ArgumentException("Expected IContactDocument collection");
+            }
+        }
 
         #region IXmlSerializable member
 
