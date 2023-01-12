@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 
-
 namespace BrandUp.CardDav.Server.Controllers
 {
     internal class ClientApplicationFactory : WebApplicationFactory<Program>
