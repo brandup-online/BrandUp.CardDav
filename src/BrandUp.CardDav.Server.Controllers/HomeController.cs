@@ -42,7 +42,7 @@ namespace BrandUp.CardDav.Server.Controllers
         [CardDavPropfind("/.well-known/carddav")]
         public ActionResult WellKnown()
         {
-            return Redirect(Url.RouteUrl($"Principal/{User.Identity.Name}/Collections"));
+            return RedirectToAction("Propfind", "Collections", new { Name = User.Identity.Name });
         }
     }
 }
