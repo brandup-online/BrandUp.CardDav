@@ -3,7 +3,7 @@
 namespace BrandUp.CardDav.Transport.Models.Abstract
 {
     /// <summary>
-    /// 
+    /// Deserialized Xml response propstat <see href="https://www.rfc-editor.org/rfc/rfc4918#section-14.22"/>
     /// </summary>
     public interface IResponseResource : IXmlSerializable
     {

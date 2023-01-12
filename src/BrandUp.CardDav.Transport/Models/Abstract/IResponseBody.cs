@@ -3,7 +3,7 @@
 namespace BrandUp.CardDav.Transport.Models.Abstract
 {
     /// <summary>
-    /// Body of the response
+    /// Body of the xml response
     /// </summary>
     public interface IResponseBody : IXmlSerializable
     {

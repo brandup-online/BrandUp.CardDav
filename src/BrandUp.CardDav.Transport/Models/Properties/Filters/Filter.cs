@@ -1,4 +1,5 @@
 ﻿using BrandUp.CardDav.Transport.Models.Abstract;
+using BrandUp.CardDav.Transport.Models.Properties.Filters.Conditions;
 using BrandUp.CardDav.VCard;
 using System.Xml;
 using System.Xml.Schema;
@@ -39,7 +40,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
         /// <param name="type"></param>
         /// <param name="conditions"></param>
         /// <returns></returns>
-        public FilterBody AddPropFilter(CardProperty propName, FilterMatchType type, params TextMatch[] conditions)
+        public FilterBody AddPropFilter(CardProperty propName, FilterMatchType type, params ICondition[] conditions)
         {
             Filters.Add(new PropFilter { PropName = propName, Type = type, Conditions = conditions });
 

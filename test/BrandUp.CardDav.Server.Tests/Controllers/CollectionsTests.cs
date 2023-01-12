@@ -2,7 +2,9 @@
 using BrandUp.CardDav.Transport.Models.Headers;
 using BrandUp.CardDav.Transport.Models.Properties;
 using BrandUp.CardDav.Transport.Models.Properties.Filters;
+using BrandUp.CardDav.Transport.Models.Properties.Filters.Conditions;
 using BrandUp.CardDav.Transport.Models.Requests;
+using BrandUp.CardDav.Transport.Models.Responses;
 using BrandUp.CardDav.VCard;
 using Xunit.Abstractions;
 
@@ -126,6 +128,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
         [Fact]
         public async Task Success_Report_Addressbook_Filter()
         {
+            #region Textmatch filter
             var filter = new FilterBody()
             {
                 MatchType = FilterMatchType.All
@@ -139,10 +142,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
                     TextMatch.Create("com", TextMatchType.Contains, true)
                 );
 
-            var addressData = new AddressData();
-            var request = ReportRequest.CreateQuery(PropList.Create(Prop.ETag, Prop.CTag), addressData, filter);
-
-            var report = await Client.ReportAsync("Principal/User/Collections/Default", request, CancellationToken.None);
+            var report = await ExecWithFilter(filter);
 
             Output.WriteLine(report.StatusCode.ToString());
 
@@ -150,6 +150,68 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
             Assert.Equal(1, report.Body?.Resources.Count);
             Assert.NotNull(report.Body.Resources.First().Endpoint);
             Assert.Equal(TestVCards.VCard2, report.Body.Resources.First().CardModel);
+
+            #endregion
+
+            #region ParamFilter is not defined filter
+
+            filter = new FilterBody()
+            {
+                MatchType = FilterMatchType.All
+            };
+            filter.AddPropFilter(CardProperty.LANG, FilterMatchType.Any, ParamFilter.NotDefined(CardParameter.TYPE));
+
+            report = await ExecWithFilter(filter);
+
+            Output.WriteLine(report.StatusCode.ToString());
+
+            Assert.True(report.IsSuccess);
+
+            Assert.Equal(1, report.Body?.Resources.Count);
+            Assert.NotNull(report.Body.Resources.First().Endpoint);
+            Assert.Equal(TestVCards.VCard2, report.Body.Resources.First().CardModel);
+
+            #endregion
+
+            #region ParamFilter text match filter
+
+            filter = new FilterBody()
+            {
+                MatchType = FilterMatchType.All
+            };
+            filter.AddPropFilter(CardProperty.LANG, FilterMatchType.Any, ParamFilter.TextMatch(CardParameter.TYPE, "wOrK", TextMatchType.Equals));
+
+            report = await ExecWithFilter(filter);
+
+            Output.WriteLine(report.StatusCode.ToString());
+
+            Assert.True(report.IsSuccess);
+
+            Assert.Equal(1, report.Body?.Resources.Count);
+            Assert.NotNull(report.Body.Resources.First().Endpoint);
+            Assert.Equal(TestVCards.VCard1, report.Body.Resources.First().CardModel);
+
+            #endregion
+
+            #region IsNotDefined filter
+
+            filter = new FilterBody()
+            {
+                MatchType = FilterMatchType.All
+            };
+            filter.AddPropFilter(CardProperty.NICKNAME, FilterMatchType.Any, new IsNotDefined());
+
+            report = await ExecWithFilter(filter);
+
+            Output.WriteLine(report.StatusCode.ToString());
+
+            Assert.True(report.IsSuccess);
+
+            Assert.Equal(1, report.Body?.Resources.Count);
+            Assert.NotNull(report.Body.Resources.First().Endpoint);
+            Assert.Equal(TestVCards.VCard3, report.Body.Resources.First().CardModel);
+
+            #endregion
         }
 
         [Fact]
@@ -180,5 +242,16 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
             Output.WriteLine(propfind.StatusCode.ToString());
             Assert.False(propfind.IsSuccess);
         }
+
+        #region Helpers 
+        private Task<ReportResponse> ExecWithFilter(FilterBody filter)
+        {
+            var addressData = new AddressData();
+            var request = ReportRequest.CreateQuery(PropList.Create(Prop.ETag, Prop.CTag), addressData, filter);
+
+            return Client.ReportAsync("Principal/User/Collections/Default", request, CancellationToken.None);
+        }
+
+        #endregion
     }
 }

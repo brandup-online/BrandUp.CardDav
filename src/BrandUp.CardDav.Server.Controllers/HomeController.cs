@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BrandUp.CardDav.Server.Attributes;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Primitives;
 
@@ -36,6 +37,12 @@ namespace BrandUp.CardDav.Server.Controllers
             Response.Headers.Add("DAV", "1, addressbook");
 
             return Task.FromResult((ActionResult)Ok());
+        }
+
+        [CardDavPropfind("/.well-known/carddav")]
+        public ActionResult WellKnown()
+        {
+            return Redirect(Url.RouteUrl($"Principal/{User.Identity.Name}/Collections"));
         }
     }
 }

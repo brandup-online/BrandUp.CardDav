@@ -3,14 +3,14 @@
 namespace BrandUp.CardDav.Transport.Models.Abstract
 {
     /// <summary>
-    /// Type can create 
+    /// Type can create response body
     /// </summary>
     public interface IResponseCreator
     {
         /// <summary>
         /// Creates response based on data collection and object fields.
         /// </summary>
-        ///<param name="collection"> keys - document endpoint, value - document value </param>
+        /// <param name="collection"> keys - document endpoint, value - document value </param>
         /// <returns>Body of response <see cref="IResponseBody"/>. Made based on request object/></returns>
 
         IResponseBody CreateResponse(IDictionary<string, IDavDocument> collection);

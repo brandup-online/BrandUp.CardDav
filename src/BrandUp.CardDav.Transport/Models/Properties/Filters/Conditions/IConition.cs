@@ -1,6 +1,7 @@
 ﻿using BrandUp.CardDav.Transport.Models.Abstract;
+using BrandUp.CardDav.VCard;
 
-namespace BrandUp.CardDav.Transport.Models.Properties.Filters
+namespace BrandUp.CardDav.Transport.Models.Properties.Filters.Conditions
 {
     /// <summary>
     /// 
@@ -12,6 +13,6 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        bool Check(string value);
+        bool Check(VCardLine value);
     }
 }

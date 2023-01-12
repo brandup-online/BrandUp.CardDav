@@ -1,4 +1,5 @@
 ﻿using BrandUp.CardDav.Transport.Models.Abstract;
+using BrandUp.CardDav.Transport.Models.Properties.Filters.Conditions;
 using BrandUp.CardDav.VCard;
 
 namespace BrandUp.CardDav.Transport.Models.Properties.Filters
@@ -21,7 +22,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
         /// <summary>
         /// 
         /// </summary>
-        IEnumerable<TextMatch> Conditions { get; }
+        IEnumerable<ICondition> Conditions { get; }
 
         /// <summary>
         /// 

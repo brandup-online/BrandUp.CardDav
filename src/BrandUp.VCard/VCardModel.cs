@@ -12,7 +12,18 @@
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public IEnumerable<VCardLine> this[CardProperty key] => vCard[key];
+        public PropertyModel this[CardProperty key] => vCard[key];
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public bool TryGetValue(CardProperty key, out PropertyModel value)
+        {
+            return vCard.TryGetValue(key, out value);
+        }
 
         /// <summary>
         /// 

@@ -1,6 +1,7 @@
 ﻿using BrandUp.CardDav.Transport.Models.Headers;
 using BrandUp.CardDav.Transport.Models.Properties;
 using BrandUp.CardDav.Transport.Models.Properties.Filters;
+using BrandUp.CardDav.Transport.Models.Properties.Filters.Conditions;
 using BrandUp.CardDav.Transport.Models.Requests;
 using BrandUp.CardDav.VCard;
 using Microsoft.Extensions.Configuration;

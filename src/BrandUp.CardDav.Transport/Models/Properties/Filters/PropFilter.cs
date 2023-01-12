@@ -1,4 +1,5 @@
-﻿using BrandUp.CardDav.VCard;
+﻿using BrandUp.CardDav.Transport.Models.Properties.Filters.Conditions;
+using BrandUp.CardDav.VCard;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -19,21 +20,21 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
         public CardProperty PropName { get; internal set; }
         public FilterMatchType Type { get; internal set; }
 
-        public IEnumerable<TextMatch> Conditions { get; internal set; }
+        public IEnumerable<ICondition> Conditions { get; internal set; }
 
         public bool CheckConditions(VCardModel vCardModel)
         {
-            bool flag = false;
+            bool flag = true;
 
             foreach (var condition in Conditions)
             {
-                var values = vCardModel[PropName];
-                foreach (var value in values)
-                {
-                    flag = condition.Check(value.Value);
-                    if (Type == FilterMatchType.All && flag == false)
-                        return false;
-                }
+                if (vCardModel.TryGetValue(PropName, out var values))
+                    foreach (var value in values)
+                    {
+                        flag = condition.Check(value);
+                        if (Type == FilterMatchType.All && flag == false)
+                            return false;
+                    }
             }
 
             return flag;
@@ -58,16 +59,29 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
                     Type = FilterMatchType.Any;
             }
 
-            var conditions = new List<TextMatch>();
+            var conditions = new List<ICondition>();
             while (reader.Read())
             {
                 if (reader.NodeType == XmlNodeType.Element)
+                {
                     if (reader.LocalName == "text-match")
                     {
                         var cond = new TextMatch() as IXmlSerializable;
                         cond.ReadXml(reader);
-                        conditions.Add(cond as TextMatch);
+                        conditions.Add(cond as ICondition);
                     }
+                    else if (reader.LocalName == "param-filter")
+                    {
+                        var cond = new ParamFilter() as IXmlSerializable;
+                        cond.ReadXml(reader);
+                        conditions.Add(cond as ICondition);
+                    }
+                    else if (reader.LocalName == "is-not-defined")
+                    {
+                        var cond = new IsNotDefined();
+                        conditions.Add(cond);
+                    }
+                }
                 if (reader.NodeType == XmlNodeType.EndElement && reader.LocalName == "prop-filter")
                     break;
             }
@@ -82,7 +96,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
             writer.WriteAttributeString("test", Type.ToString().ToLowerInvariant() + "of");
             foreach (var condition in Conditions)
             {
-                (condition as IXmlSerializable).WriteXml(writer);
+                (condition).WriteXml(writer);
             }
             writer.WriteEndElement();
         }
