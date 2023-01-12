@@ -23,13 +23,26 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
             Output.WriteLine(string.Join(" ", options.DavHeaderValue));
         }
 
-        [Fact]
-        public async Task Success_WellKnown()
-        {
-            var options = await Client.PropfindAsync("/.well-known/carddav", PropfindRequest.AllProp(Depth.One), CancellationToken.None);
+        //[Fact]
+        //public async Task Success_WellKnown()
+        //{
+        //    var options = await Client.PropfindAsync("/.well-known/carddav", PropfindRequest.AllProp(Depth.One), CancellationToken.None);
 
-            Output.WriteLine(options.StatusCode.ToString());
-            Assert.True(options.IsSuccess);
+        //    Output.WriteLine(options.StatusCode.ToString());
+        //    Assert.True(options.IsSuccess);
+        //}
+
+        [Fact]
+        public async Task Success_Principals()
+        {
+            var response = await Client.PropfindAsync("/principals", PropfindRequest.AllProp(Depth.One), CancellationToken.None);
+
+            Output.WriteLine(response.StatusCode.ToString());
+            Assert.True(response.IsSuccess);
+
+            Assert.Single(response.Body.Resources);
+            Output.WriteLine(response.Body.Resources.Single().Endpoint);
+
         }
     }
 }

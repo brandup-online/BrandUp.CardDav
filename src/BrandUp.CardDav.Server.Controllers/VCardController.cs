@@ -13,7 +13,7 @@ namespace BrandUp.CardDav.Server.Controllers
     /// 
     /// </summary>
     [ApiController]
-    [Route("Principal/{Name}/Collections/{AddressBook}/{Contact}")]
+    [Route("principals/{Name}/Collections/{AddressBook}/{Contact}")]
     public class VCardController : ControllerBase
     {
         readonly IUserRepository userRepository;

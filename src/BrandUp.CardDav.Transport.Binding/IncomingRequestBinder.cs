@@ -6,6 +6,7 @@ using BrandUp.CardDav.Transport.Models.Requests.Body.Propfind;
 using BrandUp.CardDav.Transport.Models.Requests.Body.Report;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Logging;
 using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Binding
@@ -15,12 +16,15 @@ namespace BrandUp.CardDav.Transport.Binding
         readonly IUserRepository userRepository;
         readonly IAddressBookRepository addressBookRepository;
         readonly IContactRepository contactRepository;
+        readonly ILogger<IncomingRequestBinder> logger;
 
-        public IncomingRequestBinder(IUserRepository userRepository, IAddressBookRepository addressBookRepository, IContactRepository contactRepository)
+        public IncomingRequestBinder(IUserRepository userRepository, IAddressBookRepository addressBookRepository, IContactRepository contactRepository, ILogger<IncomingRequestBinder> logger)
         {
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             this.addressBookRepository = addressBookRepository ?? throw new ArgumentNullException(nameof(addressBookRepository));
             this.contactRepository = contactRepository ?? throw new ArgumentNullException(nameof(contactRepository));
+
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         #region IModelBinder member
@@ -29,7 +33,13 @@ namespace BrandUp.CardDav.Transport.Binding
         {
             try
             {
+                logger.LogInformation($"Binding incoming request:");
+
+                logger.LogInformation($"User: {bindingContext.HttpContext.User.Identity.Name}");
+
                 var method = bindingContext.HttpContext.Request.Method;
+
+                logger.LogInformation($"Method: {method}");
 
                 IResponseCreator body = null;
                 if (method == "PROPFIND")
@@ -105,7 +115,11 @@ namespace BrandUp.CardDav.Transport.Binding
             }
             else
             {
-                throw new BindingException("Route data have not value with key \"Name\"");
+                var userDocument = await userRepository.FindByNameAsync(bindingContext.HttpContext.User.Identity.Name, bindingContext.HttpContext.RequestAborted);
+                if (userDocument == null)
+                    throw new ArgumentNullException(nameof(userDocument));
+
+                return userDocument;
             }
         }
 
@@ -114,7 +128,8 @@ namespace BrandUp.CardDav.Transport.Binding
             try
             {
                 XmlSerializer serializer = new(typeof(PropBody));
-
+                if (bindingContext.ActionContext.HttpContext.Request.ContentLength == 0)
+                    return new PropBody("allprop");
                 var reader = new StreamReader(bindingContext.ActionContext.HttpContext.Request.Body);
 
                 var body = (IResponseCreator)serializer.Deserialize(reader);

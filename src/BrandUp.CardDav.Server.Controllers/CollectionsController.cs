@@ -1,7 +1,7 @@
 ﻿using BrandUp.CardDav.Server.Abstractions.Documents;
+using BrandUp.CardDav.Server.Abstractions.Exceptions;
 using BrandUp.CardDav.Server.Attributes;
 using BrandUp.CardDav.Server.Repositories;
-using BrandUp.CardDav.Services.Exceptions;
 using BrandUp.CardDav.Transport.Binding;
 using BrandUp.CardDav.Transport.Models.Headers;
 using BrandUp.CardDav.Transport.Models.Responses.Body;
@@ -14,7 +14,7 @@ namespace BrandUp.CardDav.Server.Controllers
     /// 
     /// </summary>
     [ApiController]
-    [Route("Principal/{Name}/{controller}")]
+    [Route("principals/{Name}/{controller}")]
     public class CollectionsController : ControllerBase
     {
         readonly IUserRepository userRepository;

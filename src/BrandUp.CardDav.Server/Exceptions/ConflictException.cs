@@ -1,6 +1,6 @@
 ﻿using BrandUp.CardDav.Server.Abstractions.Documents;
 
-namespace BrandUp.CardDav.Services.Exceptions
+namespace BrandUp.CardDav.Server.Abstractions.Exceptions
 {
     /// <summary>
     /// Throws it out if the creating collection is already contained in the database

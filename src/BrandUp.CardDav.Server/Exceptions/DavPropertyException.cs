@@ -1,4 +1,4 @@
-﻿namespace BrandUp.CardDav.Services.Exceptions
+﻿namespace BrandUp.CardDav.Server.Abstractions.Exceptions
 {
     /// <summary>
     /// Throws if deserializer can't convert xml to request object.

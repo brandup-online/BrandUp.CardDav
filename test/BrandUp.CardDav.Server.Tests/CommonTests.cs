@@ -18,7 +18,7 @@ namespace BrandUp.CardDav.Server.Tests
         {
             var request = PropfindRequest.AllProp(Depth.One);
 
-            var response = await Client.PropfindAsync("Principal/User/Collections", request, CancellationToken.None);
+            var response = await Client.PropfindAsync("principals/User/Collections", request, CancellationToken.None);
 
             Output.WriteLine(response.StatusCode.ToString());
             Assert.True(response.IsSuccess);
@@ -50,7 +50,7 @@ namespace BrandUp.CardDav.Server.Tests
         [Fact]
         public async Task Success_MakeCollectionAndAddContacts()
         {
-            var endpoint = "Principal/User/Collections/New";
+            var endpoint = "principals/User/Collections/New";
 
             var mkcolResponse = await Client.MkcolAsync(endpoint);
 

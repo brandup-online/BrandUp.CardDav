@@ -23,7 +23,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
             vCard.AddPropperty(CardProperty.FN, "Jonh Doe");
             vCard.AddPropperty(CardProperty.TEL, "79921213321", new VCardParameter(CardParameter.TYPE, "Work"));
 
-            var response = await Client.AddContactAsync("Principal/User/Collections/Default/test", vCard, CancellationToken.None);
+            var response = await Client.AddContactAsync("principals/User/Collections/Default/test", vCard, CancellationToken.None);
 
             Output.WriteLine(response.StatusCode.ToString());
             Assert.True(response.IsSuccess);
@@ -32,14 +32,14 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
 
             #region Read
 
-            var vCardResponse = await Client.GetAsync("Principal/User/Collections/Default/test", CancellationToken.None);
+            var vCardResponse = await Client.GetAsync("principals/User/Collections/Default/test", CancellationToken.None);
 
             Output.WriteLine(response.StatusCode.ToString());
             Assert.NotNull(vCardResponse);
 
             var propfind = PropfindRequest.Create(Depth.Zero, Prop.ETag);
 
-            var propfinResponse = await Client.PropfindAsync("Principal/User/Collections/Default/test", propfind);
+            var propfinResponse = await Client.PropfindAsync("principals/User/Collections/Default/test", propfind);
 
             Output.WriteLine(response.StatusCode.ToString());
             Assert.True(propfinResponse.IsSuccess);
@@ -54,7 +54,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
             vCard.AddPropperty(CardProperty.TEL, "79921213251", new VCardParameter(CardParameter.TYPE, "Work"));
 
             var eTag = propfinResponse.Body.Resources.First().FoundProperties[Prop.ETag];
-            response = await Client.UpdateContactAsync("Principal/User/Collections/Default/test", vCard, eTag, CancellationToken.None);
+            response = await Client.UpdateContactAsync("principals/User/Collections/Default/test", vCard, eTag, CancellationToken.None);
 
             Output.WriteLine(response.StatusCode.ToString());
             Assert.True(response.IsSuccess);
@@ -63,7 +63,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
 
             #region Delete
 
-            response = await Client.DeleteContactAsync("Principal/User/Collections/Default/test", CancellationToken.None);
+            response = await Client.DeleteContactAsync("principals/User/Collections/Default/test", CancellationToken.None);
 
             Output.WriteLine(response.StatusCode.ToString());
             Assert.True(response.IsSuccess);

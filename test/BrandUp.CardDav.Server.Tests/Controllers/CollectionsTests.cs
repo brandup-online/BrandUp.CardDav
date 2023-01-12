@@ -20,7 +20,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
         {
             var request = PropfindRequest.Create(Depth.Zero, Prop.ETag);
 
-            var propfind = await Client.PropfindAsync("Principal/User/Collections", request, CancellationToken.None);
+            var propfind = await Client.PropfindAsync("principals/User/Collections", request, CancellationToken.None);
 
             Output.WriteLine(propfind.StatusCode.ToString());
             Assert.True(propfind.IsSuccess);
@@ -28,7 +28,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
 
             request = PropfindRequest.Create(Depth.One, Prop.ETag, Prop.CTag);
 
-            propfind = await Client.PropfindAsync("Principal/User/Collections", request, CancellationToken.None);
+            propfind = await Client.PropfindAsync("principals/User/Collections", request, CancellationToken.None);
 
             Output.WriteLine(propfind.StatusCode.ToString());
             Assert.True(propfind.IsSuccess);
@@ -47,7 +47,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
         {
             var request = PropfindRequest.Create(Depth.Zero, Prop.ETag);
 
-            var propfind = await Client.PropfindAsync("Principal/User/Collections/Default", request, CancellationToken.None);
+            var propfind = await Client.PropfindAsync("principals/User/Collections/Default", request, CancellationToken.None);
 
             Output.WriteLine(propfind.StatusCode.ToString());
             Assert.True(propfind.IsSuccess);
@@ -55,7 +55,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
 
             request = PropfindRequest.Create(Depth.One, Prop.ETag, Prop.CTag);
 
-            propfind = await Client.PropfindAsync("Principal/User/Collections/Default", request, CancellationToken.None);
+            propfind = await Client.PropfindAsync("principals/User/Collections/Default", request, CancellationToken.None);
 
             Output.WriteLine(propfind.StatusCode.ToString());
             Assert.True(propfind.IsSuccess);
@@ -82,7 +82,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
             var addressData = new AddressData(CardProperty.EMAIL, CardProperty.VERSION, CardProperty.TEL);
             var request = ReportRequest.CreateQuery(PropList.Create(Prop.ETag, Prop.CTag), addressData, filter);
 
-            var report = await Client.ReportAsync("Principal/User/Collections/Default", request, CancellationToken.None);
+            var report = await Client.ReportAsync("principals/User/Collections/Default", request, CancellationToken.None);
 
             Output.WriteLine(report.StatusCode.ToString());
 
@@ -102,7 +102,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
 
             var propfindRequest = PropfindRequest.Create(Depth.One, Prop.ETag);
 
-            var propfind = await Client.PropfindAsync("Principal/User/Collections/Default", propfindRequest, CancellationToken.None);
+            var propfind = await Client.PropfindAsync("principals/User/Collections/Default", propfindRequest, CancellationToken.None);
 
             Output.WriteLine(propfind.StatusCode.ToString());
             Assert.True(propfind.IsSuccess);
@@ -110,7 +110,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
             addressData = new AddressData(CardProperty.EMAIL, CardProperty.TEL, CardProperty.ORG, CardProperty.VERSION);
             request = ReportRequest.CreateMultiget(PropList.Create(Prop.ETag), addressData, propfind.Body.Resources[1].Endpoint, propfind.Body.Resources[2].Endpoint);
 
-            report = await Client.ReportAsync("Principal/User/Collections/Default", request, CancellationToken.None);
+            report = await Client.ReportAsync("principals/User/Collections/Default", request, CancellationToken.None);
 
             Output.WriteLine(report.StatusCode.ToString());
             Assert.Equal(2, report.Body?.Resources.Count);
@@ -217,18 +217,18 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
         [Fact]
         public async Task Success_Mkcol_Addressbook()
         {
-            var mkcol = await Client.MkcolAsync("Principal/User/Collections/New", CancellationToken.None);
+            var mkcol = await Client.MkcolAsync("principals/User/Collections/New", CancellationToken.None);
 
             Output.WriteLine(mkcol.StatusCode.ToString());
             Assert.True(mkcol.IsSuccess);
 
             var request = PropfindRequest.AllProp(Depth.Zero);
-            var propfind = await Client.PropfindAsync("Principal/User/Collections/New", request, CancellationToken.None);
+            var propfind = await Client.PropfindAsync("principals/User/Collections/New", request, CancellationToken.None);
 
             Output.WriteLine(propfind.StatusCode.ToString());
             Assert.True(propfind.IsSuccess);
             Assert.Single(propfind.Body.Resources);
-            Assert.Equal("/Principal/User/Collections/New", propfind.Body.Resources.First().Endpoint);
+            Assert.Equal("/principals/User/Collections/New", propfind.Body.Resources.First().Endpoint);
             Assert.NotNull(propfind.Body.Resources.First().FoundProperties[Prop.CTag]);
         }
 
@@ -237,7 +237,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
         {
             var request = PropfindRequest.Create(Depth.Zero, Prop.ETag);
 
-            var propfind = await Client.PropfindAsync("Principal/NotExistingUser/Collections", request, CancellationToken.None);
+            var propfind = await Client.PropfindAsync("principals/NotExistingUser/Collections", request, CancellationToken.None);
 
             Output.WriteLine(propfind.StatusCode.ToString());
             Assert.False(propfind.IsSuccess);
@@ -249,7 +249,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
             var addressData = new AddressData();
             var request = ReportRequest.CreateQuery(PropList.Create(Prop.ETag, Prop.CTag), addressData, filter);
 
-            return Client.ReportAsync("Principal/User/Collections/Default", request, CancellationToken.None);
+            return Client.ReportAsync("principals/User/Collections/Default", request, CancellationToken.None);
         }
 
         #endregion

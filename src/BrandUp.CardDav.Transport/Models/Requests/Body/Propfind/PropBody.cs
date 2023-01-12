@@ -40,7 +40,6 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Propfind
 
             foreach (var pair in collection)
             {
-
                 (var found, var notFound) = ResponseResourseHelper.GeneratePropfindResource(pair.Value, Properties);
 
                 response.Resources.Add(new DefaultResponseResource() { Endpoint = pair.Key, FoundProperties = found, NotFoundProperties = notFound });
