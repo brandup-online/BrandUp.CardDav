@@ -62,14 +62,20 @@ namespace BrandUp.CardDav.Transport.Binding
             }
             catch (BindingException ex)
             {
+                logger.LogError(ex.Message);
+
                 bindingContext.ModelState.AddModelError("Path", ex.Message);
             }
             catch (ArgumentNullException ex)
             {
+                logger.LogError(ex.Message);
+
                 bindingContext.ModelState.AddModelError("Document", ex.Message);
             }
             catch (XmlDeserializeException ex)
             {
+                logger.LogError(ex.Message);
+
                 bindingContext.ModelState.AddModelError("Body", ex.Message);
             }
         }
