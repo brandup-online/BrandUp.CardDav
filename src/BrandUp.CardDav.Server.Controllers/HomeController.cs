@@ -85,10 +85,14 @@ namespace BrandUp.CardDav.Server.Controllers
             }
             catch (ArgumentNullException)
             {
+                logger.LogError("Not found");
+
                 return NotFound();
             }
             catch (DavPropertyException ex)
             {
+                logger.LogError(ex.Message);
+
                 return BadRequest(ex.Message);
             }
         }
