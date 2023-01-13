@@ -1,4 +1,4 @@
-﻿using BrandUp.CardDav.Transport.Models.Abstract;
+﻿using BrandUp.CardDav.Transport.Abstract.Responces;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -9,7 +9,7 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
     /// 
     /// </summary>
     [XmlRoot(Namespace = "DAV:", ElementName = "multistatus")]
-    public class PropfindResponseBody : IResponseBody
+    public class MultistatusResponseBody : IResponseBody
     {
         #region IResponseBody
 
@@ -20,24 +20,38 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
 
         #endregion
 
+        #region IDavProperty
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Name => "multistatus";
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Namespace => "DAV:";
+
+        #endregion
+
         #region IXmlSerializable
 
         XmlSchema IXmlSerializable.GetSchema() => null;
 
         void IXmlSerializable.ReadXml(XmlReader reader)
         {
-            var resourseList = new List<DefaultResponseResource>();
+            var resourseList = new List<ResponseResource>();
 
             while (reader.Read())
             {
                 if (reader.NodeType == XmlNodeType.Element)
                 {
-                    var resourse = (IXmlSerializable)new DefaultResponseResource();
+                    var resourse = (IXmlSerializable)new ResponseResource();
                     resourse.ReadXml(reader);
-                    resourseList.Add(resourse as DefaultResponseResource);
+                    resourseList.Add(resourse as ResponseResource);
                 }
             }
-            Resources = resourseList.ToArray();
+            Resources = resourseList.Cast<IResponseResource>().ToArray();
         }
 
         void IXmlSerializable.WriteXml(XmlWriter writer)

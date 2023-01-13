@@ -26,7 +26,7 @@ namespace BrandUp.CardDav.VCard
         }
 
         [Fact]
-        public async Task Success_Stream()
+        public void Success_Stream()
         {
             #region Preparation
 

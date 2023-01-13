@@ -1,6 +1,8 @@
 ﻿using BrandUp.CardDav.Server.Abstractions.Documents;
+using BrandUp.CardDav.Transport.Abstract.Properties;
+using BrandUp.CardDav.Transport.Abstract.Requests;
+using BrandUp.CardDav.Transport.Abstract.Responces;
 using BrandUp.CardDav.Transport.Helpers;
-using BrandUp.CardDav.Transport.Models.Abstract;
 using BrandUp.CardDav.Transport.Models.Properties;
 using BrandUp.CardDav.Transport.Models.Responses.Body;
 using System.Xml;
@@ -37,6 +39,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
         /// </summary>
         public IEnumerable<IDavProperty> Properties => PropList;
 
+
         #endregion
 
         #region IResponseCreator members
@@ -48,7 +51,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
         /// <returns></returns>
         public IResponseBody CreateResponse(IDictionary<string, IDavDocument> collection)
         {
-            var response = new ReportResponseBody();
+            var response = new MultistatusResponseBody();
 
             var filtered = FillterCollection(collection);
 
@@ -57,7 +60,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
 
                 (var found, var notFound) = ResponseResourseHelper.GeneratePropfindResource(pair.Value, Properties);
 
-                response.Resources.Add(new AddressDataResource() { Endpoint = pair.Key, FoundProperties = found, NotFoundProperties = notFound });
+                response.Resources.Add(new ResponseResource() { Endpoint = pair.Key, FoundProperties = found, NotFoundProperties = notFound });
             }
 
             return response;
@@ -66,7 +69,6 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
         #endregion
 
         #region IVCardCondition members
-
 
         IDictionary<string, IDavDocument> FillterCollection(IDictionary<string, IDavDocument> collection)
         {
@@ -77,16 +79,30 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
 
         #endregion
 
+        #region IDavProperty members
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Name => "addressbook-multiget";
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Namespace => "urn:ietf:params:xml:ns:carddav";
+
+        #endregion
+
         #region IXmlSerializable members
 
         XmlSchema IXmlSerializable.GetSchema() => null;
 
 
-        void IXmlSerializable.ReadXml(XmlReader reader)
+        async void IXmlSerializable.ReadXml(XmlReader reader)
         {
             var propList = new List<IDavProperty>();
             var endpoints = new List<string>();
-            while (reader.Read())
+            while (await reader.ReadAsync())
             {
                 if (reader.NodeType == XmlNodeType.Element)
                 {
@@ -102,7 +118,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
                     }
                     else if (reader.LocalName == "href")
                     {
-                        reader.Read();
+                        await reader.ReadAsync();
                         endpoints.Add(reader.Value);
                     }
                     else

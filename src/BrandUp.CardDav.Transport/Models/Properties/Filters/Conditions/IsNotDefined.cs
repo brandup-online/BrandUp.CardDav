@@ -1,4 +1,5 @@
-﻿using BrandUp.CardDav.VCard;
+﻿using BrandUp.CardDav.Transport.Abstract.Properties;
+using BrandUp.CardDav.VCard;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;

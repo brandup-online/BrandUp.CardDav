@@ -1,4 +1,4 @@
-﻿using BrandUp.CardDav.Transport.Models.Abstract;
+﻿using BrandUp.CardDav.Transport.Abstract.Requests;
 using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Models.Requests

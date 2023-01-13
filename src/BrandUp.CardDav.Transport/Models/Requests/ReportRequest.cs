@@ -1,9 +1,9 @@
-﻿using BrandUp.CardDav.Transport.Models.Abstract;
+﻿using BrandUp.CardDav.Transport.Abstract.Requests;
+using BrandUp.CardDav.Transport.Helpers;
 using BrandUp.CardDav.Transport.Models.Headers;
 using BrandUp.CardDav.Transport.Models.Properties;
 using BrandUp.CardDav.Transport.Models.Properties.Filters;
 using BrandUp.CardDav.Transport.Models.Requests.Body.Report;
-using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Models.Requests
 {
@@ -82,33 +82,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests
         /// 
         /// </summary>
         /// <returns></returns>
-        public HttpRequestMessage ToHttpRequest()
-        {
-            var serializer = new XmlSerializer(Body.GetType());
-            var ms = new MemoryStream();
-
-            serializer.Serialize(ms, Body);
-            ms.Position = 0;
-
-#if DEBUG
-            var debugReader = new StreamReader(ms);
-            var debug = debugReader.ReadToEnd();
-            ms.Position = 0;
-#endif
-            HttpRequestMessage request = new()
-            {
-                Method = new("REPORT"),
-                Content = new StreamContent(ms)
-            };
-
-            request.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/xml");
-            foreach (var header in Headers)
-            {
-                request.Content.Headers.Add(header.Key, header.Value);
-            }
-
-            return request;
-        }
+        public HttpRequestMessage ToHttpRequest() => HttpConvertHelper.Convert(new("REPORT"), this);
 
         #endregion
     }

@@ -1,4 +1,5 @@
-﻿using BrandUp.CardDav.Transport.Models.Headers;
+﻿using BrandUp.CardDav.Transport.Abstract.Enum;
+using BrandUp.CardDav.Transport.Models.Headers;
 using BrandUp.CardDav.Transport.Models.Properties;
 using BrandUp.CardDav.Transport.Models.Properties.Filters;
 using BrandUp.CardDav.Transport.Models.Properties.Filters.Conditions;
@@ -28,6 +29,8 @@ namespace BrandUp.CardDav.Client.Test
         [Fact]
         public async Task Success_Basic()
         {
+            #region First request
+
             var options = await client.OptionsAsync(CancellationToken.None);
 
             output.WriteLine(options.StatusCode.ToString());
@@ -44,21 +47,32 @@ namespace BrandUp.CardDav.Client.Test
             output.WriteLine(response.StatusCode.ToString());
             Assert.True(response.IsSuccess);
 
+            #endregion
+
+            #region Propfind to collection
             request = PropfindRequest.Create(Depth.One, Prop.ETag);
 
             response = await client.PropfindAsync(response.Body.Resources[0].Endpoint, request, CancellationToken.None);
 
             Assert.True(response.IsSuccess);
 
+            #endregion
+
+            #region filter reports
+
             var filter = new FilterBody();
 
-            filter.AddPropFilter(CardProperty.FN, FilterMatchType.All, TextMatch.Create("", TextMatchType.Contains));
+            filter.AddPropFilter(CardProperty.FN, FilterMatchType.All, TextMatch.Create("t1", TextMatchType.Contains));
             var report = ReportRequest.CreateQuery(PropList.Create(Prop.CTag, Prop.ETag), new AddressData(), filter);
 
             var reportResponse = await client.ReportAsync(response.Body.Resources[1].Endpoint, report, CancellationToken.None);
 
             output.WriteLine(reportResponse.StatusCode.ToString());
+
+            output.WriteLine(reportResponse.StatusCode.ToString());
             Assert.True(reportResponse.IsSuccess);
+            Assert.Single(reportResponse.Body.Resources);
+            Assert.NotNull(reportResponse.Body.Resources.First().FoundProperties[Prop.AddressData]);
 
             filter = new FilterBody();
 
@@ -70,9 +84,13 @@ namespace BrandUp.CardDav.Client.Test
             output.WriteLine(reportResponse.StatusCode.ToString());
             Assert.True(reportResponse.IsSuccess);
             Assert.Single(reportResponse.Body.Resources);
-            Assert.NotNull(reportResponse.Body.Resources.First().CardModel);
+            Assert.NotNull(reportResponse.Body.Resources.First().FoundProperties[Prop.AddressData]);
 
             request = PropfindRequest.AllProp(Depth.One);
+
+            #endregion
+
+            #region Multiget report
 
             response = await client.PropfindAsync(response.Body.Resources[1].Endpoint, request, CancellationToken.None);
 
@@ -85,7 +103,9 @@ namespace BrandUp.CardDav.Client.Test
             output.WriteLine(reportResponse.StatusCode.ToString());
             Assert.True(reportResponse.IsSuccess);
             Assert.Single(reportResponse.Body.Resources);
-            Assert.NotNull(reportResponse.Body.Resources.First().CardModel);
+            Assert.NotNull(reportResponse.Body.Resources.First().FoundProperties[Prop.AddressData]);
+
+            #endregion
         }
 
         //[Fact]

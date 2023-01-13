@@ -1,6 +1,8 @@
-﻿using BrandUp.CardDav.Transport.Models.Abstract;
+﻿using BrandUp.CardDav.Transport.Abstract.Properties;
+using BrandUp.CardDav.Transport.Abstract.Requests;
 using System.Xml;
 using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Models.Requests.Body.Mkcol
 {
@@ -41,25 +43,39 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Mkcol
 
         #endregion
 
+        #region IDavProperty members
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Name => "set";
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Namespace => "DAV:";
+
+        #endregion
+
         #region IXmlSerializable members
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public XmlSchema GetSchema() => null;
+        XmlSchema IXmlSerializable.GetSchema() => null;
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="reader"></param>
-        public void ReadXml(XmlReader reader)
+        async void IXmlSerializable.ReadXml(XmlReader reader)
         {
-            while (reader.Read())
+            while (await reader.ReadAsync())
             {
                 if (reader.NodeType == XmlNodeType.Element && reader.LocalName == "displayname")
                 {
-                    reader.Read();
+                    await reader.ReadAsync();
                     name = reader.Value;
                 }
 
@@ -67,7 +83,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Mkcol
                 {
                     while (reader.NodeType != XmlNodeType.Text)
                     {
-                        reader.Read();
+                        await reader.ReadAsync();
                     }
                     description = reader.Value;
                 }
@@ -78,7 +94,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Mkcol
         /// 
         /// </summary>
         /// <param name="writer"></param>
-        public void WriteXml(XmlWriter writer)
+        void IXmlSerializable.WriteXml(XmlWriter writer)
         {
             writer.WriteStartElement("set", "DAV:");
             writer.WriteStartElement("prop", "DAV:");

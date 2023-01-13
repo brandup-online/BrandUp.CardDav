@@ -1,5 +1,6 @@
 ﻿using BrandUp.CardDav.Client.Options;
-using BrandUp.CardDav.Transport.Models.Abstract;
+using BrandUp.CardDav.Transport.Abstract.Requests;
+using BrandUp.CardDav.Transport.Abstract.Responces;
 using BrandUp.CardDav.Transport.Models.Requests;
 using BrandUp.CardDav.Transport.Models.Responses;
 using BrandUp.CardDav.VCard;

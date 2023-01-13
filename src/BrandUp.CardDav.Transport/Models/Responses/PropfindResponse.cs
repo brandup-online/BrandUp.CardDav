@@ -1,6 +1,6 @@
-﻿using BrandUp.CardDav.Transport.Models.Abstract;
+﻿using BrandUp.CardDav.Transport.Abstract.Responces;
 using BrandUp.CardDav.Transport.Models.Responses.Body;
-using System.Xml.Serialization;
+using BrandUp.CardDav.Xml;
 
 namespace BrandUp.CardDav.Transport.Models.Responses
 {
@@ -22,7 +22,7 @@ namespace BrandUp.CardDav.Transport.Models.Responses
         /// <summary>
         /// 
         /// </summary>
-        public PropfindResponseBody Body { get; init; }
+        public MultistatusResponseBody Body { get; init; }
 
         IResponseBody IResponse.Content => Body;
 
@@ -33,10 +33,8 @@ namespace BrandUp.CardDav.Transport.Models.Responses
         /// <returns></returns>
         public static IResponse Create(HttpResponseMessage message)
         {
-            var serializer = new XmlSerializer(typeof(PropfindResponseBody));
-
-            var body = (PropfindResponseBody)serializer.Deserialize(message.Content.ReadAsStream());
-            var response = new PropfindResponse { IsSuccess = message.IsSuccessStatusCode, StatusCode = ((int)message.StatusCode), Body = body };
+            var body = CustomSerializer.DeserializeResponse<MultistatusResponseBody>(message.Content.ReadAsStream());
+            var response = new PropfindResponse { IsSuccess = message.IsSuccessStatusCode, StatusCode = ((int)message.StatusCode), Body = body as MultistatusResponseBody };
 
             return response;
         }

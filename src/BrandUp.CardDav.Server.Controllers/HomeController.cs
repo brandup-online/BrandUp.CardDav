@@ -3,12 +3,11 @@ using BrandUp.CardDav.Server.Abstractions.Exceptions;
 using BrandUp.CardDav.Server.Attributes;
 using BrandUp.CardDav.Transport.Binding;
 using BrandUp.CardDav.Transport.Models.Headers;
-using BrandUp.CardDav.Transport.Models.Responses.Body;
+using BrandUp.CardDav.Xml;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
-using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Server.Controllers
 {
@@ -76,10 +75,8 @@ namespace BrandUp.CardDav.Server.Controllers
 
                 var response = request.Body.CreateResponse(dictionary);
 
-                var serializer = new XmlSerializer(typeof(PropfindResponseBody));
-
                 Response.StatusCode = 207;
-                serializer.Serialize(Response.Body, response);
+                CustomSerializer.SerializeResponse(Response.Body, response);
 
                 return new EmptyResult();
             }

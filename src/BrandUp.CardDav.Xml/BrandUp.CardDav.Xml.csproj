@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BrandUp.CardDav.Server\BrandUp.CardDav.Server.Abstractions.csproj" />
+    <ProjectReference Include="..\BrandUp.CardDav.Transport.Abstract\BrandUp.CardDav.Transport.Abstract.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,4 +1,6 @@
-﻿using BrandUp.CardDav.VCard;
+﻿using BrandUp.CardDav.Transport.Abstract.Enum;
+using BrandUp.CardDav.Transport.Abstract.Properties;
+using BrandUp.CardDav.VCard;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -90,13 +92,13 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters.Conditions
 
         XmlSchema IXmlSerializable.GetSchema() => null;
 
-        void IXmlSerializable.ReadXml(XmlReader reader)
+        async void IXmlSerializable.ReadXml(XmlReader reader)
         {
             if (reader.TryGetAttribute("name", Namespace, out var value))
                 name = Enum.Parse<CardParameter>(value);
             else throw new ArgumentException();
 
-            while (reader.Read())
+            while (await reader.ReadAsync())
             {
                 if (reader.NodeType == XmlNodeType.Element)
                 {

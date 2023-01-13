@@ -1,4 +1,4 @@
-﻿using BrandUp.CardDav.Transport.Models.Abstract;
+﻿using BrandUp.CardDav.Transport.Abstract.Properties;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 

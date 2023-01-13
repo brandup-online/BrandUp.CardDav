@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using BrandUp.CardDav.Transport.Abstract.Enum;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -42,7 +43,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters.Conditions
 
         public XmlSchema GetSchema() => null;
 
-        public void ReadXml(XmlReader reader)
+        async public void ReadXml(XmlReader reader)
         {
             if (reader.TryGetAttribute("collation", @namespace, out var value))
                 collation = value;
@@ -53,7 +54,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters.Conditions
             if (reader.TryGetAttribute("negate-condition", @namespace, out value))
                 isNegate = value == "yes";
 
-            while (reader.Read())
+            while (await reader.ReadAsync())
             {
                 if (reader.NodeType == XmlNodeType.Text)
                 {

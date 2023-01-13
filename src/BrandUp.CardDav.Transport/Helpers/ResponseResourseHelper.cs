@@ -1,7 +1,7 @@
 ﻿using BrandUp.CardDav.Server.Abstractions.Additional;
 using BrandUp.CardDav.Server.Abstractions.Documents;
+using BrandUp.CardDav.Transport.Abstract.Properties;
 using BrandUp.CardDav.Transport.Models;
-using BrandUp.CardDav.Transport.Models.Abstract;
 using BrandUp.CardDav.Transport.Models.Properties;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
@@ -31,12 +31,12 @@ namespace BrandUp.CardDav.Transport.Helpers
                 .ToArray();
         }
 
-        public static Tuple<PropertyDictionary, List<IDavProperty>> GeneratePropfindResource(IDavDocument document, IEnumerable<IDavProperty> davProperties)
+        public static Tuple<PropertyDictionary, List<IDavProperty>> GeneratePropfindResource(IDavDocument document, IEnumerable<IDavProperty> davProperties, bool all = false)
         {
             var propertyDictionary = new Dictionary<IDavProperty, string>();
             List<IDavProperty> notFound = new();
 
-            if (davProperties.Count() == 1 && davProperties.SingleOrDefault()?.Name == "allprop")
+            if (all)
             {
                 SetPropValues(document, propNameTable.Keys, propertyDictionary, notFound);
             }

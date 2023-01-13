@@ -1,4 +1,6 @@
-﻿using BrandUp.CardDav.Transport.Models.Properties.Filters.Conditions;
+﻿using BrandUp.CardDav.Transport.Abstract.Enum;
+using BrandUp.CardDav.Transport.Abstract.Properties;
+using BrandUp.CardDav.Transport.Models.Properties.Filters.Conditions;
 using BrandUp.CardDav.VCard;
 using System.Xml;
 using System.Xml.Schema;
@@ -46,7 +48,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 
         public XmlSchema GetSchema() => null;
 
-        public void ReadXml(XmlReader reader)
+        async public void ReadXml(XmlReader reader)
         {
             if (reader.TryGetAttribute("name", Namespace, out var value))
                 PropName = Enum.Parse<CardProperty>(value);
@@ -60,7 +62,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
             }
 
             var conditions = new List<ICondition>();
-            while (reader.Read())
+            while (await reader.ReadAsync())
             {
                 if (reader.NodeType == XmlNodeType.Element)
                 {

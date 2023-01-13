@@ -1,4 +1,4 @@
-﻿using BrandUp.CardDav.Transport.Models.Abstract;
+﻿using BrandUp.CardDav.Transport.Abstract.Properties;
 using BrandUp.CardDav.VCard;
 using System.Xml;
 using System.Xml.Schema;
@@ -50,11 +50,11 @@ namespace BrandUp.CardDav.Transport.Models.Properties
 
         XmlSchema IXmlSerializable.GetSchema() => null;
 
-        void IXmlSerializable.ReadXml(XmlReader reader)
+        async void IXmlSerializable.ReadXml(XmlReader reader)
         {
             var props = new List<CardProperty>();
             var depth = reader.Depth;
-            while (reader.Read())
+            while (await reader.ReadAsync())
             {
                 if (reader.Depth <= depth)
                 {

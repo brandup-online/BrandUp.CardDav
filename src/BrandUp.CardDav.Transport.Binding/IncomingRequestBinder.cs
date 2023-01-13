@@ -1,13 +1,11 @@
 ﻿using BrandUp.CardDav.Server.Abstractions.Documents;
 using BrandUp.CardDav.Server.Repositories;
+using BrandUp.CardDav.Transport.Abstract.Responces;
 using BrandUp.CardDav.Transport.Binding.Exceptions;
-using BrandUp.CardDav.Transport.Models.Abstract;
-using BrandUp.CardDav.Transport.Models.Requests.Body.Propfind;
-using BrandUp.CardDav.Transport.Models.Requests.Body.Report;
+using BrandUp.CardDav.Xml;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
-using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Binding
 {
@@ -40,15 +38,13 @@ namespace BrandUp.CardDav.Transport.Binding
                 var method = bindingContext.HttpContext.Request.Method;
 
                 logger.LogInformation($"Method: {method}");
-
                 IResponseCreator body = null;
-                if (method == "PROPFIND")
+                if (bindingContext.HttpContext.Request.ContentLength > 0)
+                    body = await CustomSerializer.DeserializeRequestAsync(bindingContext.ActionContext.HttpContext.Request.Body);
+
+                if (body == null)
                 {
-                    body = GetPropfindRequest(bindingContext);
-                }
-                else if (method == "REPORT")
-                {
-                    body = GetReportRequest(bindingContext);
+                    logger.LogWarning("Empty xml request!");
                 }
 
                 var incomingRequest = new IncomingRequest()
@@ -129,64 +125,6 @@ namespace BrandUp.CardDav.Transport.Binding
             }
         }
 
-        private IResponseCreator GetPropfindRequest(ModelBindingContext bindingContext)
-        {
-            try
-            {
-                XmlSerializer serializer = new(typeof(PropBody));
-                if (bindingContext.ActionContext.HttpContext.Request.ContentLength == 0)
-                    return new PropBody("allprop");
-                var reader = new StreamReader(bindingContext.ActionContext.HttpContext.Request.Body);
-
-                var body = (IResponseCreator)serializer.Deserialize(reader);
-
-                return body;
-            }
-            catch (InvalidOperationException ex)
-            {
-                logger.LogError(ex.Message, ex.InnerException);
-                throw new XmlDeserializeException("Incorrect xml");
-            }
-        }
-
-        private IResponseCreator GetReportRequest(ModelBindingContext bindingContext)
-        {
-            try
-            {
-                using var ms = new MemoryStream();
-                bindingContext.ActionContext.HttpContext.Request.Body.CopyTo(ms);
-                ms.Position = 0;
-
-                using var reader = new StreamReader(ms);
-
-                var type = GetTypeByXml(reader);
-                XmlSerializer serializer = new(type);
-
-                var body = (IResponseCreator)serializer.Deserialize(reader);
-
-                return body;
-            }
-            catch (InvalidOperationException)
-            {
-                throw new XmlDeserializeException("Incorrect xml");
-            }
-        }
-
-        Type GetTypeByXml(StreamReader reader)
-        {
-            var xmlString = reader.ReadToEnd();
-            reader.BaseStream.Position = 0;
-
-            if (xmlString.Contains("addressbook-query"))
-            {
-                return typeof(AddresbookQueryBody);
-            }
-            else if (xmlString.Contains("addressbook-multiget"))
-            {
-                return typeof(MultigetBody);
-            }
-            else throw new ArgumentException("Unknown xml request");
-        }
         #endregion
     }
 }

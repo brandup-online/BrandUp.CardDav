@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace BrandUp.CardDav.Transport.Models.Abstract
+namespace BrandUp.CardDav.Transport.Abstract.Properties
 {
     /// <summary>
     /// Determine CardDav property

@@ -1,4 +1,5 @@
-﻿using BrandUp.CardDav.Transport.Models.Headers;
+﻿using BrandUp.CardDav.Transport.Abstract.Enum;
+using BrandUp.CardDav.Transport.Models.Headers;
 using BrandUp.CardDav.Transport.Models.Properties;
 using BrandUp.CardDav.Transport.Models.Properties.Filters;
 using BrandUp.CardDav.Transport.Models.Properties.Filters.Conditions;
@@ -58,7 +59,7 @@ namespace BrandUp.CardDav.Client.Test
         {
             var filter = new FilterBody();
             filter.AddPropFilter(CardProperty.EMAIL, FilterMatchType.All, TextMatch.Create("me", TextMatchType.Contains));
-            var report = ReportRequest.CreateQuery(PropList.Create(Prop.CTag, Prop.ETag, new AddressData()),
+            var report = ReportRequest.CreateQuery(PropList.Create(Prop.CTag, Prop.ETag),
                                     new AddressData(),
                                     filter);
 
@@ -67,7 +68,7 @@ namespace BrandUp.CardDav.Client.Test
             output.WriteLine(reportResponse.StatusCode.ToString());
             Assert.True(reportResponse.IsSuccess);
             Assert.Single(reportResponse.Body.Resources);
-            Assert.NotNull(reportResponse.Body.Resources.First().CardModel);
+            Assert.NotNull(reportResponse.Body.Resources.First().FoundProperties[Prop.AddressData]);
         }
 
         [Fact]
@@ -86,7 +87,7 @@ namespace BrandUp.CardDav.Client.Test
             output.WriteLine(reportResponse.StatusCode.ToString());
             Assert.True(reportResponse.IsSuccess);
             Assert.Equal(3, reportResponse.Body.Resources.Count);
-            Assert.NotNull(reportResponse.Body.Resources.First().CardModel);
+            Assert.NotNull(reportResponse.Body.Resources.First().FoundProperties[Prop.AddressData]);
         }
 
         [Fact]

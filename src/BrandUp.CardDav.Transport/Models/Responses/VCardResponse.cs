@@ -1,4 +1,4 @@
-﻿using BrandUp.CardDav.Transport.Models.Abstract;
+﻿using BrandUp.CardDav.Transport.Abstract.Responces;
 using BrandUp.CardDav.VCard;
 
 namespace BrandUp.CardDav.Transport.Models.Responses

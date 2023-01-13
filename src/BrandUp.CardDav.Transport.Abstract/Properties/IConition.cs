@@ -1,7 +1,6 @@
-﻿using BrandUp.CardDav.Transport.Models.Abstract;
-using BrandUp.CardDav.VCard;
+﻿using BrandUp.CardDav.VCard;
 
-namespace BrandUp.CardDav.Transport.Models.Properties.Filters.Conditions
+namespace BrandUp.CardDav.Transport.Abstract.Properties
 {
     /// <summary>
     /// 

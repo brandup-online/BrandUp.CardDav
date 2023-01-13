@@ -1,6 +1,6 @@
 ﻿using BrandUp.CardDav.Server.Abstractions.Documents;
 
-namespace BrandUp.CardDav.Transport.Models.Abstract
+namespace BrandUp.CardDav.Transport.Abstract.Responces
 {
     /// <summary>
     /// Type can create response body

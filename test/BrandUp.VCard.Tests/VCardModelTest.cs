@@ -17,7 +17,7 @@
 
 
         [Fact]
-        public async Task Success()
+        public void Success()
         {
             var result = new VCardModel(vCard);
 

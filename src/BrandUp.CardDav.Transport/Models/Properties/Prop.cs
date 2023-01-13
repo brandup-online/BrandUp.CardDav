@@ -1,4 +1,4 @@
-﻿using BrandUp.CardDav.Transport.Models.Abstract;
+﻿using BrandUp.CardDav.Transport.Abstract.Properties;
 
 namespace BrandUp.CardDav.Transport.Models.Properties
 {
@@ -92,6 +92,11 @@ namespace BrandUp.CardDav.Transport.Models.Properties
         /// 
         /// </summary>
         public static IDavProperty ResourceType => new DefaultProp("resourcetype");
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public static IDavProperty AddressData => new DefaultProp("address-data", "urn:ietf:params:xml:ns:carddav");
 
         /// <summary>
         /// 

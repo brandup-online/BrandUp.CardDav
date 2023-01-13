@@ -1,4 +1,5 @@
 ﻿using BrandUp.CardDav.Server.Controllers.Tests;
+using BrandUp.CardDav.Transport.Abstract.Enum;
 using BrandUp.CardDav.Transport.Models.Headers;
 using BrandUp.CardDav.Transport.Models.Properties;
 using BrandUp.CardDav.Transport.Models.Properties.Filters;
@@ -149,7 +150,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
             Assert.True(report.IsSuccess);
             Assert.Equal(1, report.Body?.Resources.Count);
             Assert.NotNull(report.Body.Resources.First().Endpoint);
-            Assert.Equal(TestVCards.VCard2, report.Body.Resources.First().CardModel);
+            Assert.Equal(TestVCards.VCard2, new(report.Body.Resources.First().FoundProperties[Prop.AddressData]));
 
             #endregion
 
@@ -169,7 +170,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
 
             Assert.Equal(1, report.Body?.Resources.Count);
             Assert.NotNull(report.Body.Resources.First().Endpoint);
-            Assert.Equal(TestVCards.VCard2, report.Body.Resources.First().CardModel);
+            Assert.Equal(TestVCards.VCard2, new(report.Body.Resources.First().FoundProperties[Prop.AddressData]));
 
             #endregion
 
@@ -189,7 +190,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
 
             Assert.Equal(1, report.Body?.Resources.Count);
             Assert.NotNull(report.Body.Resources.First().Endpoint);
-            Assert.Equal(TestVCards.VCard1, report.Body.Resources.First().CardModel);
+            Assert.Equal(TestVCards.VCard1, new(report.Body.Resources.First().FoundProperties[Prop.AddressData]));
 
             #endregion
 
@@ -209,7 +210,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
 
             Assert.Equal(1, report.Body?.Resources.Count);
             Assert.NotNull(report.Body.Resources.First().Endpoint);
-            Assert.Equal(TestVCards.VCard3, report.Body.Resources.First().CardModel);
+            Assert.Equal(TestVCards.VCard3, new(report.Body.Resources.First().FoundProperties[Prop.AddressData]));
 
             #endregion
         }

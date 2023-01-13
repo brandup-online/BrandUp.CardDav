@@ -1,5 +1,5 @@
 ﻿using BrandUp.CardDav.Server.Abstractions.Documents;
-using BrandUp.CardDav.Transport.Models.Abstract;
+using BrandUp.CardDav.Transport.Abstract.Responces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BrandUp.CardDav.Transport.Binding

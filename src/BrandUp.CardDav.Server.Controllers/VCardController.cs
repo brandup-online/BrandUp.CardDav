@@ -3,9 +3,8 @@ using BrandUp.CardDav.Server.Attributes;
 using BrandUp.CardDav.Server.Repositories;
 using BrandUp.CardDav.Transport.Binding;
 using BrandUp.CardDav.Transport.Models.Headers;
-using BrandUp.CardDav.Transport.Models.Responses.Body;
+using BrandUp.CardDav.Xml;
 using Microsoft.AspNetCore.Mvc;
-using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Server.Controllers
 {
@@ -84,10 +83,8 @@ namespace BrandUp.CardDav.Server.Controllers
             {
                 var response = request.Body.CreateResponse(new Dictionary<string, IDavDocument> { { request.Endpoint, request.Document } });
 
-                var serializer = new XmlSerializer(typeof(PropfindResponseBody));
-
                 Response.StatusCode = 207;
-                serializer.Serialize(Response.Body, response);
+                CustomSerializer.SerializeResponse(Response.Body, response);
 
                 return new EmptyResult();
             }

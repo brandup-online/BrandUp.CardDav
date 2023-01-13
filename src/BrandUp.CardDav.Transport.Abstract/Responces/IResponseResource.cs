@@ -1,6 +1,7 @@
-﻿using System.Xml.Serialization;
+﻿using BrandUp.CardDav.Transport.Abstract.Properties;
+using System.Xml.Serialization;
 
-namespace BrandUp.CardDav.Transport.Models.Abstract
+namespace BrandUp.CardDav.Transport.Abstract.Responces
 {
     /// <summary>
     /// Deserialized Xml response propstat <see href="https://www.rfc-editor.org/rfc/rfc4918#section-14.22"/>
@@ -15,7 +16,7 @@ namespace BrandUp.CardDav.Transport.Models.Abstract
         /// <summary>
         /// Properties that server return with value
         /// </summary>
-        public PropertyDictionary FoundProperties { get; }
+        public IReadOnlyDictionary<IDavProperty, string> FoundProperties { get; }
 
         /// <summary>
         /// Properties that server return without value

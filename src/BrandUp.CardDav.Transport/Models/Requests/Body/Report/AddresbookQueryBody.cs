@@ -1,6 +1,8 @@
 ﻿using BrandUp.CardDav.Server.Abstractions.Documents;
+using BrandUp.CardDav.Transport.Abstract.Properties;
+using BrandUp.CardDav.Transport.Abstract.Requests;
+using BrandUp.CardDav.Transport.Abstract.Responces;
 using BrandUp.CardDav.Transport.Helpers;
-using BrandUp.CardDav.Transport.Models.Abstract;
 using BrandUp.CardDav.Transport.Models.Properties;
 using BrandUp.CardDav.Transport.Models.Properties.Filters;
 using BrandUp.CardDav.Transport.Models.Responses.Body;
@@ -49,7 +51,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
         /// <returns></returns>
         public IResponseBody CreateResponse(IDictionary<string, IDavDocument> collection)
         {
-            var response = new ReportResponseBody();
+            var response = new MultistatusResponseBody();
 
             var filtered = FillterCollection(collection);
 
@@ -58,7 +60,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
 
                 (var found, var notFound) = ResponseResourseHelper.GeneratePropfindResource(pair.Value, Properties);
 
-                response.Resources.Add(new AddressDataResource() { Endpoint = pair.Key, FoundProperties = found, NotFoundProperties = notFound });
+                response.Resources.Add(new ResponseResource() { Endpoint = pair.Key, FoundProperties = found, NotFoundProperties = notFound });
             }
 
             return response;
@@ -80,15 +82,28 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
             }
         }
 
+        #region IDavProperty
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Name => "addressbook-query";
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Namespace => "urn:ietf:params:xml:ns:carddav";
+
+        #endregion
+
         #region IXmlSerializable member
 
         XmlSchema IXmlSerializable.GetSchema() => null;
 
-
-        void IXmlSerializable.ReadXml(XmlReader reader)
+        async void IXmlSerializable.ReadXml(XmlReader reader)
         {
             var propList = new List<IDavProperty>();
-            while (reader.Read())
+            while (await reader.ReadAsync())
             {
                 if (reader.NodeType == XmlNodeType.Element)
                 {
@@ -99,7 +114,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
                         var addresData = (IXmlSerializable)new AddressData();
 
                         addresData.ReadXml(reader);
-                        propList.Add((AddressData)addresData);
+                        propList.Add((IDavProperty)addresData);
                     }
                     else if (reader.LocalName == "filter")
                     {
@@ -111,12 +126,12 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
                     }
                     else if (reader.LocalName == "limit")
                     {
-                        reader.Read();
+                        await reader.ReadAsync();
                         Limit = int.Parse(reader.Value);
                     }
                     else
                     {
-                        propList.Add(new DefaultProp(reader.LocalName, reader.NamespaceURI));
+                        propList.Add((IDavProperty)new DefaultProp(reader.LocalName, reader.NamespaceURI));
                     }
                 }
             }

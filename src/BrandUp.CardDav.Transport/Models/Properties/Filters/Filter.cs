@@ -1,5 +1,5 @@
-﻿using BrandUp.CardDav.Transport.Models.Abstract;
-using BrandUp.CardDav.Transport.Models.Properties.Filters.Conditions;
+﻿using BrandUp.CardDav.Transport.Abstract.Enum;
+using BrandUp.CardDav.Transport.Abstract.Properties;
 using BrandUp.CardDav.VCard;
 using System.Xml;
 using System.Xml.Schema;
@@ -75,7 +75,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 
         XmlSchema IXmlSerializable.GetSchema() => null;
 
-        void IXmlSerializable.ReadXml(XmlReader reader)
+        async void IXmlSerializable.ReadXml(XmlReader reader)
         {
             if (reader.TryGetAttribute("test", @namespace, out var value))
             {
@@ -85,7 +85,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
                     MatchType = FilterMatchType.Any;
             }
 
-            while (reader.Read())
+            while (await reader.ReadAsync())
             {
                 if (reader.NodeType == XmlNodeType.Element)
                 {

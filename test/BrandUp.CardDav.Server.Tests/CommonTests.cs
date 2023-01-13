@@ -3,6 +3,7 @@ using BrandUp.CardDav.Transport.Models.Headers;
 using BrandUp.CardDav.Transport.Models.Properties;
 using BrandUp.CardDav.Transport.Models.Properties.Filters;
 using BrandUp.CardDav.Transport.Models.Requests;
+using BrandUp.CardDav.VCard;
 using Xunit.Abstractions;
 
 namespace BrandUp.CardDav.Server.Tests
@@ -11,6 +12,7 @@ namespace BrandUp.CardDav.Server.Tests
     {
         public CommonTests(ITestOutputHelper output) : base(output)
         {
+
         }
 
         [Fact]
@@ -37,7 +39,7 @@ namespace BrandUp.CardDav.Server.Tests
             Output.WriteLine(reportResponse.StatusCode.ToString());
             Assert.True(reportResponse.IsSuccess);
 
-            var vCards = reportResponse.Body.Resources.Select(r => r.CardModel).Where(c => c != null);
+            var vCards = reportResponse.Body.Resources.Select(r => new VCardModel(r.FoundProperties[Prop.AddressData])).Where(c => c != null);
             Assert.Equal(3, vCards.Count());
 
             Assert.All(vCards, Assert.NotNull);
@@ -78,7 +80,7 @@ namespace BrandUp.CardDav.Server.Tests
             Output.WriteLine(reportResponse.StatusCode.ToString());
             Assert.True(reportResponse.IsSuccess);
 
-            var vCards = reportResponse.Body.Resources.Select(r => r.CardModel).Where(c => c != null);
+            var vCards = reportResponse.Body.Resources.Select(r => new VCardModel(r.FoundProperties[Prop.AddressData])).Where(c => c != null);
             Assert.Equal(3, vCards.Count());
 
             Assert.All(vCards, Assert.NotNull);
