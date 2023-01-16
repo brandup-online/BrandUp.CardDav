@@ -83,9 +83,17 @@ namespace BrandUp.CardDav.Xml
         {
             var constructorsList = new List<ConstructorInfo>();
 
+            var assembly = Assembly.Load("BrandUp.CardDav.Transport");
+
             var types = Assembly.Load("BrandUp.CardDav.Transport")//AppDomain.CurrentDomain.GetAssemblies()
-                        .GetTypes()
-                        .Where(p => typeof(IRequestBody).IsAssignableFrom(p) && p.IsClass);
+                        .GetTypes();
+
+            if (!types.Any())
+                throw new Exception("No types in assembly");
+
+            types = types.Where(p => typeof(IRequestBody).IsAssignableFrom(p) && p.IsClass).ToArray();
+            if (!types.Any())
+                throw new Exception("No types assignable to IRequestBody in assembly");
 
             foreach (var type in types)
             {
