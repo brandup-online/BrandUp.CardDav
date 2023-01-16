@@ -6,6 +6,14 @@ using BrandUp.CardDav.Server.Example.Domain.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
+#pragma warning disable CA1416
+
+builder.Logging
+    .AddDebug()
+    .AddEventLog();
+
+#pragma warning restore
+
 builder.Services.Configure<IISServerOptions>(options =>
 {
     options.AllowSynchronousIO = true;
