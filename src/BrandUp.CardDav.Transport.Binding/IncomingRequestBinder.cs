@@ -46,6 +46,9 @@ namespace BrandUp.CardDav.Transport.Binding
                 {
                     bindingContext.ActionContext.HttpContext.Request.Body.CopyTo(ms);
 
+                    await ms.FlushAsync();
+                    ms.Position = 0;
+
                     using var reader = new StreamReader(ms);
                     var logstring = reader.ReadToEnd();
                     logger.LogInformation($"{logstring}");
