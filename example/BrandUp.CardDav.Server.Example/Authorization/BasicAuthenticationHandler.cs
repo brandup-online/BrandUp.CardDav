@@ -23,7 +23,7 @@ namespace BrandUp.CardDav.Server.Example.Authorization
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            Logger.LogInformation("Authentication request");
+            Logger.LogWarning("Authentication request");
 
 
             if (!Request.Headers.ContainsKey("Authorization"))
@@ -38,13 +38,15 @@ namespace BrandUp.CardDav.Server.Example.Authorization
                 var username = credentials[0];
                 var password = credentials[1];
 
-                Logger.LogInformation("Requesting user from db...");
+                Logger.LogWarning("Requesting user from db...");
 
                 var user = (UserDocument)await userRepository.FindByNameAsync(username, cancellationToken);
+                if (user != null)
+                    Logger.LogWarning($"{user.Name}, {user.Id}");
                 if (user.Password != password)
                     return AuthenticateResult.Fail("Invalid Username or Password");
 
-                Logger.LogInformation("Request successful.");
+                Logger.LogWarning("Request successful.");
 
                 var claims = new[]
                 {
