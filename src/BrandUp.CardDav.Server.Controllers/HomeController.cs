@@ -53,13 +53,13 @@ namespace BrandUp.CardDav.Server.Controllers
         }
 
         [CardDavPropfind(".well-known/carddav")]
-        public ActionResult WellKnown()
+        public ActionResult WellKnown(IncomingRequest request, [FromHeader(Name = "Depth")] string depth)
         {
             return RedirectToAction("Propfind", "Collections", new { Name = User.Identity.Name });
         }
 
         [CardDavPropfind("principals")]
-        public ActionResult PrincipalsAsync(IncomingRequest request, [FromHeader(Name = "Depth")] string depth)
+        public ActionResult Principals(IncomingRequest request, [FromHeader(Name = "Depth")] string depth)
         {
             logger.LogInformation($"Incoming request: Depth:{depth}");
 

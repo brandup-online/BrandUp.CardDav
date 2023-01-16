@@ -39,8 +39,20 @@ namespace BrandUp.CardDav.Transport.Binding
 
                 logger.LogInformation($"Method: {method}");
                 IResponseCreator body = null;
+
+                using var ms = new MemoryStream();
+
                 if (bindingContext.HttpContext.Request.ContentLength > 0)
-                    body = await CustomSerializer.DeserializeRequestAsync(bindingContext.ActionContext.HttpContext.Request.Body);
+                {
+                    bindingContext.ActionContext.HttpContext.Request.Body.CopyTo(ms);
+
+                    using var reader = new StreamReader(ms);
+                    var logstring = reader.ReadToEnd();
+                    logger.LogInformation($"{logstring}");
+                    ms.Position = 0;
+
+                    body = await CustomSerializer.DeserializeRequestAsync(ms);
+                }
 
                 if (body == null)
                 {
