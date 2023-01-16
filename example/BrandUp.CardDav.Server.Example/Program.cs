@@ -10,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging
     .AddDebug()
+    .AddConsole()
     .AddEventLog();
 
 #pragma warning restore

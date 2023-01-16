@@ -43,7 +43,6 @@ namespace BrandUp.CardDav.Xml
 
                     foreach (var constructor in constructors)
                     {
-
                         var instance = constructor.Invoke(new object[0]) as IRequestBody;
                         if (instance == null)
                             throw new Exception("Constructor type must be assingnable to IRequestBody");
@@ -56,10 +55,7 @@ namespace BrandUp.CardDav.Xml
                                 throw new ArgumentException("Instance type must be assingnable to IResponseCreator");
                         }
                         else continue;
-
-
                     }
-
 
                     throw new ArgumentException($"Unknown xml property {ns}:{name}");
                 }
@@ -86,18 +82,22 @@ namespace BrandUp.CardDav.Xml
         static ConstructorInfo[] CreateRequestConstructors()
         {
             var constructorsList = new List<ConstructorInfo>();
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (var type in assemblies.SelectMany(a => a.GetTypes()))
+
+            var types = AppDomain.CurrentDomain.GetAssemblies()
+                        .SelectMany(s => s.GetTypes())
+                        .Where(p => typeof(IRequestBody).IsAssignableFrom(p) && p.IsClass);
+
+            foreach (var type in types)
             {
-                if (type.IsAssignableTo(typeof(IRequestBody)) && type.IsClass)
-                {
-                    var constructor = type.GetConstructor(Type.EmptyTypes);
-                    if (constructor != null)
-                        constructorsList.Add(constructor);
-                    else
-                        throw new NotSupportedException("Type must hame parametless constructor");
-                }
+                var constructor = type.GetConstructor(Type.EmptyTypes);
+                if (constructor != null)
+                    constructorsList.Add(constructor);
+                else
+                    throw new NotSupportedException("Type must have parametless constructor");
             }
+
+            if (!constructorsList.Any())
+                throw new Exception("No constructors!");
 
             return constructorsList.ToArray();
         }
