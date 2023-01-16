@@ -83,8 +83,8 @@ namespace BrandUp.CardDav.Xml
         {
             var constructorsList = new List<ConstructorInfo>();
 
-            var types = AppDomain.CurrentDomain.GetAssemblies()
-                        .SelectMany(s => s.GetTypes())
+            var types = Assembly.Load("BrandUp.CardDav.Transport")//AppDomain.CurrentDomain.GetAssemblies()
+                        .GetTypes()
                         .Where(p => typeof(IRequestBody).IsAssignableFrom(p) && p.IsClass);
 
             foreach (var type in types)
