@@ -31,13 +31,13 @@ namespace BrandUp.CardDav.Transport.Binding
         {
             try
             {
-                logger.LogInformation($"Binding incoming request:");
+                logger.LogWarning($"Binding incoming request:");
 
-                logger.LogInformation($"User: {bindingContext.HttpContext.User.Identity.Name}");
+                logger.LogWarning($"User: {bindingContext.HttpContext.User.Identity.Name}");
 
                 var method = bindingContext.HttpContext.Request.Method;
 
-                logger.LogInformation($"Method: {method}");
+                logger.LogWarning($"Method: {method}");
                 IResponseCreator body = null;
 
                 using var ms = new MemoryStream();
@@ -51,7 +51,7 @@ namespace BrandUp.CardDav.Transport.Binding
 
                     using var reader = new StreamReader(ms);
                     var logstring = reader.ReadToEnd();
-                    logger.LogInformation($"{logstring}");
+                    logger.LogWarning($"{logstring}");
                     ms.Position = 0;
 
                     body = await CustomSerializer.DeserializeRequestAsync(ms);
