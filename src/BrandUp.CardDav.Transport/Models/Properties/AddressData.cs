@@ -53,18 +53,33 @@ namespace BrandUp.CardDav.Transport.Models.Properties
         async void IXmlSerializable.ReadXml(XmlReader reader)
         {
             var props = new List<CardProperty>();
-            var depth = reader.Depth;
+
             while (await reader.ReadAsync())
             {
-                if (reader.Depth <= depth)
-                {
-                    vCardProperties = props;
-                    return;
-                }
+                if (reader.NodeType == XmlNodeType.Whitespace)
+                    continue;
 
-                var value = reader.GetAttribute("name", Namespace);
-                props.Add(Enum.Parse<CardProperty>(value, true));
+                if (reader.LocalName == Name && reader.NamespaceURI == Namespace)
+                {
+                    if (reader.NodeType == XmlNodeType.EndElement)
+                    {
+                        break;
+                    }
+                    else if (reader.NodeType == XmlNodeType.Element)
+                        continue;
+                }
+                else if (reader.LocalName.Equals("prop", StringComparison.CurrentCultureIgnoreCase) && reader.NamespaceURI == Namespace)
+                {
+                    if (reader.TryGetAttribute("name", Namespace, out var value))
+                        if (Enum.TryParse<CardProperty>(value, true, out var enumVal))
+                            props.Add(enumVal);
+                }
+                else
+                {
+                    break;
+                }
             }
+            vCardProperties = props;
         }
 
         void IXmlSerializable.WriteXml(XmlWriter writer)

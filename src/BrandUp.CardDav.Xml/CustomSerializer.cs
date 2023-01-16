@@ -43,6 +43,7 @@ namespace BrandUp.CardDav.Xml
 
                     foreach (var constructor in constructors)
                     {
+
                         var instance = constructor.Invoke(new object[0]) as IRequestBody;
                         if (instance == null)
                             throw new Exception("Constructor type must be assingnable to IRequestBody");
@@ -55,7 +56,10 @@ namespace BrandUp.CardDav.Xml
                                 throw new ArgumentException("Instance type must be assingnable to IResponseCreator");
                         }
                         else continue;
+
+
                     }
+
 
                     throw new ArgumentException($"Unknown xml property {ns}:{name}");
                 }

@@ -130,6 +130,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
         public async Task Success_Report_Addressbook_Filter()
         {
             #region Textmatch filter
+
             var filter = new FilterBody()
             {
                 MatchType = FilterMatchType.All
