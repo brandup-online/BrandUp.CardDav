@@ -6,6 +6,11 @@ using BrandUp.CardDav.Server.Example.Domain.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.Configure<IISServerOptions>(options =>
+{
+    options.AllowSynchronousIO = true;
+});
+
 builder.Services.AddControllers();
 
 builder.Services.AddCradDavServer()
