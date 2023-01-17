@@ -8,11 +8,6 @@ namespace BrandUp.CardDav.Server.Repositories
     public interface IContactRepository
     {
         /// <summary>
-        /// List of all contacts in database.
-        /// </summary>
-        public IQueryable<IContactDocument> Contacts { get; }
-
-        /// <summary>
         /// Creates a new contact.
         /// </summary>
         /// <param name="name">Contact name.</param>
@@ -29,7 +24,7 @@ namespace BrandUp.CardDav.Server.Repositories
         /// <param name="eTag">Entity tag</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<bool> UpdateAsync(IContactDocument document, string eTag, CancellationToken cancellationToken);
+        public Task<bool> UpdateAsync(Contact document, string eTag, CancellationToken cancellationToken);
 
         /// <summary>
         /// Finding contact by id
@@ -37,7 +32,8 @@ namespace BrandUp.CardDav.Server.Repositories
         /// <param name="id">Contact identifier.</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<IContactDocument> FindByIdAsync(Guid id, CancellationToken cancellationToken);
+        public Task<Contact> FindByIdAsync(Guid id, CancellationToken cancellationToken);
+
 
         /// <summary>
         /// Finding contact by name.
@@ -46,7 +42,7 @@ namespace BrandUp.CardDav.Server.Repositories
         /// <param name="bookId">The address book in which there is this contact.</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<IContactDocument> FindByNameAsync(string name, Guid bookId, CancellationToken cancellationToken);
+        public Task<Contact> FindByNameAsync(string name, Guid bookId, CancellationToken cancellationToken);
 
         /// <summary>
         /// Finds all contacts of address book.
@@ -54,7 +50,7 @@ namespace BrandUp.CardDav.Server.Repositories
         /// <param name="bookId">The address book in which there is this contact.</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<IEnumerable<IContactDocument>> FindAllContactsByBookIdAsync(Guid bookId, CancellationToken cancellationToken);
+        public Task<IEnumerable<Contact>> FindAllContactsByBookIdAsync(Guid bookId, CancellationToken cancellationToken);
 
         /// <summary>
         /// Deletes a contact.
@@ -62,6 +58,6 @@ namespace BrandUp.CardDav.Server.Repositories
         /// <param name="document">Address book</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<bool> DeleteAsync(IContactDocument document, CancellationToken cancellationToken);
+        public Task<bool> DeleteAsync(Contact document, CancellationToken cancellationToken);
     }
 }

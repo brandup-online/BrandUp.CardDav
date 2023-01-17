@@ -1,25 +1,33 @@
-﻿using BrandUp.CardDav.Attributes;
-
-namespace BrandUp.CardDav.Server.Abstractions.Documents
+﻿namespace BrandUp.CardDav.Server.Abstractions.Documents
 {
     /// <summary>
     /// Contact entity 
     /// </summary>
-    public interface IContactDocument : IDavDocument
+    public class Contact : IDavDocument
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        public Guid Id { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Name { get; set; }
+
         /// <summary>
         /// Addressbook identifier.
         /// </summary>
         public Guid AddressBookId { get; set; }
+
         /// <summary>
         /// Entity tag.
         /// </summary>
-        [DavName("getetag")]
         public string ETag { get; set; }
+
         /// <summary>
         /// VCard data in string.
         /// </summary>
-        [DavName("address-data", "urn:ietf:params:xml:ns:carddav")]
         public string RawVCard { get; set; }
     }
 }

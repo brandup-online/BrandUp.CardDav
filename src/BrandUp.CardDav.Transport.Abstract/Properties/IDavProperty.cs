@@ -1,4 +1,5 @@
-﻿using System.Xml.Serialization;
+﻿using System.Xml;
+using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Abstract.Properties
 {
@@ -16,5 +17,7 @@ namespace BrandUp.CardDav.Transport.Abstract.Properties
         /// Xml namespase of property
         /// </summary>
         string Namespace { get; }
+
+        public void WriteXmlWithValue(XmlWriter writer, string value);
     }
 }

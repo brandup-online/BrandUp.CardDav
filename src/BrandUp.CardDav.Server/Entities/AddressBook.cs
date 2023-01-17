@@ -3,11 +3,19 @@
     /// <summary>
     /// Addressbook entity 
     /// </summary>
-    public interface IAddressBookDocument : IDavDocument
+    public class AddressBook : IDavDocument
     {
         /// <summary>
         /// User identifier
         /// </summary>
         public Guid UserId { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public Guid Id { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Name { get; set; }
     }
 }

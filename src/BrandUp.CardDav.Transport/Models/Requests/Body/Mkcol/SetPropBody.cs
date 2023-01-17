@@ -41,19 +41,9 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Mkcol
         /// </summary>
         public IEnumerable<IDavProperty> Properties { get; }
 
-        #endregion
+        string IRequestBody.Name => "set";
 
-        #region IDavProperty members
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string Name => "set";
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string Namespace => "DAV:";
+        string IRequestBody.Namespace => "DAV:";
 
         #endregion
 

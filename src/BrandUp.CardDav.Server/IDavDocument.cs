@@ -1,4 +1,4 @@
-﻿namespace BrandUp.CardDav.Server.Abstractions.Documents
+﻿namespace BrandUp.CardDav.Server.Abstractions
 {
     /// <summary>
     /// Interface of dav entity 

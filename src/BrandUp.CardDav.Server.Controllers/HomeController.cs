@@ -1,9 +1,11 @@
-﻿using BrandUp.CardDav.Server.Abstractions.Documents;
-using BrandUp.CardDav.Server.Abstractions.Exceptions;
+﻿using BrandUp.CardDav.Server.Abstractions.Exceptions;
 using BrandUp.CardDav.Server.Attributes;
-using BrandUp.CardDav.Transport.Binding;
+using BrandUp.CardDav.Server.Repositories;
 using BrandUp.CardDav.Transport.Models.Headers;
+using BrandUp.CardDav.Transport.Models.Responses.Body;
+using BrandUp.CardDav.Transport.Server.Binding;
 using BrandUp.CardDav.Xml;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
@@ -16,14 +18,12 @@ namespace BrandUp.CardDav.Server.Controllers
     /// </summary>
     [ApiController]
     [Route("")]
-    public class HomeController : ControllerBase
+    [Authorize]
+    public class HomeController : DavControllerBase
     {
-        readonly ILogger<HomeController> logger;
-
-        public HomeController(ILogger<HomeController> logger)
-        {
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
+        public HomeController(IUserRepository userRepository, IAddressBookRepository adddressBookRepository, IContactRepository contactRepository, ILogger<HomeController> logger)
+            : base(userRepository, adddressBookRepository, contactRepository, logger)
+        { }
 
         /// <summary>
         /// 
@@ -59,8 +59,10 @@ namespace BrandUp.CardDav.Server.Controllers
         }
 
         [CardDavPropfind("principals")]
-        public ActionResult Principals(IncomingRequest request, [FromHeader(Name = "Depth")] string depth)
+        public async Task<ActionResult> Principals(IncomingRequest request, [FromHeader(Name = "Depth")] string depth)
         {
+            var cancellationToken = HttpContext.RequestAborted;
+
             logger.LogInformation($"Incoming request: Depth:{depth}");
 
             if (request == null)
@@ -71,12 +73,25 @@ namespace BrandUp.CardDav.Server.Controllers
 
             try
             {
-                var dictionary = new Dictionary<string, IDavDocument> { { string.Join("/", request.Endpoint, request.Document.Name, "Collections"), request.Document } };
+                var responseBody = new MultistatusResponseBody();
 
-                var response = request.Body.CreateResponse(dictionary);
+                var resourse = await ProccessRessposeResourseAsync(request.Handlers, request.Endpoint, null, cancellationToken);
+
+                responseBody.Resources.Add(resourse);
+
+                if (depth == Depth.One.Value)
+                {
+                    var user = await userRepository.FindByNameAsync(HttpContext.User.Identity.Name, cancellationToken);
+
+                    var userEndpoint = string.Join("/", request.Endpoint, user.Name, "Collections");
+
+                    var userResourse = await ProccessRessposeResourseAsync(request.Handlers, userEndpoint, null, cancellationToken);
+
+                    responseBody.Resources.Add(userResourse);
+                }
 
                 Response.StatusCode = 207;
-                CustomSerializer.SerializeResponse(Response.Body, response);
+                CustomSerializer.SerializeResponse(Response.Body, responseBody);
 
                 return new EmptyResult();
             }

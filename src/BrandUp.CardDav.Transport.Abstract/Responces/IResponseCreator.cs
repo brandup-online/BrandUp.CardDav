@@ -1,18 +1,18 @@
-﻿using BrandUp.CardDav.Server.Abstractions.Documents;
+﻿using BrandUp.CardDav.Server.Abstractions;
 
 namespace BrandUp.CardDav.Transport.Abstract.Responces
 {
     /// <summary>
     /// Type can create response body
     /// </summary>
-    public interface IResponseCreator
+    public interface IBodyWithFilter
     {
         /// <summary>
-        /// Creates response based on data collection and object fields.
+        /// Filtering collection.
         /// </summary>
-        /// <param name="collection"> keys - document endpoint, value - document value </param>
-        /// <returns>Body of response <see cref="IResponseBody"/>. Made based on request object/></returns>
+        /// <param name="collection"> documents collection </param>
+        /// <returns>Body of response <see cref="IResponseBody"/> Filtered collection </returns>
 
-        IResponseBody CreateResponse(IDictionary<string, IDavDocument> collection);
+        IEnumerable<IDavDocument> FilterCollection(IEnumerable<IDavDocument> collection);
     }
 }

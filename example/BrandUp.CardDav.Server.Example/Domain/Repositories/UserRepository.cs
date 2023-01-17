@@ -1,6 +1,7 @@
-﻿using BrandUp.CardDav.Server.Abstractions.Documents;
+﻿using BrandUp.CardDav.Server.Abstractions.Additional;
 using BrandUp.CardDav.Server.Example.Domain.Context;
 using BrandUp.CardDav.Server.Example.Domain.Documents;
+using BrandUp.CardDav.Server.Example.Mapping;
 using BrandUp.CardDav.Server.Repositories;
 using MongoDB.Driver;
 
@@ -15,41 +16,62 @@ namespace BrandUp.CardDav.Server.Example.Domain.Repositories
             this.context = context ?? throw new ArgumentNullException();
         }
 
-        #region IUserRepository members
-
-        public IQueryable<IUserDocument> Users => context.Users.AsQueryable();
-
-        public Task CreateAsync(IUserDocument user, CancellationToken cancellationToken)
-        {
-            if (user is UserDocument document)
-                return context.Users.InsertOneAsync(document, new() { BypassDocumentValidation = false }, cancellationToken);
-            else throw new ArgumentException($"Unexpected type {user.GetType()}");
-        }
-
-        public async Task<bool> DeleteAsync(IUserDocument document, CancellationToken cancellationToken)
-        {
-            var result = await context.Users.DeleteOneAsync(d => d.Id == document.Id, cancellationToken);
-
-            return result.DeletedCount == 1;
-        }
-
-        public async Task<IUserDocument> FindByIdAsync(Guid id, CancellationToken cancellationToken)
-        {
-            var cursor = await context.Users.FindAsync(u => u.Id == id, cancellationToken: cancellationToken);
-
-            return await cursor.FirstOrDefaultAsync(cancellationToken);
-        }
-
-        public async Task<IUserDocument> FindByNameAsync(string name, CancellationToken cancellationToken)
+        public async Task<UserDocument> FindDocumentByNameAsync(string name, CancellationToken cancellationToken)
         {
             var cursor = await context.Users.FindAsync(u => u.Name == name, cancellationToken: cancellationToken);
 
             return await cursor.FirstOrDefaultAsync(cancellationToken);
         }
 
-        public async Task<bool> UpdateAsync(IUserDocument document, CancellationToken cancellationToken)
+        #region IUserRepository members
+
+        public Task CreateAsync(string name, string password, CancellationToken cancellationToken)
         {
-            var result = await context.Users.ReplaceOneAsync(d => d.Id == document.Id, (UserDocument)document, cancellationToken: cancellationToken);
+            var user = new UserDocument();
+
+            user.SetForCreation(name, password);
+
+            return context.Users.InsertOneAsync(new Documents.UserDocument { Id = user.Id, Name = user.Name, }, new() { BypassDocumentValidation = false }, cancellationToken);
+        }
+
+        public async Task<bool> DeleteAsync(Abstractions.Documents.User document, CancellationToken cancellationToken)
+        {
+            var result = await context.Users.DeleteOneAsync(d => d.Id == document.Id, cancellationToken);
+
+            return result.DeletedCount == 1;
+        }
+
+        public async Task<Abstractions.Documents.User> FindByIdAsync(Guid id, CancellationToken cancellationToken)
+        {
+            var cursor = await context.Users.FindAsync(u => u.Id == id, cancellationToken: cancellationToken);
+
+            return (await cursor.FirstOrDefaultAsync(cancellationToken))?.ToUser();
+        }
+
+        public async Task<Abstractions.Documents.User> FindByNameAsync(string name, CancellationToken cancellationToken)
+        {
+            var cursor = await context.Users.FindAsync(u => u.Name == name, cancellationToken: cancellationToken);
+
+            return (await cursor.FirstOrDefaultAsync(cancellationToken))?.ToUser();
+        }
+
+        public async Task<CTag> GetCTagAsync(Guid id, CancellationToken cancellationToken)
+        {
+            var cursor = await context.Users.FindAsync(u => u.Id == id, cancellationToken: cancellationToken);
+            var user = await cursor.FirstOrDefaultAsync(cancellationToken);
+
+            return new CTag { Ctag = user.CTag };
+        }
+
+        public async Task<bool> UpdateAsync(Abstractions.Documents.User user, CancellationToken cancellationToken)
+        {
+            var cursor = await context.Users.FindAsync(u => u.Name == user.Name && u.Id == user.Id, cancellationToken: cancellationToken);
+
+            var document = await cursor.FirstOrDefaultAsync(cancellationToken);
+
+            document.Name = user.Name;
+
+            var result = await context.Users.ReplaceOneAsync(d => d.Id == document.Id, document, cancellationToken: cancellationToken);
 
             return result.ModifiedCount == 1;
         }

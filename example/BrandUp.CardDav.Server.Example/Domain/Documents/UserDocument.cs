@@ -1,12 +1,10 @@
-﻿using BrandUp.CardDav.Server.Abstractions.Additional;
-using BrandUp.CardDav.Server.Abstractions.Documents;
-using BrandUp.MongoDB;
+﻿using BrandUp.MongoDB;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace BrandUp.CardDav.Server.Example.Domain.Documents
 {
     [Document(CollectionName = "CardDav.Users")]
-    public class UserDocument : IUserDocument, ICTag
+    public class UserDocument
     {
         [BsonId]
         public Guid Id { get; set; }
@@ -15,10 +13,11 @@ namespace BrandUp.CardDav.Server.Example.Domain.Documents
         public string Name { get; set; }
         public string CTag { get; set; }
 
-        public void SetForCreatiion(string name)
+        public void SetForCreation(string name, string password)
         {
             Id = Guid.NewGuid();
             Name = name;
+            Password = password;
             CTag = DateTime.UtcNow.ToString("\"yyyy-MM-dd:hh-mm-ss\"");
         }
     }

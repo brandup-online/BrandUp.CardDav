@@ -3,13 +3,14 @@
 namespace BrandUp.CardDav.Server.Abstractions.Additional
 {
     /// <summary>
-    /// Provide CTag property for context
+    /// Provide Sync token to context
     /// </summary>
-    public interface ICTag
+    public class SyncToken
     {
         /// <summary>
+        /// Syncronization token
         /// </summary>
-        [DavName("getctag", "http://calendarserver.org/ns/")]
-        public string CTag { get; set; }
+        [DavName("sync-token", "DAV:")]
+        public Uri Token { get; }
     }
 }

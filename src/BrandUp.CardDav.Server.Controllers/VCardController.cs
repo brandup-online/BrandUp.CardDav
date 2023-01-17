@@ -1,10 +1,14 @@
 ﻿using BrandUp.CardDav.Server.Abstractions.Documents;
 using BrandUp.CardDav.Server.Attributes;
+using BrandUp.CardDav.Server.Extentions;
 using BrandUp.CardDav.Server.Repositories;
-using BrandUp.CardDav.Transport.Binding;
 using BrandUp.CardDav.Transport.Models.Headers;
+using BrandUp.CardDav.Transport.Models.Responses.Body;
+using BrandUp.CardDav.Transport.Server.Binding;
 using BrandUp.CardDav.Xml;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace BrandUp.CardDav.Server.Controllers
 {
@@ -13,12 +17,9 @@ namespace BrandUp.CardDav.Server.Controllers
     /// </summary>
     [ApiController]
     [Route("principals/{Name}/Collections/{AddressBook}/{Contact}")]
-    public class VCardController : ControllerBase
+    [Authorize]
+    public class VCardController : DavControllerBase
     {
-        readonly IUserRepository userRepository;
-        readonly IAddressBookRepository addressBookRepository;
-        readonly IContactRepository contactRepository;
-
         /// <summary>
         /// 
         /// </summary>
@@ -26,12 +27,9 @@ namespace BrandUp.CardDav.Server.Controllers
         /// <param name="addressBookRepository"></param>
         /// <param name="contactRepository"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public VCardController(IUserRepository userRepository, IAddressBookRepository addressBookRepository, IContactRepository contactRepository)
-        {
-            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-            this.addressBookRepository = addressBookRepository ?? throw new ArgumentNullException(nameof(addressBookRepository));
-            this.contactRepository = contactRepository ?? throw new ArgumentNullException(nameof(contactRepository));
-        }
+        public VCardController(IUserRepository userRepository, IAddressBookRepository addressBookRepository, IContactRepository contactRepository, ILogger<VCardController> logger)
+            : base(userRepository, addressBookRepository, contactRepository, logger)
+        { }
 
         /// <summary>
         /// 
@@ -71,20 +69,28 @@ namespace BrandUp.CardDav.Server.Controllers
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         [CardDavPropfind]
-        public ActionResult PropfindAsync(IncomingRequest request, [FromHeader(Name = "Depth")] string depth)
+        public async Task<ActionResult> PropfindAsync([FromHeader(Name = "AddressBook")] string bookName, [FromHeader(Name = "Contact")] string contactName, IncomingRequest request, [FromHeader(Name = "Depth")] string depth)
         {
+            var cancellationToken = HttpContext.RequestAborted;
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
             if (depth == Depth.Infinity.Value)
                 return BadRequest("Depth: Infinity");
-
             try
             {
-                var response = request.Body.CreateResponse(new Dictionary<string, IDavDocument> { { request.Endpoint, request.Document } });
+                var userId = User.Identity.GetUserId();
+                var addressBook = await addressBookRepository.FindByNameAsync(bookName, userId, cancellationToken);
+                var contact = await contactRepository.FindByNameAsync(contactName, addressBook.Id, cancellationToken);
+
+                var responseBody = new MultistatusResponseBody();
+
+                var resourse = await ProccessRessposeResourseAsync(request.Handlers, request.Endpoint, contact, cancellationToken);
+
+                responseBody.Resources.Add(resourse);
 
                 Response.StatusCode = 207;
-                CustomSerializer.SerializeResponse(Response.Body, response);
+                CustomSerializer.SerializeResponse(Response.Body, responseBody);
 
                 return new EmptyResult();
             }
@@ -145,22 +151,23 @@ namespace BrandUp.CardDav.Server.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpDelete]
-        public async Task<ActionResult> DeleteAsync(IncomingRequest request)
+        public async Task<ActionResult> DeleteAsync([FromHeader(Name = "AddressBook")] string bookName, [FromHeader(Name = "Contact")] string contactName)
         {
+            var cancellationToken = HttpContext.RequestAborted;
             try
             {
-                if (request.Document is IContactDocument contactDocument)
+                var addressbook = await addressBookRepository.FindByNameAsync(bookName, User.Identity.GetUserId(), cancellationToken);
+                if (addressbook == null)
+                    return NotFound();
+
+                var contact = await contactRepository.FindByNameAsync(contactName, addressbook.Id, cancellationToken);
+
+                if (contact != null)
                 {
-                    if (contactDocument != null)
-                    {
-                        await contactRepository.DeleteAsync(contactDocument, HttpContext.RequestAborted);
-                    }
-                    else return NotFound();
+                    await contactRepository.DeleteAsync(contact, HttpContext.RequestAborted);
                 }
-                else
-                {
-                    return BadRequest();
-                }
+                else return NotFound();
+
                 return NoContent();
             }
             catch (Exception ex)
@@ -171,7 +178,7 @@ namespace BrandUp.CardDav.Server.Controllers
 
         #region Helpers 
 
-        async Task<IContactDocument> FindContactAsync(string name, string addressBook, string contactName, CancellationToken cancellationToken)
+        async Task<Contact> FindContactAsync(string name, string addressBook, string contactName, CancellationToken cancellationToken)
         {
             var book = await FindAddressBookAsync(name, addressBook, cancellationToken);
 
@@ -180,7 +187,7 @@ namespace BrandUp.CardDav.Server.Controllers
             return contact;
         }
 
-        async Task<IAddressBookDocument> FindAddressBookAsync(string name, string addressBookName, CancellationToken cancellationToken)
+        async Task<AddressBook> FindAddressBookAsync(string name, string addressBookName, CancellationToken cancellationToken)
         {
             var user = await userRepository.FindByNameAsync(name, cancellationToken);
 

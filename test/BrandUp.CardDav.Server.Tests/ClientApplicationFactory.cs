@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BrandUp.CardDav.Server.Controllers
 {
-    internal class ClientApplicationFactory : WebApplicationFactory<Program>
+    public class ClientApplicationFactory : WebApplicationFactory<Program>
     {
         public ClientApplicationFactory() : base()
         {

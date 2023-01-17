@@ -8,16 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Xml\**" />
-    <EmbeddedResource Remove="Xml\**" />
-    <None Remove="Xml\**" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\BrandUp.CardDav.Attributes\BrandUp.CardDav.Attributes.csproj" />
     <ProjectReference Include="..\BrandUp.CardDav.Server\BrandUp.CardDav.Server.Abstractions.csproj" />
     <ProjectReference Include="..\BrandUp.CardDav.Transport.Abstract\BrandUp.CardDav.Transport.Abstract.csproj" />
-    <ProjectReference Include="..\BrandUp.CardDav.Xml\BrandUp.CardDav.Xml.csproj" />
     <ProjectReference Include="..\BrandUp.VCard\BrandUp.CardDav.VCard.csproj" />
   </ItemGroup>
 

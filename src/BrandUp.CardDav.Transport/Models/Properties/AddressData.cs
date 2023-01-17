@@ -44,6 +44,19 @@ namespace BrandUp.CardDav.Transport.Models.Properties
         /// </summary>
         public string Namespace => "urn:ietf:params:xml:ns:carddav";
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="value"></param>
+        public void WriteXmlWithValue(XmlWriter writer, string value)
+        {
+            var vcard = new VCardModel(value);
+            var result = vcard.ToStringProps(vCardProperties);
+
+            writer.WriteElementString(Name, Namespace, result);
+        }
+
         #endregion
 
         #region IXmlSerializable members

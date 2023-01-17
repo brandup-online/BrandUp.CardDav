@@ -10,7 +10,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
     /// <summary>
     /// 
     /// </summary>
-    public class FilterBody : IDavProperty
+    public class FilterBody : IXmlSerializable
     {
         private const string name = "filter";
         private const string @namespace = "urn:ietf:params:xml:ns:carddav";
@@ -47,7 +47,12 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
             return this;
         }
 
-        internal bool ApplyFilter(VCardModel vCardModel)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="vCardModel"></param>
+        /// <returns></returns>
+        public bool ApplyFilter(VCardModel vCardModel)
         {
             bool flag = true;
 
@@ -62,14 +67,6 @@ namespace BrandUp.CardDav.Transport.Models.Properties.Filters
 
             return flag;
         }
-
-        #region IDavProperty members
-
-        string IDavProperty.Name => name;
-
-        string IDavProperty.Namespace => @namespace;
-
-        #endregion
 
         #region IXmlSerializable members
 

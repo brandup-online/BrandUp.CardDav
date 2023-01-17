@@ -1,12 +1,13 @@
 ﻿using BrandUp.CardDav.Transport.Abstract.Enum;
 using BrandUp.CardDav.VCard;
+using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Abstract.Properties
 {
     /// <summary>
     /// 
     /// </summary>
-    public interface IFilterProperty : IDavProperty
+    public interface IFilterProperty : IXmlSerializable
     {
         /// <summary>
         /// 

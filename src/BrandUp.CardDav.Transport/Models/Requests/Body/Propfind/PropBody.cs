@@ -1,11 +1,7 @@
 ﻿using BrandUp.CardDav.Attributes;
-using BrandUp.CardDav.Server.Abstractions.Documents;
 using BrandUp.CardDav.Transport.Abstract.Properties;
 using BrandUp.CardDav.Transport.Abstract.Requests;
-using BrandUp.CardDav.Transport.Abstract.Responces;
-using BrandUp.CardDav.Transport.Helpers;
 using BrandUp.CardDav.Transport.Models.Properties;
-using BrandUp.CardDav.Transport.Models.Responses.Body;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -16,7 +12,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Propfind
     /// Body of propfind request. 
     /// </summary>
     [Propfind]
-    public class PropBody : IRequestBody, IResponseCreator
+    public class PropBody : IRequestBody
     {
         private string name;
         private string @namespace;
@@ -28,48 +24,11 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Propfind
         /// </summary>
         public IEnumerable<IDavProperty> Properties { get; set; }
 
-        #endregion
+        string IRequestBody.Name => name;
 
-        #region IResponseCreator members
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="collection"></param>
-        /// <returns></returns>
-        public IResponseBody CreateResponse(IDictionary<string, IDavDocument> collection)
-        {
-            var response = new MultistatusResponseBody();
-
-            foreach (var pair in collection)
-            {
-                if (name == "allprop")
-                {
-                    (var found, var notFound) = ResponseResourseHelper.GeneratePropfindResource(pair.Value, Properties, true);
-
-                    response.Resources.Add(new ResponseResource() { Endpoint = pair.Key, FoundProperties = found, NotFoundProperties = notFound });
-                }
-                else
-                {
-                    (var found, var notFound) = ResponseResourseHelper.GeneratePropfindResource(pair.Value, Properties);
-
-                    response.Resources.Add(new ResponseResource() { Endpoint = pair.Key, FoundProperties = found, NotFoundProperties = notFound });
-                }
-            }
-
-            return response;
-        }
+        string IRequestBody.Namespace => @namespace;
 
         #endregion
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string Name => "propfind";
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string Namespace => "DAV:";
 
         /// <summary>
         /// 

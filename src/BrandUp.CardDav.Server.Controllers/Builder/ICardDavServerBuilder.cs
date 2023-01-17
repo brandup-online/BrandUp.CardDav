@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using BrandUp.CardDav.Transport.Handling;
+using BrandUp.CardDav.Transport.Server.Binding;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BrandUp.CardDav.Server.Builder
 {
@@ -21,7 +23,14 @@ namespace BrandUp.CardDav.Server.Builder
 
         private void AddServices()
         {
+            Services.AddSingleton<IHandlerContext, IHandlerContext>();
 
+            Services.AddScoped<AddressDataHandler>();
+            Services.AddScoped<CtagHandler>();
+            Services.AddScoped<CurrentUserPrincipalHandler>();
+            Services.AddScoped<EtagHandler>();
+            Services.AddScoped<PrincipalUrlHandler>();
+            Services.AddScoped<ResourcetypeHandler>();
         }
 
         /// <summary>

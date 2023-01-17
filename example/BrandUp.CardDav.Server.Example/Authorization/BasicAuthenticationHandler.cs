@@ -1,5 +1,4 @@
-﻿using BrandUp.CardDav.Server.Example.Domain.Documents;
-using BrandUp.CardDav.Server.Repositories;
+﻿using BrandUp.CardDav.Server.Example.Domain.Repositories;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
@@ -11,8 +10,8 @@ namespace BrandUp.CardDav.Server.Example.Authorization
 {
     public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationOptions>
     {
-        readonly IUserRepository userRepository;
-        public BasicAuthenticationHandler(IUserRepository userRepository,
+        readonly UserRepository userRepository;
+        public BasicAuthenticationHandler(UserRepository userRepository,
             IOptionsMonitor<AuthenticationOptions> options,
             ILoggerFactory logger,
             UrlEncoder encoder,
@@ -40,7 +39,7 @@ namespace BrandUp.CardDav.Server.Example.Authorization
 
                 Logger.LogWarning("Requesting user from db...");
 
-                var user = (UserDocument)await userRepository.FindByNameAsync(username, cancellationToken);
+                var user = await userRepository.FindDocumentByNameAsync(username, cancellationToken);
                 if (user != null)
                     Logger.LogWarning($"{user.Name}, {user.Id}");
                 if (user.Password != password)

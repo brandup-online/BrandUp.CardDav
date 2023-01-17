@@ -14,12 +14,17 @@ namespace BrandUp.CardDav.Transport.Abstract.Responces
         public string Endpoint { get; }
 
         /// <summary>
-        /// Properties that server return with value
+        /// 
+        /// </summary>
+        IEnumerable<IResourceBody> Resources { set; }
+
+        /// <summary>
+        /// 
         /// </summary>
         public IReadOnlyDictionary<IDavProperty, string> FoundProperties { get; }
 
         /// <summary>
-        /// Properties that server return without value
+        /// 
         /// </summary>
         public IEnumerable<IDavProperty> NotFoundProperties { get; }
     }

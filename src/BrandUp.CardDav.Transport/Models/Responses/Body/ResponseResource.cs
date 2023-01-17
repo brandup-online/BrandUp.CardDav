@@ -15,17 +15,22 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
         /// <summary>
         /// 
         /// </summary>
+        public IEnumerable<IResourceBody> Resources { private get; set; } = new List<IResourceBody>();
+
+        /// <summary>
+        /// 
+        /// </summary>
         public string Endpoint { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
-        public IReadOnlyDictionary<IDavProperty, string> FoundProperties { get; set; }
+        public IReadOnlyDictionary<IDavProperty, string> FoundProperties => Resources.Where(_ => _.IsFound).ToDictionary(k => k.DavProperty, v => v.Value);
 
         /// <summary>
         /// 
         /// </summary>
-        public IEnumerable<IDavProperty> NotFoundProperties { get; set; }
+        public IEnumerable<IDavProperty> NotFoundProperties => Resources.Where(_ => !_.IsFound).Select(_ => _.DavProperty);
 
         /// <summary>
         /// 
@@ -61,9 +66,6 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
                     }
                     else if (reader.NodeType == XmlNodeType.EndElement)
                     {
-                        FoundProperties = new PropertyDictionary(found);
-                        NotFoundProperties = notFound;
-
                         return;
                     }
                 }
@@ -71,32 +73,44 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
                 if (reader.NodeType == XmlNodeType.Element && reader.LocalName == "prop")
                 {
                     propDepth = reader.Depth;
-                }
 
-                if (reader.NodeType == XmlNodeType.Element && reader.Depth > propDepth && propDepth != 0)
-                {
-                    var prop = new DefaultProp(reader.LocalName, reader.NamespaceURI);
-                    await reader.ReadAsync();
+                    if (!reader.Read())
+                        break;
 
-                    if (reader.NodeType == XmlNodeType.Text)
+                    while (reader.NodeType != XmlNodeType.EndElement && reader.LocalName != "prop")
                     {
-                        found.TryAdd(prop, reader.Value);
-                        continue;
-                    }
+                        var prop = new DefaultProp(reader.LocalName, reader.NamespaceURI);
 
-                    if (reader.Depth > propDepth + 1)
-                    {
-                        while (reader.Depth > propDepth + 1)
+                        if (!reader.Read())
+                            break;
+
+                        if (reader.NodeType == XmlNodeType.Text)
                         {
-                            if (!found.TryAdd(prop, reader.LocalName))
-                                found[prop] = string.Join(", ", found[prop], reader.LocalName);
-
-                            await reader.ReadAsync();
+                            Resources = Resources.Append(new ResourceBody { DavProperty = prop, Value = reader.Value, IsFound = true });
                         }
-                    }
-                    else
-                    {
-                        notFound.Add(prop);
+                        else if (reader.Depth > propDepth + 1)
+                        {
+                            if (reader.LocalName == "href")
+                            {
+                                var inner = new HrefProp(prop.Name, prop.Namespace);
+
+                                inner.ReadXml(reader);
+
+                                Resources = Resources.Append(new ResourceBody { DavProperty = inner, Value = null, IsFound = true });
+                            }
+                            else
+                            {
+                                var inner = new PropWithInnerProps(prop.Name, prop.Namespace);
+
+                                inner.ReadXml(reader);
+
+                                Resources = Resources.Append(new ResourceBody { DavProperty = inner, Value = null, IsFound = true });
+                            }
+                        }
+                        else
+                        {
+                            Resources = Resources.Append(new ResourceBody { DavProperty = prop, Value = null, IsFound = false });
+                        }
                     }
                 }
             }
@@ -104,7 +118,6 @@ namespace BrandUp.CardDav.Transport.Models.Responses.Body
 
         void IXmlSerializable.WriteXml(XmlWriter writer)
         {
-
             writer.WriteStartElement("", "response", "DAV:");
 
             writer.WriteStartElement("", "href", "DAV:");

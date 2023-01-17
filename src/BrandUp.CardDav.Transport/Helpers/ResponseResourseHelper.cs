@@ -1,4 +1,5 @@
-﻿using BrandUp.CardDav.Server.Abstractions.Additional;
+﻿using BrandUp.CardDav.Server.Abstractions;
+using BrandUp.CardDav.Server.Abstractions.Additional;
 using BrandUp.CardDav.Server.Abstractions.Documents;
 using BrandUp.CardDav.Transport.Abstract.Properties;
 using BrandUp.CardDav.Transport.Models;
@@ -23,11 +24,11 @@ namespace BrandUp.CardDav.Transport.Helpers
                 {Prop.CTag, "CTag" },
             };
 
-            properties = typeof(IUserDocument).GetProperties()
-                .Concat(typeof(IAddressBookDocument).GetProperties())
-                .Concat(typeof(IContactDocument).GetProperties())
-                .Concat(typeof(ICTag).GetProperties())
-                .Concat(typeof(ISyncToken).GetProperties())
+            properties = typeof(User).GetProperties()
+                .Concat(typeof(AddressBook).GetProperties())
+                .Concat(typeof(Contact).GetProperties())
+                .Concat(typeof(CTag).GetProperties())
+                .Concat(typeof(SyncToken).GetProperties())
                 .ToArray();
         }
 

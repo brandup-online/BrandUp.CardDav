@@ -1,4 +1,5 @@
-﻿using BrandUp.CardDav.Server.Abstractions.Documents;
+﻿using BrandUp.CardDav.Server.Abstractions.Additional;
+using BrandUp.CardDav.Server.Abstractions.Documents;
 
 namespace BrandUp.CardDav.Server.Repositories
 {
@@ -7,18 +8,15 @@ namespace BrandUp.CardDav.Server.Repositories
     /// </summary>
     public interface IUserRepository
     {
-        /// <summary>
-        /// List of all users in database.
-        /// </summary>
-        public IQueryable<IUserDocument> Users { get; }
 
         /// <summary>
         /// Creates a new contact.
         /// </summary>
-        /// <param name="user">User document.</param>
+        /// <param name="name">User document.</param>
+        /// <param name="password">User document.</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task CreateAsync(IUserDocument user, CancellationToken cancellationToken);
+        public Task CreateAsync(string name, string password, CancellationToken cancellationToken);
 
         /// <summary>
         /// Updates user
@@ -26,7 +24,7 @@ namespace BrandUp.CardDav.Server.Repositories
         /// <param name="document">Updated document</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<bool> UpdateAsync(IUserDocument document, CancellationToken cancellationToken);
+        public Task<bool> UpdateAsync(User document, CancellationToken cancellationToken);
 
         /// <summary>
         /// Finding user by id
@@ -34,7 +32,7 @@ namespace BrandUp.CardDav.Server.Repositories
         /// <param name="id">User identifier.</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<IUserDocument> FindByIdAsync(Guid id, CancellationToken cancellationToken);
+        public Task<User> FindByIdAsync(Guid id, CancellationToken cancellationToken);
 
         /// <summary>
         /// Finding user by name.
@@ -42,7 +40,15 @@ namespace BrandUp.CardDav.Server.Repositories
         /// <param name="name">Contact name.</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<IUserDocument> FindByNameAsync(string name, CancellationToken cancellationToken);
+        public Task<User> FindByNameAsync(string name, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public Task<CTag> GetCTagAsync(Guid id, CancellationToken cancellationToken);
 
         /// <summary>
         /// Deletes a user.
@@ -50,6 +56,6 @@ namespace BrandUp.CardDav.Server.Repositories
         /// <param name="document">User</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<bool> DeleteAsync(IUserDocument document, CancellationToken cancellationToken);
+        public Task<bool> DeleteAsync(User document, CancellationToken cancellationToken);
     }
 }

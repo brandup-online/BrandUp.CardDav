@@ -24,6 +24,12 @@ namespace BrandUp.CardDav.Transport.Models.Properties
 
         public string Namespace => @namespace;
 
+
+        public void WriteXmlWithValue(XmlWriter writer, string value)
+        {
+            writer.WriteElementString(Name, Namespace, value);
+        }
+
         #endregion
 
         #region IXmlSerializable

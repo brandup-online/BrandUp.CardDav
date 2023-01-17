@@ -1,6 +1,6 @@
-﻿using BrandUp.CardDav.Server.Abstractions.Documents;
-using BrandUp.CardDav.Server.Example.Domain.Context;
+﻿using BrandUp.CardDav.Server.Example.Domain.Context;
 using BrandUp.CardDav.Server.Example.Domain.Documents;
+using BrandUp.CardDav.Server.Example.Mapping;
 using BrandUp.CardDav.Server.Repositories;
 using MongoDB.Driver;
 
@@ -17,18 +17,16 @@ namespace BrandUp.CardDav.Server.Example.Domain.Repositories
 
         #region IContactRepository member
 
-        public IQueryable<IContactDocument> Contacts => context.Contacts.AsQueryable();
-
         public async Task CreateAsync(string name, Guid bookId, string vCard, CancellationToken cancellationToken)
         {
-            ContactDocument document = new();
+            Documents.ContactDocument document = new();
             document.SetForCreation(name, bookId, vCard);
 
             await context.Contacts.InsertOneAsync(document, new() { BypassDocumentValidation = false }, cancellationToken);
             await UpdateCTagAsync(bookId, cancellationToken);
         }
 
-        public async Task<bool> DeleteAsync(IContactDocument document, CancellationToken cancellationToken)
+        public async Task<bool> DeleteAsync(Abstractions.Documents.Contact document, CancellationToken cancellationToken)
         {
             var result = await context.Contacts.DeleteOneAsync(d => d.Id == document.Id, cancellationToken);
 
@@ -36,33 +34,37 @@ namespace BrandUp.CardDav.Server.Example.Domain.Repositories
             return result.DeletedCount == 1;
         }
 
-        public async Task<IEnumerable<IContactDocument>> FindAllContactsByBookIdAsync(Guid collectionId, CancellationToken cancellationToken)
+        public async Task<IEnumerable<Abstractions.Documents.Contact>> FindAllContactsByBookIdAsync(Guid collectionId, CancellationToken cancellationToken)
         {
             var cursor = await context.Contacts.FindAsync(u => u.AddressBookId == collectionId, cancellationToken: cancellationToken);
 
-            return await cursor.ToListAsync(cancellationToken);
+            return (await cursor.ToListAsync(cancellationToken)).Select(_ => _.ToContact());
         }
 
-        public async Task<IContactDocument> FindByIdAsync(Guid id, CancellationToken cancellationToken)
+        public async Task<Abstractions.Documents.Contact> FindByIdAsync(Guid id, CancellationToken cancellationToken)
         {
             var cursor = await context.Contacts.FindAsync(u => u.Id == id, cancellationToken: cancellationToken);
 
-            return await cursor.FirstOrDefaultAsync(cancellationToken);
+            return (await cursor.FirstOrDefaultAsync(cancellationToken))?.ToContact();
         }
 
-        public async Task<IContactDocument> FindByNameAsync(string name, Guid bookId, CancellationToken cancellationToken)
+        public async Task<Abstractions.Documents.Contact> FindByNameAsync(string name, Guid bookId, CancellationToken cancellationToken)
         {
             var cursor = await context.Contacts.FindAsync(u => u.Name == name && u.AddressBookId == bookId, cancellationToken: cancellationToken);
 
-            return await cursor.FirstOrDefaultAsync(cancellationToken);
+            return (await cursor.FirstOrDefaultAsync(cancellationToken))?.ToContact();
         }
 
-        public async Task<bool> UpdateAsync(IContactDocument document, string eTag, CancellationToken cancellationToken)
+        public async Task<bool> UpdateAsync(Abstractions.Documents.Contact contact, string eTag, CancellationToken cancellationToken)
         {
-            var contact = document as ContactDocument;
-            contact.PreUpdate();
+            var cursor = await context.Contacts.FindAsync(u => u.Id == contact.Id, cancellationToken: cancellationToken);
 
-            var result = await context.Contacts.ReplaceOneAsync(d => d.Id == document.Id, (ContactDocument)document, cancellationToken: cancellationToken);
+            var document = await cursor.FirstOrDefaultAsync(cancellationToken);
+
+            document.ETag = contact.ETag;
+            document.RawVCard = contact.RawVCard;
+
+            var result = await context.Contacts.ReplaceOneAsync(d => d.Id == document.Id, document, cancellationToken: cancellationToken);
 
             await UpdateCTagAsync(document.AddressBookId, cancellationToken);
 

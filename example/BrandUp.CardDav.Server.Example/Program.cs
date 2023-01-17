@@ -28,6 +28,10 @@ builder.Services.AddCradDavServer()
 //.AddAddressBooks<AddressBookRepository>()
 //.AddContacts<ContactRepository>();
 
+builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<AddressBookRepository>();
+builder.Services.AddScoped<ContactRepository>();
+
 builder.Services.AddAuthentication().AddScheme<AuthenticationOptions, BasicAuthenticationHandler>("Basic", options =>
 {
 
@@ -38,6 +42,7 @@ builder.Services.AddMigrations(options =>
     options.AddAssembly(typeof(UserMigration).Assembly);
 });
 builder.Services.AddSingleton<BrandUp.Extensions.Migrations.IMigrationState, MigrationState>();
+builder.Services.AddHostedService<MigrationService>();
 
 builder.Services.AddEndpointsApiExplorer();
 

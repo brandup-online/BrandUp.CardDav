@@ -9,7 +9,7 @@ namespace BrandUp.CardDav.Server.Controllers.Tests
 {
     public abstract class ControllerTestBase : IAsyncLifetime
     {
-        private ClientApplicationFactory factory;
+        protected ClientApplicationFactory factory;
 
         protected CardDavClient Client { get; set; }
         protected ITestOutputHelper Output { get; set; }

@@ -1,4 +1,5 @@
-﻿using BrandUp.CardDav.Server.Abstractions.Documents;
+﻿using BrandUp.CardDav.Server.Abstractions.Additional;
+using BrandUp.CardDav.Server.Abstractions.Documents;
 
 namespace BrandUp.CardDav.Server.Repositories
 {
@@ -7,10 +8,6 @@ namespace BrandUp.CardDav.Server.Repositories
     /// </summary>
     public interface IAddressBookRepository
     {
-        /// <summary>
-        /// List of all address books in database
-        /// </summary>
-        public IQueryable<IAddressBookDocument> AddressBooks { get; }
 
         /// <summary>
         /// Creates a new Address book
@@ -28,7 +25,7 @@ namespace BrandUp.CardDav.Server.Repositories
         /// <param name="eTag">Entity tag</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<bool> UpdateAsync(IAddressBookDocument document, string eTag, CancellationToken cancellationToken);
+        public Task<bool> UpdateAsync(AddressBook document, string eTag, CancellationToken cancellationToken);
 
         /// <summary>
         /// Finding address book by id
@@ -36,7 +33,7 @@ namespace BrandUp.CardDav.Server.Repositories
         /// <param name="id">Address book identifier</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<IAddressBookDocument> FindByIdAsync(Guid id, CancellationToken cancellationToken);
+        public Task<AddressBook> FindByIdAsync(Guid id, CancellationToken cancellationToken);
 
         /// <summary>
         /// Finding address book by name
@@ -45,7 +42,7 @@ namespace BrandUp.CardDav.Server.Repositories
         /// <param name="userId">Identifier of user who owns the book</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<IAddressBookDocument> FindByNameAsync(string name, Guid userId, CancellationToken cancellationToken);
+        public Task<AddressBook> FindByNameAsync(string name, Guid userId, CancellationToken cancellationToken);
 
         /// <summary>
         /// Finds all address book for user
@@ -53,7 +50,15 @@ namespace BrandUp.CardDav.Server.Repositories
         /// <param name="userId">Identifier of user who owns the book</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<IEnumerable<IAddressBookDocument>> FindCollectionsByUserIdAsync(Guid userId, CancellationToken cancellationToken);
+        public Task<IEnumerable<AddressBook>> FindCollectionsByUserIdAsync(Guid userId, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public Task<CTag> GetCTagAsync(Guid id, CancellationToken cancellationToken);
 
         /// <summary>
         /// Deletes a addressbook
@@ -61,6 +66,6 @@ namespace BrandUp.CardDav.Server.Repositories
         /// <param name="document">Address book</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<bool> DeleteAsync(IAddressBookDocument document, CancellationToken cancellationToken);
+        public Task<bool> DeleteAsync(AddressBook document, CancellationToken cancellationToken);
     }
 }

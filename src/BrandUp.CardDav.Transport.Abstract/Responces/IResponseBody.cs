@@ -1,11 +1,11 @@
-﻿using BrandUp.CardDav.Transport.Abstract.Properties;
+﻿using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Transport.Abstract.Responces
 {
     /// <summary>
     /// Body of the xml response
     /// </summary>
-    public interface IResponseBody : IDavProperty
+    public interface IResponseBody : IXmlSerializable
     {
         /// <summary>
         /// Responses that server return

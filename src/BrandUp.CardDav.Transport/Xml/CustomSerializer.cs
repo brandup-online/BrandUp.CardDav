@@ -6,6 +6,9 @@ using System.Xml.Serialization;
 
 namespace BrandUp.CardDav.Xml
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class CustomSerializer
     {
         readonly static IEnumerable<ConstructorInfo> constructors;
@@ -15,6 +18,12 @@ namespace BrandUp.CardDav.Xml
             constructors = CreateRequestConstructors();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="body"></param>
+        /// <returns></returns>
         public static IResponseBody DeserializeResponse<T>(Stream body) where T : class, IResponseBody, new()
         {
             using var reader = XmlReader.Create(body, new XmlReaderSettings { Async = true });
@@ -25,12 +34,24 @@ namespace BrandUp.CardDav.Xml
             return response;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="body"></param>
         public static void SerializeResponse(Stream stream, IResponseBody body)
         {
             Serialize(stream, body);
         }
 
-        public static async Task<IResponseCreator> DeserializeRequestAsync(Stream body)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="body"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        public static async Task<IRequestBody> DeserializeRequestAsync(Stream body)
         {
             using var reader = XmlReader.Create(body, new XmlReaderSettings { Async = true });
 
@@ -49,8 +70,8 @@ namespace BrandUp.CardDav.Xml
                         if (instance.Namespace == ns && instance.Name == name)
                         {
                             instance.ReadXml(reader);
-                            if (instance.GetType().IsAssignableTo(typeof(IResponseCreator)))
-                                return instance as IResponseCreator;
+                            if (instance.GetType().IsAssignableTo(typeof(IBodyWithFilter)))
+                                return instance;
                             else
                                 throw new ArgumentException("Instance type must be assingnable to IResponseCreator");
                         }
@@ -64,6 +85,11 @@ namespace BrandUp.CardDav.Xml
             return null;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="body"></param>
         public static void SerializeRequest(Stream stream, IRequestBody body)
         {
             Serialize(stream, body);
@@ -83,10 +109,7 @@ namespace BrandUp.CardDav.Xml
         {
             var constructorsList = new List<ConstructorInfo>();
 
-            var assembly = Assembly.Load("BrandUp.CardDav.Transport");
-
-            var types = Assembly.Load("BrandUp.CardDav.Transport")//AppDomain.CurrentDomain.GetAssemblies()
-                        .GetTypes();
+            var types = Assembly.GetExecutingAssembly().GetTypes();
 
             if (!types.Any())
                 throw new Exception("No types in assembly");
@@ -97,7 +120,7 @@ namespace BrandUp.CardDav.Xml
 
             foreach (var type in types)
             {
-                var constructor = type.GetConstructor(Type.EmptyTypes);
+                var constructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, Type.EmptyTypes, null);
                 if (constructor != null)
                     constructorsList.Add(constructor);
                 else

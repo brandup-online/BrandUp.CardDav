@@ -1,11 +1,15 @@
 ﻿using BrandUp.CardDav.Server.Abstractions.Documents;
 using BrandUp.CardDav.Server.Abstractions.Exceptions;
 using BrandUp.CardDav.Server.Attributes;
+using BrandUp.CardDav.Server.Extentions;
 using BrandUp.CardDav.Server.Repositories;
-using BrandUp.CardDav.Transport.Binding;
 using BrandUp.CardDav.Transport.Models.Headers;
+using BrandUp.CardDav.Transport.Models.Responses.Body;
+using BrandUp.CardDav.Transport.Server.Binding;
 using BrandUp.CardDav.Xml;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace BrandUp.CardDav.Server.Controllers
 {
@@ -14,12 +18,9 @@ namespace BrandUp.CardDav.Server.Controllers
     /// </summary>
     [ApiController]
     [Route("principals/{Name}/{controller}")]
-    public class CollectionsController : ControllerBase
+    [Authorize]
+    public class CollectionsController : DavControllerBase
     {
-        readonly IUserRepository userRepository;
-        readonly IAddressBookRepository addressBookRepository;
-        readonly IContactRepository contactRepository;
-
         /// <summary>
         /// 
         /// </summary>
@@ -27,12 +28,10 @@ namespace BrandUp.CardDav.Server.Controllers
         /// <param name="addressBookRepository"></param>
         /// <param name="contactRepository"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public CollectionsController(IUserRepository userRepository, IAddressBookRepository addressBookRepository, IContactRepository contactRepository)
-        {
-            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-            this.addressBookRepository = addressBookRepository ?? throw new ArgumentNullException(nameof(addressBookRepository));
-            this.contactRepository = contactRepository ?? throw new ArgumentNullException(nameof(contactRepository));
-        }
+        public CollectionsController(IUserRepository userRepository, IAddressBookRepository addressBookRepository, IContactRepository contactRepository, ILogger<CollectionsController> logger)
+            : base(userRepository, addressBookRepository, contactRepository, logger)
+        { }
+
         #region Propfind controllers
 
         /// <summary>
@@ -43,30 +42,43 @@ namespace BrandUp.CardDav.Server.Controllers
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         [CardDavPropfind]
-        public async Task<ActionResult<string>> PropfindAsync(IncomingRequest request, [FromHeader(Name = "Depth")] string depth)
+        public async Task<ActionResult<string>> PropfindAsync([FromRoute(Name = "Name")] string name, IncomingRequest request, [FromHeader(Name = "Depth")] string depth)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
+
+            var cancellationToken = HttpContext.RequestAborted;
+
+            logger.LogInformation($"Incoming request: Depth:{depth}");
 
             if (depth == Depth.Infinity.Value)
                 return BadRequest("Depth: Infinity");
 
             try
             {
-                var dictionary = new Dictionary<string, IDavDocument> { { request.Endpoint, request.Document } };
+                var userId = User.Identity.GetUserId();
+                var user = await userRepository.FindByIdAsync(userId, cancellationToken);
+
+                var responseBody = new MultistatusResponseBody();
+
+                var resourse = await ProccessRessposeResourseAsync(request.Handlers, request.Endpoint, user, cancellationToken);
+
+                responseBody.Resources.Add(resourse);
+
                 if (depth == Depth.One.Value)
                 {
-                    var documents = await addressBookRepository.FindCollectionsByUserIdAsync(request.Document.Id, HttpContext.RequestAborted);
-                    foreach (var document in documents)
+                    var addressbooks = await addressBookRepository.FindCollectionsByUserIdAsync(userId, cancellationToken);
+                    foreach (var book in addressbooks)
                     {
-                        dictionary.Add(string.Join('/', request.Endpoint, document.Name), document);
+                        var endpoint = string.Join('/', request.Endpoint, book.Name);
+                        resourse = await ProccessRessposeResourseAsync(request.Handlers, endpoint, book, cancellationToken);
+
+                        responseBody.Resources.Add(resourse);
                     }
                 }
 
-                var response = request.Body.CreateResponse(dictionary);
-
                 Response.StatusCode = 207;
-                CustomSerializer.SerializeResponse(Response.Body, response);
+                CustomSerializer.SerializeResponse(Response.Body, responseBody);
 
                 return new EmptyResult();
             }
@@ -88,8 +100,10 @@ namespace BrandUp.CardDav.Server.Controllers
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         [CardDavPropfind("{AddressBook}")]
-        public async Task<ActionResult> PropfindCollectionAsync(IncomingRequest request, [FromHeader(Name = "Depth")] string depth)
+        public async Task<ActionResult> PropfindCollectionAsync([FromRoute(Name = "AddressBook")] string name, IncomingRequest request, [FromHeader(Name = "Depth")] string depth)
         {
+            var cancellationToken = HttpContext.RequestAborted;
+
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
@@ -98,20 +112,28 @@ namespace BrandUp.CardDav.Server.Controllers
 
             try
             {
-                var dictionary = new Dictionary<string, IDavDocument> { { request.Endpoint, request.Document } };
+                var userId = User.Identity.GetUserId();
+                var addressBook = await addressBookRepository.FindByNameAsync(name, userId, cancellationToken);
+
+                var responseBody = new MultistatusResponseBody();
+
+                var resourse = await ProccessRessposeResourseAsync(request.Handlers, request.Endpoint, addressBook, cancellationToken);
+
+                responseBody.Resources.Add(resourse);
+
                 if (depth == Depth.One.Value)
                 {
-                    var documents = await contactRepository.FindAllContactsByBookIdAsync(request.Document.Id, HttpContext.RequestAborted);
-                    foreach (var document in documents)
+                    var contacts = await contactRepository.FindAllContactsByBookIdAsync(addressBook.Id, cancellationToken);
+                    foreach (var contact in contacts)
                     {
-                        dictionary.Add(string.Join('/', request.Endpoint, document.Name), document);
+                        var endpoint = string.Join('/', request.Endpoint, contact.Name);
+                        resourse = await ProccessRessposeResourseAsync(request.Handlers, request.Endpoint, contact, cancellationToken);
+
+                        responseBody.Resources.Add(resourse);
                     }
                 }
-
-                var response = request.Body.CreateResponse(dictionary);
-
                 Response.StatusCode = 207;
-                CustomSerializer.SerializeResponse(Response.Body, response);
+                CustomSerializer.SerializeResponse(Response.Body, responseBody);
 
                 return new EmptyResult();
             }
@@ -136,25 +158,35 @@ namespace BrandUp.CardDav.Server.Controllers
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         [CardDavReport("{AddressBook}")]
-        public async Task<ActionResult> ReportCollectionAsync(IncomingRequest request)
+        public async Task<ActionResult> ReportCollectionAsync([FromRoute(Name = "AddressBook")] string name, IncomingRequest request)
         {
+            var cancellationToken = HttpContext.RequestAborted;
+
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
             try
             {
-                var dictionary = new Dictionary<string, IDavDocument>();
+                var userId = User.Identity.GetUserId();
+                var addressBook = await addressBookRepository.FindByNameAsync(name, userId, cancellationToken);
 
-                var documents = await contactRepository.FindAllContactsByBookIdAsync(request.Document.Id, HttpContext.RequestAborted);
-                foreach (var document in documents)
+                var responseBody = new MultistatusResponseBody();
+
+                var contacts = await contactRepository.FindAllContactsByBookIdAsync(addressBook.Id, cancellationToken);
+
+                if (request.Filter != null)
+                    contacts = request.Filter.FilterCollection(contacts).Cast<Contact>();
+
+                foreach (var contact in contacts)
                 {
-                    dictionary.Add(string.Join('/', request.Endpoint, document.Name), document);
+                    var endpoint = string.Join('/', request.Endpoint, contact.Name);
+                    var resourse = await ProccessRessposeResourseAsync(request.Handlers, request.Endpoint, contact, cancellationToken);
+
+                    responseBody.Resources.Add(resourse);
                 }
 
-                var response = request.Body.CreateResponse(dictionary);
-
                 Response.StatusCode = 207;
-                CustomSerializer.SerializeResponse(Response.Body, response);
+                CustomSerializer.SerializeResponse(Response.Body, responseBody);
 
                 return new EmptyResult();
             }
@@ -180,7 +212,7 @@ namespace BrandUp.CardDav.Server.Controllers
         /// <param name="addressBook"></param>
         /// <returns></returns>
         [CardDavMkcol("{AddressBook}")]
-        public async Task<ActionResult> MakeCollectionAsync([FromRoute(Name = "Name")] string name, [FromRoute(Name = "AddressBook")] string addressBook)
+        public async Task<ActionResult> MakeCollectionAsync([FromRoute(Name = "AddressBook")] string name, [FromRoute(Name = "AddressBook")] string addressBook)
         {
             try
             {
