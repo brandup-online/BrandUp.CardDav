@@ -2,10 +2,14 @@
 using BrandUp.CardDav.Transport.Abstract.Properties;
 using BrandUp.CardDav.Transport.Abstract.Requests;
 using BrandUp.CardDav.Transport.Abstract.Responces;
+using BrandUp.CardDav.Transport.Models.Properties;
+using BrandUp.CardDav.Transport.Models.Requests.Body.Mkcol;
 using BrandUp.CardDav.Transport.Models.Requests.Body.Propfind;
+using BrandUp.CardDav.Transport.Models.Requests.Body.Report;
 using BrandUp.CardDav.Xml;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BrandUp.CardDav.Transport.Server.Binding
 {
@@ -53,6 +57,11 @@ namespace BrandUp.CardDav.Transport.Server.Binding
                     ms.Position = 0;
 
                     body = await CustomSerializer.DeserializeRequestAsync(ms);
+
+                    ValidateBody(body, bindingContext.ModelState);
+                    if (!bindingContext.ModelState.IsValid)
+                        return;
+
                 }
 
                 if (body == null)
@@ -112,6 +121,44 @@ namespace BrandUp.CardDav.Transport.Server.Binding
             }
 
             return result;
+        }
+
+        void ValidateBody(IRequestBody body, ModelStateDictionary modelState)
+        {
+            var comparer = new PropertyComparer();
+
+            if (body is PropBody propfind)
+            {
+                if (propfind.IsAllProp && propfind.Properties.Any())
+                    modelState.AddModelError("Body", "allprop is not only one property in request");
+                if (propfind.Properties.Contains(new AddressData(), comparer))
+                    modelState.AddModelError("Body", "Address-data in propfind request");
+
+            }
+
+            if (body is MultigetBody multiget)
+            {
+                if (!multiget.VCardEndpoints.Any())
+                    modelState.AddModelError("Body", "Address-data in propfind request");
+
+            }
+
+            if (body is AddresbookQueryBody addresbookQuery)
+            {
+
+            }
+
+            if (body is SetPropBody setProp)
+            {
+
+            }
+        }
+
+        private class PropertyComparer : IEqualityComparer<IDavProperty>
+        {
+            public bool Equals(IDavProperty x, IDavProperty y) => x.Name == y.Name && x.Namespace == y.Namespace;
+
+            public int GetHashCode([DisallowNull] IDavProperty obj) => $"{obj.Namespace}:{obj.Name}".GetHashCode();
         }
 
         #endregion
