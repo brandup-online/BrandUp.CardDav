@@ -70,10 +70,10 @@ namespace BrandUp.CardDav.Xml
                         if (instance.Namespace == ns && instance.Name == name)
                         {
                             instance.ReadXml(reader);
-                            if (instance.GetType().IsAssignableTo(typeof(IBodyWithFilter)))
+                            if (instance.GetType().IsAssignableTo(typeof(IRequestBody)))
                                 return instance;
                             else
-                                throw new ArgumentException("Instance type must be assingnable to IResponseCreator");
+                                throw new ArgumentException("Instance type must be assingnable to IRequestBody");
                         }
                         else continue;
                     }

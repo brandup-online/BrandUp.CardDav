@@ -6,7 +6,6 @@ namespace BrandUp.CardDav.Transport.Models.Properties
 {
     internal class HrefProp : IDavProperty
     {
-
         internal HrefProp(string name, string @namespace = "DAV:")
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));

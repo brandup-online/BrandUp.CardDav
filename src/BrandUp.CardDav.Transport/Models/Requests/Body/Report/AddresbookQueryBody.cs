@@ -15,6 +15,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
     /// <summary>
     /// Report query body address-book <see href="https://www.rfc-editor.org/rfc/rfc6352.html#section-10.3"/>
     /// </summary>
+    [XmlRoot(ElementName = "addressbook-query", Namespace = "urn:ietf:params:xml:ns:carddav")]
     public class AddresbookQueryBody : IRequestBody, IBodyWithFilter
     {
         internal IEnumerable<IDavProperty> PropList { get; set; }
@@ -62,7 +63,11 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
         {
             try
             {
-                return collection.Cast<Contact>().Where(c => Filter.ApplyFilter(new VCardModel(c.RawVCard))).Take(Limit);
+                var returnCol = collection.Cast<Contact>().Where(c => Filter.ApplyFilter(new VCardModel(c.RawVCard)));
+                if (Limit > 0)
+                    returnCol = returnCol.Take(Limit);
+
+                return returnCol.ToList();
             }
             catch (InvalidCastException)
             {

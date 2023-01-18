@@ -2,7 +2,6 @@
 using BrandUp.CardDav.Transport.Abstract.Handling;
 using BrandUp.CardDav.Transport.Abstract.Properties;
 using BrandUp.CardDav.Transport.Abstract.Responces;
-using BrandUp.CardDav.Transport.Models.Properties;
 using BrandUp.CardDav.Transport.Models.Responses.Body;
 
 namespace BrandUp.CardDav.Transport.Handling
@@ -13,10 +12,14 @@ namespace BrandUp.CardDav.Transport.Handling
     public class PrincipalUrlHandler : IPropertyHandler
     {
         private const string principals = "/principals";
-        private IDavProperty prop = Prop.PrincipalUrl;
 
+        private Task<IResourceBody> Result => Task.FromResult(new ResourceBody { DavProperty = Property, IsFound = true, Value = principals } as IResourceBody);
 
-        private Task<IResourceBody> Result => Task.FromResult(new ResourceBody { DavProperty = prop, IsFound = true, Value = principals } as IResourceBody);
+        /// <summary>
+        /// 
+        /// </summary>
+        public IDavProperty Property { get; set; }
+
         /// <summary>
         /// 
         /// </summary>

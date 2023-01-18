@@ -2,6 +2,7 @@
 using BrandUp.CardDav.Transport.Abstract.Properties;
 using BrandUp.CardDav.Transport.Abstract.Requests;
 using BrandUp.CardDav.Transport.Abstract.Responces;
+using BrandUp.CardDav.Transport.Models.Requests.Body.Propfind;
 using BrandUp.CardDav.Xml;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging;
@@ -59,7 +60,13 @@ namespace BrandUp.CardDav.Transport.Server.Binding
                     logger.LogWarning("Empty xml request!");
                 }
 
-                var handlerList = GetHandlersForRequest(body);
+                var flag = false;
+                if (body is PropBody propBody)
+                {
+                    flag = propBody.IsAllProp;
+                }
+
+                var handlerList = GetHandlersForRequest(body, flag);
 
                 IBodyWithFilter filter = null;
                 if (body is IBodyWithFilter)
@@ -69,7 +76,8 @@ namespace BrandUp.CardDav.Transport.Server.Binding
                 {
                     Handlers = handlerList,
                     Endpoint = bindingContext.HttpContext.Request.Path,
-                    Filter = filter
+                    Filter = filter,
+                    IsAllProp = flag
                 };
 
                 bindingContext.Result = ModelBindingResult.Success(incomingRequest);
@@ -86,8 +94,11 @@ namespace BrandUp.CardDav.Transport.Server.Binding
 
         #region Helpers
 
-        private IDictionary<IDavProperty, IPropertyHandler> GetHandlersForRequest(IRequestBody body)
+        private IDictionary<IDavProperty, IPropertyHandler> GetHandlersForRequest(IRequestBody body, bool flag)
         {
+            if (flag)
+                return handlerContext.All();
+
             var result = new Dictionary<IDavProperty, IPropertyHandler>();
 
             foreach (var prop in body.Properties)

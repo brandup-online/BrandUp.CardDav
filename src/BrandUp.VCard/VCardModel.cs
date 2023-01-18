@@ -181,6 +181,9 @@
         /// <returns></returns>
         public string ToStringProps(IEnumerable<CardProperty> properties)
         {
+            if (properties == null)
+                return ToString();
+
             var result = "";
             foreach (var property in properties)
             {

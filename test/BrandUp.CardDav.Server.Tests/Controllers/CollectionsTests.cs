@@ -19,7 +19,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
         [Fact]
         public async Task Success_Propfind()
         {
-            var request = PropfindRequest.Create(Depth.Zero, Prop.ETag);
+            var request = PropfindRequest.Create(Depth.Zero, Prop.CTag);
 
             var propfind = await Client.PropfindAsync("principals/User/Collections", request, CancellationToken.None);
 

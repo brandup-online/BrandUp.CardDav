@@ -14,8 +14,8 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Propfind
     [Propfind]
     public class PropBody : IRequestBody
     {
-        private string name;
-        private string @namespace;
+        private string innerName;
+        private string innerNamespace;
 
         #region IRequestBody members
 
@@ -24,11 +24,16 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Propfind
         /// </summary>
         public IEnumerable<IDavProperty> Properties { get; set; }
 
-        string IRequestBody.Name => name;
+        string IRequestBody.Name => "propfind";
 
-        string IRequestBody.Namespace => @namespace;
+        string IRequestBody.Namespace => "DAV:";
 
         #endregion
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool IsAllProp => innerName == "allprop";
 
         /// <summary>
         /// 
@@ -46,8 +51,8 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Propfind
         /// <exception cref="ArgumentNullException"></exception>
         public PropBody(string name, string @namespace = "DAV:")
         {
-            this.name = name ?? throw new ArgumentNullException(nameof(name));
-            this.@namespace = @namespace ?? throw new ArgumentNullException(nameof(@namespace));
+            this.innerName = name ?? throw new ArgumentNullException(nameof(name));
+            this.innerNamespace = @namespace ?? throw new ArgumentNullException(nameof(@namespace));
         }
 
         #region IXmlSerializable region
@@ -71,8 +76,8 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Propfind
                     }
                     else if (Math.Abs(reader.Depth - baseDepth) == 1)
                     {
-                        name = reader.LocalName;
-                        @namespace = reader.NamespaceURI;
+                        innerName = reader.LocalName;
+                        innerNamespace = reader.NamespaceURI;
                     }
                 }
             }
@@ -81,7 +86,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Propfind
 
         void IXmlSerializable.WriteXml(XmlWriter writer)
         {
-            writer.WriteStartElement(name, @namespace);
+            writer.WriteStartElement(innerName, innerNamespace);
             if (Properties != null)
                 foreach (IDavProperty property in Properties)
                 {

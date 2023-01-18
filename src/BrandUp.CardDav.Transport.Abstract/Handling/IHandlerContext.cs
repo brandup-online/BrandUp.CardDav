@@ -8,5 +8,6 @@ namespace BrandUp.CardDav.Transport.Server.Binding
     public interface IHandlerContext
     {
         public IPropertyHandler GetHandler(IDavProperty prop);
+        public IDictionary<IDavProperty, IPropertyHandler> All();
     }
 }

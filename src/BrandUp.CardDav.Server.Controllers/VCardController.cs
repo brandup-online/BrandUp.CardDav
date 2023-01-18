@@ -69,11 +69,16 @@ namespace BrandUp.CardDav.Server.Controllers
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         [CardDavPropfind]
-        public async Task<ActionResult> PropfindAsync([FromHeader(Name = "AddressBook")] string bookName, [FromHeader(Name = "Contact")] string contactName, IncomingRequest request, [FromHeader(Name = "Depth")] string depth)
+        public async Task<ActionResult> PropfindAsync([FromRoute(Name = "AddressBook")] string bookName, [FromRoute(Name = "Contact")] string contactName, IncomingRequest request, [FromHeader(Name = "Depth")] string depth)
         {
             var cancellationToken = HttpContext.RequestAborted;
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
+
+            if (bookName == null)
+                return NotFound();
+            if (contactName == null)
+                return NotFound();
 
             if (depth == Depth.Infinity.Value)
                 return BadRequest("Depth: Infinity");
@@ -81,11 +86,14 @@ namespace BrandUp.CardDav.Server.Controllers
             {
                 var userId = User.Identity.GetUserId();
                 var addressBook = await addressBookRepository.FindByNameAsync(bookName, userId, cancellationToken);
+                if (addressBook == null) return NotFound();
+
                 var contact = await contactRepository.FindByNameAsync(contactName, addressBook.Id, cancellationToken);
+                if (contact == null) return NotFound();
 
                 var responseBody = new MultistatusResponseBody();
 
-                var resourse = await ProccessRessposeResourseAsync(request.Handlers, request.Endpoint, contact, cancellationToken);
+                var resourse = await ProccessRessposeResourseAsync(request.Handlers, request.Endpoint, contact, request.IsAllProp, cancellationToken);
 
                 responseBody.Resources.Add(resourse);
 
@@ -151,9 +159,13 @@ namespace BrandUp.CardDav.Server.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpDelete]
-        public async Task<ActionResult> DeleteAsync([FromHeader(Name = "AddressBook")] string bookName, [FromHeader(Name = "Contact")] string contactName)
+        public async Task<ActionResult> DeleteAsync([FromRoute(Name = "AddressBook")] string bookName, [FromRoute(Name = "Contact")] string contactName)
         {
+            if (bookName == null || contactName == null)
+                return NotFound();
+
             var cancellationToken = HttpContext.RequestAborted;
+
             try
             {
                 var addressbook = await addressBookRepository.FindByNameAsync(bookName, User.Identity.GetUserId(), cancellationToken);

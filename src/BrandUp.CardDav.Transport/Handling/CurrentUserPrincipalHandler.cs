@@ -1,7 +1,7 @@
 ﻿using BrandUp.CardDav.Server.Abstractions.Documents;
 using BrandUp.CardDav.Transport.Abstract.Handling;
+using BrandUp.CardDav.Transport.Abstract.Properties;
 using BrandUp.CardDav.Transport.Abstract.Responces;
-using BrandUp.CardDav.Transport.Models.Properties;
 using BrandUp.CardDav.Transport.Models.Responses.Body;
 using Microsoft.AspNetCore.Http;
 
@@ -14,9 +14,14 @@ namespace BrandUp.CardDav.Transport.Handling
     {
         readonly IHttpContextAccessor httpContextAccessor;
 
-        private string UserPrincipals => string.Join('/', "principals", httpContextAccessor.HttpContext.User.Identity.Name);
+        private string UserPrincipals => string.Join('/', "principals", httpContextAccessor.HttpContext.User.Identity.Name, "Collections");
 
-        private Task<IResourceBody> Result => Task.FromResult(new ResourceBody { DavProperty = Prop.CurrentUserPrincipal, IsFound = true, Value = UserPrincipals } as IResourceBody);
+        private Task<IResourceBody> Result => Task.FromResult(new ResourceBody { DavProperty = Property, IsFound = true, Value = UserPrincipals } as IResourceBody);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public IDavProperty Property { get; set; }
 
         /// <summary>
         /// 

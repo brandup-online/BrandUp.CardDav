@@ -1,6 +1,6 @@
 ﻿using BrandUp.CardDav.Transport.Abstract.Handling;
 using BrandUp.CardDav.Transport.Abstract.Properties;
-using BrandUp.CardDav.Transport.Models;
+using BrandUp.CardDav.Transport.Helpers;
 using BrandUp.CardDav.Transport.Models.Properties;
 using BrandUp.CardDav.Transport.Server.Binding;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +12,17 @@ namespace BrandUp.CardDav.Transport.Handling.Context
     /// </summary>
     public class HandlerContext : IHandlerContext
     {
-        private Dictionary<IDavProperty, Func<IPropertyHandler>> handlers;
+        private static Dictionary<IDavProperty, Type> handlers = new(new PropertyComparer())
+            {
+                { Prop.ResourceType, typeof(ResourcetypeHandler)   },
+                { Prop.ETag,  typeof(EtagHandler) },
+                { Prop.CTag,  typeof(CtagHandler) },
+                { Prop.PrincipalUrl, typeof(PrincipalUrlHandler) },
+                { Prop.CurrentUserPrincipal, typeof(CurrentUserPrincipalHandler) },
+                { new AddressData(), typeof(AddressDataHandler) }
+            };
+
+        readonly IServiceProvider serviceProvider;
 
         /// <summary>
         /// 
@@ -21,17 +31,21 @@ namespace BrandUp.CardDav.Transport.Handling.Context
         /// <exception cref="ArgumentNullException"></exception>
         public HandlerContext(IServiceProvider serviceProvider)
         {
-            if (serviceProvider == null)
-                throw new ArgumentNullException(nameof(serviceProvider));
+            this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        }
 
-            handlers = new(new PropertyComparer())
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public IDictionary<IDavProperty, IPropertyHandler> All()
+        {
+            return handlers.ToDictionary(k => k.Key, v =>
             {
-                { Prop.ResourceType, () => serviceProvider.GetRequiredService<ResourcetypeHandler>() },
-                { Prop.ETag, () => serviceProvider.GetRequiredService<EtagHandler>() },
-                { Prop.CTag, () => serviceProvider.GetRequiredService<CtagHandler>() },
-                { Prop.PrincipalUrl, () => serviceProvider.GetRequiredService<PrincipalUrlHandler>() },
-                { Prop.CurrentUserPrincipal, () => serviceProvider.GetRequiredService<CurrentUserPrincipalHandler>() }
-            };
+                var handler = (IPropertyHandler)serviceProvider.GetRequiredService(v.Value);
+                handler.Property = v.Key;
+                return handler;
+            });
         }
 
         /// <summary>
@@ -41,9 +55,12 @@ namespace BrandUp.CardDav.Transport.Handling.Context
         /// <returns></returns>
         public IPropertyHandler GetHandler(IDavProperty prop)
         {
-            if (handlers.TryGetValue(prop, out var func))
+            if (handlers.TryGetValue(prop, out var type))
             {
-                return func();
+                var handler = (IPropertyHandler)serviceProvider.GetRequiredService(type);
+                handler.Property = prop;
+
+                return handler;
             }
             return null;
         }

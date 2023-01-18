@@ -61,7 +61,7 @@ namespace BrandUp.CardDav.Server.Controllers
 
                 var responseBody = new MultistatusResponseBody();
 
-                var resourse = await ProccessRessposeResourseAsync(request.Handlers, request.Endpoint, user, cancellationToken);
+                var resourse = await ProccessRessposeResourseAsync(request.Handlers, request.Endpoint, user, request.IsAllProp, cancellationToken);
 
                 responseBody.Resources.Add(resourse);
 
@@ -71,7 +71,7 @@ namespace BrandUp.CardDav.Server.Controllers
                     foreach (var book in addressbooks)
                     {
                         var endpoint = string.Join('/', request.Endpoint, book.Name);
-                        resourse = await ProccessRessposeResourseAsync(request.Handlers, endpoint, book, cancellationToken);
+                        resourse = await ProccessRessposeResourseAsync(request.Handlers, endpoint, book, request.IsAllProp, cancellationToken);
 
                         responseBody.Resources.Add(resourse);
                     }
@@ -117,7 +117,7 @@ namespace BrandUp.CardDav.Server.Controllers
 
                 var responseBody = new MultistatusResponseBody();
 
-                var resourse = await ProccessRessposeResourseAsync(request.Handlers, request.Endpoint, addressBook, cancellationToken);
+                var resourse = await ProccessRessposeResourseAsync(request.Handlers, request.Endpoint, addressBook, request.IsAllProp, cancellationToken);
 
                 responseBody.Resources.Add(resourse);
 
@@ -127,7 +127,7 @@ namespace BrandUp.CardDav.Server.Controllers
                     foreach (var contact in contacts)
                     {
                         var endpoint = string.Join('/', request.Endpoint, contact.Name);
-                        resourse = await ProccessRessposeResourseAsync(request.Handlers, request.Endpoint, contact, cancellationToken);
+                        resourse = await ProccessRessposeResourseAsync(request.Handlers, endpoint, contact, request.IsAllProp, cancellationToken);
 
                         responseBody.Resources.Add(resourse);
                     }
@@ -180,7 +180,7 @@ namespace BrandUp.CardDav.Server.Controllers
                 foreach (var contact in contacts)
                 {
                     var endpoint = string.Join('/', request.Endpoint, contact.Name);
-                    var resourse = await ProccessRessposeResourseAsync(request.Handlers, request.Endpoint, contact, cancellationToken);
+                    var resourse = await ProccessRessposeResourseAsync(request.Handlers, request.Endpoint, contact, request.IsAllProp, cancellationToken);
 
                     responseBody.Resources.Add(resourse);
                 }
@@ -212,11 +212,11 @@ namespace BrandUp.CardDav.Server.Controllers
         /// <param name="addressBook"></param>
         /// <returns></returns>
         [CardDavMkcol("{AddressBook}")]
-        public async Task<ActionResult> MakeCollectionAsync([FromRoute(Name = "AddressBook")] string name, [FromRoute(Name = "AddressBook")] string addressBook)
+        public async Task<ActionResult> MakeCollectionAsync([FromRoute(Name = "AddressBook")] string addressBook)
         {
             try
             {
-                var user = await userRepository.FindByNameAsync(name, HttpContext.RequestAborted);
+                var user = await userRepository.FindByNameAsync(User.Identity.Name, HttpContext.RequestAborted);
 
                 if (user == null)
                     throw new ArgumentNullException(nameof(user));

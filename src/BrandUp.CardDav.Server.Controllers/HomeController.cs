@@ -75,7 +75,7 @@ namespace BrandUp.CardDav.Server.Controllers
             {
                 var responseBody = new MultistatusResponseBody();
 
-                var resourse = await ProccessRessposeResourseAsync(request.Handlers, request.Endpoint, null, cancellationToken);
+                var resourse = await ProccessRessposeResourseAsync(request.Handlers, request.Endpoint, null, request.IsAllProp, cancellationToken);
 
                 responseBody.Resources.Add(resourse);
 
@@ -85,7 +85,7 @@ namespace BrandUp.CardDav.Server.Controllers
 
                     var userEndpoint = string.Join("/", request.Endpoint, user.Name, "Collections");
 
-                    var userResourse = await ProccessRessposeResourseAsync(request.Handlers, userEndpoint, null, cancellationToken);
+                    var userResourse = await ProccessRessposeResourseAsync(request.Handlers, userEndpoint, null, request.IsAllProp, cancellationToken);
 
                     responseBody.Resources.Add(userResourse);
                 }

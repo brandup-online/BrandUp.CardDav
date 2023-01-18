@@ -52,7 +52,11 @@ namespace BrandUp.CardDav.Transport.Models.Properties
         public void WriteXmlWithValue(XmlWriter writer, string value)
         {
             var vcard = new VCardModel(value);
-            var result = vcard.ToStringProps(vCardProperties);
+
+            string result;
+            if (vCardProperties != null && !vCardProperties.Any())
+                result = vcard.ToString();
+            else result = vcard.ToStringProps(vCardProperties);
 
             writer.WriteElementString(Name, Namespace, result);
         }

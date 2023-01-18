@@ -12,6 +12,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
     /// <summary>
     /// <see href="https://www.rfc-editor.org/rfc/rfc6352.html#section-10.7"/>
     /// </summary>
+    [XmlRoot(ElementName = "addressbook-multiget", Namespace = "urn:ietf:params:xml:ns:carddav")]
     public class MultigetBody : IRequestBody, IBodyWithFilter
     {
         /// <summary>

@@ -15,7 +15,7 @@ namespace BrandUp.CardDav.Server.Example.Mapping
         }
         public static Contact ToContact(this ContactDocument contact)
         {
-            return new() { Id = contact.Id, Name = contact.Name, AddressBookId = contact.AddressBookId };
+            return new() { Id = contact.Id, Name = contact.Name, AddressBookId = contact.AddressBookId, ETag = contact.ETag, RawVCard = contact.RawVCard };
         }
     }
 }

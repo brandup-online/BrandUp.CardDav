@@ -14,6 +14,6 @@ namespace BrandUp.CardDav.Transport.Server.Binding
 
         public IBodyWithFilter Filter { get; init; }
 
-        public bool IsAllprop { get; init; }
+        public bool IsAllProp { get; init; }
     }
 }

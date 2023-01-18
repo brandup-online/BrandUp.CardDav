@@ -3,7 +3,6 @@ using BrandUp.CardDav.Server.Repositories;
 using BrandUp.CardDav.Transport.Abstract.Handling;
 using BrandUp.CardDav.Transport.Abstract.Properties;
 using BrandUp.CardDav.Transport.Abstract.Responces;
-using BrandUp.CardDav.Transport.Models.Properties;
 using BrandUp.CardDav.Transport.Models.Responses.Body;
 
 namespace BrandUp.CardDav.Transport.Handling
@@ -13,10 +12,13 @@ namespace BrandUp.CardDav.Transport.Handling
     /// </summary>
     public class CtagHandler : IPropertyHandler
     {
-        private IDavProperty prop = Prop.CTag;
-
         readonly IAddressBookRepository addressBookRepository;
         readonly IUserRepository userRepository;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public IDavProperty Property { get; set; }
 
         /// <summary>
         /// 
@@ -42,9 +44,9 @@ namespace BrandUp.CardDav.Transport.Handling
             var cTag = await addressBookRepository.GetCTagAsync(addressBook.Id, cancellationToken);
 
             if (cTag != null)
-                return new ResourceBody { DavProperty = prop, IsFound = true, Value = cTag.Ctag };
+                return new ResourceBody { DavProperty = Property, IsFound = true, Value = cTag.Ctag };
             else
-                return new ResourceBody { DavProperty = prop, IsFound = false };
+                return new ResourceBody { DavProperty = Property, IsFound = false };
         }
 
         /// <summary>
@@ -55,7 +57,7 @@ namespace BrandUp.CardDav.Transport.Handling
         /// <returns></returns>
         public Task<IResourceBody> HandleContactAsync(Contact contact, CancellationToken cancellationToken)
         {
-            return Task.FromResult(new ResourceBody { DavProperty = prop, IsFound = false } as IResourceBody);
+            return Task.FromResult(new ResourceBody { DavProperty = Property, IsFound = false } as IResourceBody);
         }
 
         /// <summary>
@@ -65,7 +67,7 @@ namespace BrandUp.CardDav.Transport.Handling
         /// <returns></returns>
         public Task<IResourceBody> HandlePrincipalAsync(CancellationToken cancellationToken)
         {
-            return Task.FromResult(new ResourceBody { DavProperty = prop, IsFound = false } as IResourceBody);
+            return Task.FromResult(new ResourceBody { DavProperty = Property, IsFound = false } as IResourceBody);
         }
 
         /// <summary>
@@ -79,9 +81,9 @@ namespace BrandUp.CardDav.Transport.Handling
             var cTag = await userRepository.GetCTagAsync(user.Id, cancellationToken);
 
             if (cTag != null)
-                return new ResourceBody { DavProperty = prop, IsFound = true, Value = cTag.Ctag };
+                return new ResourceBody { DavProperty = Property, IsFound = true, Value = cTag.Ctag };
             else
-                return new ResourceBody { DavProperty = prop, IsFound = false };
+                return new ResourceBody { DavProperty = Property, IsFound = false };
         }
     }
 }

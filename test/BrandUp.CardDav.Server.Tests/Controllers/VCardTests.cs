@@ -25,7 +25,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
 
             var response = await Client.AddContactAsync("principals/User/Collections/Default/test", vCard, CancellationToken.None);
 
-            Output.WriteLine(response.StatusCode.ToString());
+            Output.WriteLine($"Create: {response.StatusCode}");
             Assert.True(response.IsSuccess);
 
             #endregion
@@ -34,14 +34,14 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
 
             var vCardResponse = await Client.GetAsync("principals/User/Collections/Default/test", CancellationToken.None);
 
-            Output.WriteLine(response.StatusCode.ToString());
+            Output.WriteLine($"Get: {response.StatusCode}");
             Assert.NotNull(vCardResponse);
 
             var propfind = PropfindRequest.Create(Depth.Zero, Prop.ETag);
 
             var propfinResponse = await Client.PropfindAsync("principals/User/Collections/Default/test", propfind);
 
-            Output.WriteLine(response.StatusCode.ToString());
+            Output.WriteLine($"Propfind: {response.StatusCode}");
             Assert.True(propfinResponse.IsSuccess);
 
             #endregion
@@ -56,7 +56,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
             var eTag = propfinResponse.Body.Resources.First().FoundProperties[Prop.ETag];
             response = await Client.UpdateContactAsync("principals/User/Collections/Default/test", vCard, eTag, CancellationToken.None);
 
-            Output.WriteLine(response.StatusCode.ToString());
+            Output.WriteLine($"Update: {response.StatusCode}");
             Assert.True(response.IsSuccess);
 
             #endregion
@@ -65,7 +65,7 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
 
             response = await Client.DeleteContactAsync("principals/User/Collections/Default/test", CancellationToken.None);
 
-            Output.WriteLine(response.StatusCode.ToString());
+            Output.WriteLine($"Delete: {response.StatusCode}");
             Assert.True(response.IsSuccess);
 
             #endregion

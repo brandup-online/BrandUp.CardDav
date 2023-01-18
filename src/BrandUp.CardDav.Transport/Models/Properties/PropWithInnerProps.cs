@@ -20,17 +20,17 @@ namespace BrandUp.CardDav.Transport.Models.Properties
 
         public void ReadXml(XmlReader reader)
         {
-            throw new NotImplementedException();
+
         }
 
         public void WriteXml(XmlWriter writer)
         {
-            throw new NotImplementedException();
+
         }
 
         public void WriteXmlWithValue(XmlWriter writer, string value)
         {
-            throw new NotImplementedException();
+
         }
     }
 }

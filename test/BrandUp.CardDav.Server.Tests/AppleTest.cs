@@ -40,7 +40,7 @@ namespace BrandUp.CardDav.Server.Tests
             Output.WriteLine(await response.Content.ReadAsStringAsync());
             Output.WriteLine(response.StatusCode.ToString());
 
-            Assert.False(response.IsSuccessStatusCode);
+            Assert.True(response.IsSuccessStatusCode);
         }
 
         #region Helpers

@@ -68,8 +68,6 @@ namespace BrandUp.CardDav.Client.Test
             var reportResponse = await client.ReportAsync(response.Body.Resources[1].Endpoint, report, CancellationToken.None);
 
             output.WriteLine(reportResponse.StatusCode.ToString());
-
-            output.WriteLine(reportResponse.StatusCode.ToString());
             Assert.True(reportResponse.IsSuccess);
             Assert.Single(reportResponse.Body.Resources);
             Assert.NotNull(reportResponse.Body.Resources.First().FoundProperties[Prop.AddressData]);

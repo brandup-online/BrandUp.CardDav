@@ -27,7 +27,7 @@ namespace BrandUp.CardDav.Server
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        protected async Task<ResponseResource> ProccessRessposeResourseAsync(IDictionary<IDavProperty, IPropertyHandler> handlers, string endpoint, IDavDocument davDocument, CancellationToken cancellationToken)
+        protected async Task<ResponseResource> ProccessRessposeResourseAsync(IDictionary<IDavProperty, IPropertyHandler> handlers, string endpoint, IDavDocument davDocument, bool isAll, CancellationToken cancellationToken)
         {
             var responseBodyList = new List<IResourceBody>();
 
@@ -37,7 +37,8 @@ namespace BrandUp.CardDav.Server
 
                 responseBodyList.Add(responseBody);
             }
-
+            if (isAll)
+                return new() { Endpoint = endpoint, Resources = responseBodyList.Where(_ => _.IsFound).ToList() };
             return new() { Endpoint = endpoint, Resources = responseBodyList };
         }
 

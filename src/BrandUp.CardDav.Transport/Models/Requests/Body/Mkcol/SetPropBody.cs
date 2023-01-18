@@ -9,6 +9,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Mkcol
     /// <summary>
     /// 
     /// </summary>
+    [XmlRoot(ElementName = "mkcol", Namespace = "DAV:")]
     public class SetPropBody : IRequestBody
     {
         private string name;

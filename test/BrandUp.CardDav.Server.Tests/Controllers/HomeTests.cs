@@ -40,8 +40,8 @@ namespace BrandUp.CardDav.Server.Tests.Controllers
             Output.WriteLine(response.StatusCode.ToString());
             Assert.True(response.IsSuccess);
 
-            Assert.Single(response.Body.Resources);
-            Output.WriteLine(response.Body.Resources.Single().Endpoint);
+            Assert.Equal(2, response.Body.Resources.Count);
+            Output.WriteLine(response.Body.Resources.First().Endpoint);
 
         }
     }

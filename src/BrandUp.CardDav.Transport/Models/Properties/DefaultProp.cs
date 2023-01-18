@@ -18,6 +18,11 @@ namespace BrandUp.CardDav.Transport.Models.Properties
             this.@namespace = @namespace ?? throw new ArgumentNullException(nameof(@namespace));
         }
 
+        public override string ToString()
+        {
+            return $"{@namespace} : {name}";
+        }
+
         #region IDavProperty members
 
         public string Name => name;
