@@ -25,6 +25,8 @@ namespace BrandUp.CardDav.Server.Example.Authorization
         {
             Logger.LogWarning("Authentication request");
 
+            foreach (var header in Request.Headers)
+                Logger.LogWarning($"{header.Key} : {header.Value}");
 
             if (!Request.Headers.ContainsKey("Authorization"))
                 return AuthenticateResult.Fail("Missing Authorization Header");
@@ -62,8 +64,6 @@ namespace BrandUp.CardDav.Server.Example.Authorization
             else
             {
                 Logger.LogWarning("Request does not have Authorization header.");
-                foreach (var header in Request.Headers)
-                    Logger.LogWarning($"{header.Key} : {header.Value}");
 
                 return AuthenticateResult.Fail("Invalid Authorization Header");
             }
