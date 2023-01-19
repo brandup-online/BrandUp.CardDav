@@ -52,7 +52,7 @@ namespace BrandUp.CardDav.Server.Controllers
         [CardDavPropfind(".well-known/carddav")]
         public ActionResult WellKnown(IncomingRequest request, [FromHeader(Name = "Depth")] string depth)
         {
-            return Redirect($"/principals");
+            return Redirect($"../principals");
         }
 
         [ServerAuthorize]
