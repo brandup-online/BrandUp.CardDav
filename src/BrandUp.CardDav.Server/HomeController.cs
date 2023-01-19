@@ -6,7 +6,6 @@ using BrandUp.CardDav.Transport.Models.Responses.Body;
 using BrandUp.CardDav.Transport.Server.Binding;
 using BrandUp.CardDav.Xml;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 
