@@ -59,7 +59,14 @@ namespace BrandUp.CardDav.Server.Example.Authorization
 
                 return AuthenticateResult.Success(ticket);
             }
-            else return AuthenticateResult.Fail("Invalid Authorization Header");
+            else
+            {
+                Logger.LogWarning("Request does not have Authorization header.");
+                Logger.LogWarning(Request.Headers["Authorization"].ToString());
+
+                return AuthenticateResult.Fail("Invalid Authorization Header");
+            }
+
         }
     }
 }
