@@ -16,7 +16,28 @@ namespace BrandUp.CardDav.Transport.Handling
 
         private string UserPrincipals => string.Join('/', "principals", httpContextAccessor.HttpContext.User.Identity.Name, "Collections");
 
-        private Task<IResourceBody> Result => Task.FromResult(new ResourceBody { DavProperty = Property, IsFound = true, Value = UserPrincipals } as IResourceBody);
+        private Task<IResourceBody> Result
+        {
+            get
+            {
+                if (httpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
+                    return Task.FromResult(new ResourceBody
+                    {
+                        DavProperty = Property,
+                        IsFound = true,
+                        Value = UserPrincipals
+                    } as IResourceBody);
+                else
+                {
+                    return Task.FromResult(new ResourceBody
+                    {
+                        DavProperty = Property,
+                        IsFound = false,
+                    } as IResourceBody);
+                }
+            }
+
+        }
 
         /// <summary>
         /// 

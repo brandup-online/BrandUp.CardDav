@@ -55,7 +55,6 @@ namespace BrandUp.CardDav.Server.Controllers
             return Redirect($"../principals");
         }
 
-        [ServerAuthorize]
         [CardDavPropfind("principals")]
         [CardDavPropfind]
         public async Task<ActionResult> Principals(IncomingRequest request, [FromHeader(Name = "Depth")] string depth)
