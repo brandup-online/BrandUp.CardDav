@@ -18,6 +18,7 @@ namespace BrandUp.CardDav.Server.Controllers
     [ApiController]
     [Route("principals/{Name}/Collections/{AddressBook}/{Contact}")]
     [Authorize]
+    [ServerAuthorize]
     public class VCardController : DavControllerBase
     {
         /// <summary>

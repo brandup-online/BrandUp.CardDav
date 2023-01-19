@@ -19,6 +19,7 @@ namespace BrandUp.CardDav.Server.Controllers
     [ApiController]
     [Route("principals/{Name}/{controller}")]
     [Authorize]
+    [ServerAuthorize]
     public class CollectionsController : DavControllerBase
     {
         /// <summary>

@@ -45,6 +45,14 @@ namespace BrandUp.CardDav.Server.Repositories
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="name"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public Task<UserCredentials> FindCredentialsByNameAsync(string name, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="id"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>

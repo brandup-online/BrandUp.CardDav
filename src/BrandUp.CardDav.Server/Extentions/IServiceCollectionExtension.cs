@@ -13,9 +13,12 @@ namespace BrandUp.CardDav.Server
         /// </summary>
         /// <param name="services"></param>
         /// <returns></returns>
-        public static ICardDavServerBuilder AddCradDavServer(this IServiceCollection services)
+        public static ICardDavServerBuilder AddCradDavServer(this IServiceCollection services, Action<CardDavServerOptions> action)
         {
-            return new CardDavServerBuilder(services);
+            var options = new CardDavServerOptions();
+            action(options);
+
+            return new CardDavServerBuilder(services, options);
         }
     }
 }

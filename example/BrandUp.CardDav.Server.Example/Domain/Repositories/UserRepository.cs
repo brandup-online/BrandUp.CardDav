@@ -76,6 +76,17 @@ namespace BrandUp.CardDav.Server.Example.Domain.Repositories
             return result.ModifiedCount == 1;
         }
 
+        public async Task<UserCredentials> FindCredentialsByNameAsync(string name, CancellationToken cancellationToken)
+        {
+            var cursor = await context.Users.FindAsync(u => u.Name == name, cancellationToken: cancellationToken);
+
+            var document = (await cursor.FirstOrDefaultAsync(cancellationToken));
+            if (document == null)
+                return null;
+
+            return new() { Name = document.Name, Id = document.Id, Password = document.Password };
+        }
+
         #endregion
     }
 }

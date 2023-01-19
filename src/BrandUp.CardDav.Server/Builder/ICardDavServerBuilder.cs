@@ -15,12 +15,29 @@ namespace BrandUp.CardDav.Server.Builder
         /// </summary>
         /// <param name="services">Service collection</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public CardDavServerBuilder(IServiceCollection services)
+        public CardDavServerBuilder(IServiceCollection services, CardDavServerOptions options)
         {
             Services = services ?? throw new ArgumentNullException();
+            Options = options ?? throw new ArgumentNullException();
 
+
+            Services.AddSingleton<ICardDavServerBuilder, CardDavServerBuilder>((sp) => this);
             AddServices();
         }
+
+
+        #region ICardDavServerBuilder members
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public IServiceCollection Services { get; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public CardDavServerOptions Options { get; }
+
+        #endregion
 
         private void AddServices()
         {
@@ -34,11 +51,6 @@ namespace BrandUp.CardDav.Server.Builder
             Services.AddScoped<PrincipalUrlHandler>();
             Services.AddScoped<ResourcetypeHandler>();
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public IServiceCollection Services { get; }
     }
 
     /// <summary>
@@ -50,5 +62,7 @@ namespace BrandUp.CardDav.Server.Builder
         /// Service collection
         /// </summary>
         IServiceCollection Services { get; }
+
+        CardDavServerOptions Options { get; }
     }
 }

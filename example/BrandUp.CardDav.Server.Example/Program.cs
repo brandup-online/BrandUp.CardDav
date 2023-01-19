@@ -1,8 +1,8 @@
 using BrandUp.CardDav.Server;
 using BrandUp.CardDav.Server.Example._migrations;
-using BrandUp.CardDav.Server.Example.Authorization;
 using BrandUp.CardDav.Server.Example.Domain.Context;
 using BrandUp.CardDav.Server.Example.Domain.Repositories;
+using BrandUp.CardDav.Server.Extentions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,8 +22,11 @@ builder.Services.Configure<IISServerOptions>(options =>
 
 builder.Services.AddControllers();
 
-builder.Services.AddCradDavServer()
-                .AddRepositories<UserRepository, AddressBookRepository, ContactRepository>();
+builder.Services.AddCradDavServer(o =>
+{
+    o.AuthPolicy = "Basic";
+})
+.AddRepositories<UserRepository, AddressBookRepository, ContactRepository>();
 //.AddUsers<UserRepository>()
 //.AddAddressBooks<AddressBookRepository>()
 //.AddContacts<ContactRepository>();
@@ -32,10 +35,7 @@ builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<AddressBookRepository>();
 builder.Services.AddScoped<ContactRepository>();
 
-builder.Services.AddAuthentication().AddScheme<AuthenticationOptions, BasicAuthenticationHandler>("Basic", options =>
-{
-
-});
+builder.Services.AddAuthentication().AddCardDavAuthentication();
 
 builder.Services.AddMigrations(options =>
 {

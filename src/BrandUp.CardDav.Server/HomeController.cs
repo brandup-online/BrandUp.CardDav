@@ -19,6 +19,7 @@ namespace BrandUp.CardDav.Server.Controllers
     [ApiController]
     [Route("")]
     [Authorize]
+    [ServerAuthorize]
     public class HomeController : DavControllerBase
     {
         public HomeController(IUserRepository userRepository, IAddressBookRepository adddressBookRepository, IContactRepository contactRepository, ILogger<HomeController> logger)

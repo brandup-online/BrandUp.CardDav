@@ -17,6 +17,8 @@
 	<PackageReference Include="BrandUp.MongoDB" Version="7.0.1" />
 	<PackageReference Include="BrandUp.Pages" Version="7.0.1" />
 	<PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
+	<PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.2.0" />
+	<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
 	<PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
   </ItemGroup>
 
