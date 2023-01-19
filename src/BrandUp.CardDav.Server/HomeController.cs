@@ -91,7 +91,22 @@ namespace BrandUp.CardDav.Server.Controllers
                 }
 
                 Response.StatusCode = 207;
-                CustomSerializer.SerializeResponse(Response.Body, responseBody);
+
+                #region For tests. Delete later.
+
+                using var ms = new MemoryStream();
+
+                CustomSerializer.SerializeResponse(ms, responseBody);
+
+                using var reader = new StreamReader(ms);
+
+                logger.LogWarning(await reader.ReadToEndAsync(cancellationToken));
+
+                ms.Position = 0;
+
+                await ms.CopyToAsync(Response.Body, cancellationToken);
+
+                #endregion
 
                 return new EmptyResult();
             }

@@ -61,6 +61,7 @@ namespace BrandUp.CardDav.Transport.Server.Binding
                     ValidateBody(body, bindingContext.ModelState);
                     if (!bindingContext.ModelState.IsValid)
                     {
+                        logger.LogError("The request failed validation.");
                         logger.LogError(string.Join("\r\n", bindingContext.ModelState.Select(_ => _.Value.Errors.Select(e => e.ErrorMessage))));
                         return;
                     }
