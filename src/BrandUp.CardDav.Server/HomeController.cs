@@ -96,6 +96,9 @@ namespace BrandUp.CardDav.Server.Controllers
 
                 CustomSerializer.SerializeResponse(ms, responseBody);
 
+                await ms.FlushAsync();
+                ms.Position = 0;
+
                 using var reader = new StreamReader(ms);
 
                 logger.LogWarning(await reader.ReadToEndAsync(cancellationToken));
