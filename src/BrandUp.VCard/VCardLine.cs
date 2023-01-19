@@ -29,6 +29,16 @@
             return other.Value.Equals(Value) && Enumerable.SequenceEqual(Parameters.OrderBy(_ => _, new ParamComparer()), other.Parameters.OrderBy(_ => _, new ParamComparer()));
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
         private class ParamComparer : IComparer<VCardParameter>
         {
             public int Compare(VCardParameter x, VCardParameter y)

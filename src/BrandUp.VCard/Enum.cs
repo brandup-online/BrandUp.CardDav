@@ -215,55 +215,180 @@
         /// </summary>
         Home
     }
-
+    /// <summary>
+    /// 
+    /// </summary>
     public enum TelType
     {
+        /// <summary>
+        /// 
+        /// </summary>
         Text,
+        /// <summary>
+        /// 
+        /// </summary>
         Voice,
+        /// <summary>
+        /// 
+        /// </summary>
         Fax,
+        /// <summary>
+        /// 
+        /// </summary>
         Cell,
+        /// <summary>
+        /// 
+        /// </summary>
         Video,
+        /// <summary>
+        /// 
+        /// </summary>
         Pager,
+        /// <summary>
+        /// 
+        /// </summary>
         Textphone,
+        /// <summary>
+        /// 
+        /// </summary>
         MainNumber,
+        /// <summary>
+        /// 
+        /// </summary>
         Pref
     }
 
+
+    /// <summary>
+    /// 
+    /// </summary>
     public enum EmailType
     {
+        /// <summary>
+        /// 
+        /// </summary>
         Internet,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Pref,
+
+        /// <summary>
+        /// 
+        /// </summary>
         X400
     }
 
+
+    /// <summary>
+    /// 
+    /// </summary>
     public enum VCardVersion
     {
+
+        /// <summary>
+        /// 
+        /// </summary>
         VCard1,
+        /// <summary>
+        /// 
+        /// </summary>
         VCard2,
+        /// <summary>
+        /// 
+        /// </summary>
         VCard3,
+        /// <summary>
+        /// 
+        /// </summary>
         VCard4,
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public enum RelationType
     {
+        /// <summary>
+        /// 
+        /// </summary>
         Contact,
+        /// <summary>
+        /// 
+        /// </summary>
         Acquaintance,
+        /// <summary>
+        /// 
+        /// </summary>
         Friend,
+        /// <summary>
+        /// 
+        /// </summary>
         Met,
+        /// <summary>
+        /// 
+        /// </summary>
         CoWorker,
+        /// <summary>
+        /// 
+        /// </summary>
         Colleague,
+        /// <summary>
+        /// 
+        /// </summary>
         CoResiden,
+        /// <summary>
+        /// 
+        /// </summary>
         Neighbor,
+        /// <summary>
+        /// 
+        /// </summary>
         Child,
+        /// <summary>
+        /// 
+        /// </summary>
         Parent,
+        /// <summary>
+        /// 
+        /// </summary>
         Sibling,
+        /// <summary>
+        /// 
+        /// </summary>
         Spouse,
+        /// <summary>
+        /// 
+        /// </summary>
         Kin,
+        /// <summary>
+        /// 
+        /// </summary>
         Muse,
+        /// <summary>
+        /// 
+        /// </summary>
         Crush,
+        /// <summary>
+        /// 
+        /// </summary>
         Date,
+        /// <summary>
+        /// 
+        /// </summary>
         Sweetheart,
+        /// <summary>
+        /// 
+        /// </summary>
         Me,
+        /// <summary>
+        /// 
+        /// </summary>
         Agent,
+        /// <summary>
+        /// 
+        /// </summary>
         Emergency,
     }
 }

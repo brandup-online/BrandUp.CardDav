@@ -39,5 +39,14 @@
 
             return Parameter == other.Parameter && Value == other.Value;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }
