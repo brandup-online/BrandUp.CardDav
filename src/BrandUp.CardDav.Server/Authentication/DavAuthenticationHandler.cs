@@ -62,7 +62,8 @@ namespace BrandUp.CardDav.Server.Example.Authorization
             else
             {
                 Logger.LogWarning("Request does not have Authorization header.");
-                Logger.LogWarning(Request.Headers["Authorization"].ToString());
+                foreach (var header in Request.Headers)
+                    Logger.LogWarning($"{header.Key} : {header.Value}");
 
                 return AuthenticateResult.Fail("Invalid Authorization Header");
             }
