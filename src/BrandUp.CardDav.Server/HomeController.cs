@@ -5,7 +5,6 @@ using BrandUp.CardDav.Transport.Models.Headers;
 using BrandUp.CardDav.Transport.Models.Responses.Body;
 using BrandUp.CardDav.Transport.Server.Binding;
 using BrandUp.CardDav.Xml;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
@@ -18,8 +17,6 @@ namespace BrandUp.CardDav.Server.Controllers
     /// </summary>
     [ApiController]
     [Route("")]
-    [Authorize]
-    [ServerAuthorize]
     public class HomeController : DavControllerBase
     {
         public HomeController(IUserRepository userRepository, IAddressBookRepository adddressBookRepository, IContactRepository contactRepository, ILogger<HomeController> logger)
@@ -59,6 +56,7 @@ namespace BrandUp.CardDav.Server.Controllers
             return Redirect($"principals/{User.Identity.Name}/Collections");
         }
 
+        [ServerAuthorize]
         [CardDavPropfind("principals")]
         public async Task<ActionResult> Principals(IncomingRequest request, [FromHeader(Name = "Depth")] string depth)
         {
