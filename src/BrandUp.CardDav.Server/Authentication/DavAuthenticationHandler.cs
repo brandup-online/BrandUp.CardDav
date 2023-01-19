@@ -43,9 +43,12 @@ namespace BrandUp.CardDav.Server.Example.Authorization
 
                 var user = await userRepository.FindCredentialsByNameAsync(username, cancellationToken);
                 if (user != null)
+                {
                     Logger.LogWarning($"{user.Name}, {user.Id}");
-                if (user.Password != password)
-                    return AuthenticateResult.Fail("Invalid Username or Password");
+                    if (user.Password != password)
+                        return AuthenticateResult.Fail("Invalid Username or Password");
+                }
+                else return AuthenticateResult.Fail("Not Found.");
 
                 Logger.LogWarning("Request successful.");
 
