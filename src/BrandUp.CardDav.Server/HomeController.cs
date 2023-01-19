@@ -53,11 +53,12 @@ namespace BrandUp.CardDav.Server.Controllers
         [CardDavPropfind(".well-known/carddav")]
         public ActionResult WellKnown(IncomingRequest request, [FromHeader(Name = "Depth")] string depth)
         {
-            return Redirect($"principals/{User.Identity.Name}/Collections");
+            return Redirect($"/principals");
         }
 
         [ServerAuthorize]
         [CardDavPropfind("principals")]
+        [CardDavPropfind]
         public async Task<ActionResult> Principals(IncomingRequest request, [FromHeader(Name = "Depth")] string depth)
         {
             var cancellationToken = HttpContext.RequestAborted;
