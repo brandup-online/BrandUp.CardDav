@@ -56,7 +56,7 @@ namespace BrandUp.CardDav.Server.Controllers
         }
 
         [CardDavPropfind("principals")]
-        [CardDavPropfind]
+        [CardDavPropfind("/")]
         public async Task<ActionResult> Principals(IncomingRequest request, [FromHeader(Name = "Depth")] string depth)
         {
             var cancellationToken = HttpContext.RequestAborted;
