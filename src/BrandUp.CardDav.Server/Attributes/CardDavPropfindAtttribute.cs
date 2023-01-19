@@ -6,7 +6,7 @@ namespace BrandUp.CardDav.Server.Attributes
     /// <summary>
     /// Defines an action with Propfind method.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
     public class CardDavPropfindAttribute : CardDavAttribute, IResourceFilter
     {
         /// <summary>
