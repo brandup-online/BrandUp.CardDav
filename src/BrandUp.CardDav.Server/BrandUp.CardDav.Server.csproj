@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BrandUp.CardDav.Server\BrandUp.CardDav.Server.Abstractions.csproj" />
+    <ProjectReference Include="..\BrandUp.CardDav.Server.Abstractions\BrandUp.CardDav.Server.Abstractions.csproj" />
     <ProjectReference Include="..\BrandUp.CardDav.Transport\BrandUp.CardDav.Transport.csproj" />
   </ItemGroup>
 

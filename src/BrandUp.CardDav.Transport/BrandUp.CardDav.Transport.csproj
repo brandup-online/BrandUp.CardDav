@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BrandUp.CardDav.Attributes\BrandUp.CardDav.Attributes.csproj" />
-    <ProjectReference Include="..\BrandUp.CardDav.Server\BrandUp.CardDav.Server.Abstractions.csproj" />
+    <ProjectReference Include="..\BrandUp.CardDav.Server.Abstractions\BrandUp.CardDav.Server.Abstractions.csproj" />
     <ProjectReference Include="..\BrandUp.CardDav.Transport.Abstract\BrandUp.CardDav.Transport.Abstract.csproj" />
     <ProjectReference Include="..\BrandUp.VCard\BrandUp.CardDav.VCard.csproj" />
   </ItemGroup>

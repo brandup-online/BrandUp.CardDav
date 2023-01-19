@@ -29,7 +29,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\example\BrandUp.CardDav.Server.Example\BrandUp.CardDav.Server.Example.csproj" />
     <ProjectReference Include="..\..\src\BrandUp.CardDav.Client\BrandUp.CardDav.Client.csproj" />
-    <ProjectReference Include="..\..\src\BrandUp.CardDav.Server.Controllers\BrandUp.CardDav.Server.csproj" />
+    <ProjectReference Include="..\..\src\BrandUp.CardDav.Server\BrandUp.CardDav.Server.csproj" />
   </ItemGroup>
 
 </Project>
