@@ -91,12 +91,12 @@ namespace BrandUp.CardDav.Transport.Models.Properties
         /// <summary>
         /// 
         /// </summary>
-        public static IDavProperty ResourceType => new DefaultProp("resourcetype");
+        public static IDavProperty ResourceType => new PropWithInnerProps("resourcetype");
 
         /// <summary>
         /// 
         /// </summary>
-        public static IDavProperty AddressData => new DefaultProp("address-data", "urn:ietf:params:xml:ns:carddav");
+        public static IDavProperty AddressData => new AddressData();
 
         /// <summary>
         /// 

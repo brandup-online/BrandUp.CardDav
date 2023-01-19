@@ -3,6 +3,7 @@ using BrandUp.CardDav.Transport.Abstract.Handling;
 using BrandUp.CardDav.Transport.Abstract.Properties;
 using BrandUp.CardDav.Transport.Abstract.Responces;
 using BrandUp.CardDav.Transport.Models.Responses.Body;
+using System.Xml;
 
 namespace BrandUp.CardDav.Transport.Handling
 {
@@ -46,9 +47,27 @@ namespace BrandUp.CardDav.Transport.Handling
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public Task<IResourceBody> HandlePrincipalAsync(CancellationToken cancellationToken)
+        public async Task<IResourceBody> HandlePrincipalAsync(CancellationToken cancellationToken)
         {
-            return Task.FromResult(new ResourceBody { DavProperty = Property, IsFound = true, Value = "DAV:collection, urn:ietf:params:xml:ns:carddav:addressbook" } as IResourceBody);
+            using var ms = new MemoryStream();
+
+            using var writer = XmlWriter.Create(ms, new XmlWriterSettings { Async = true, ConformanceLevel = ConformanceLevel.Fragment, OmitXmlDeclaration = true });
+
+            writer.WriteStartElement("collection", "DAV:");
+
+            writer.WriteStartElement("addressbook", "urn:ietf:params:xml:ns:carddav");
+            writer.WriteEndElement();
+
+            writer.WriteEndElement();
+
+            await writer.FlushAsync();
+            ms.Position = 0;
+
+            using var reader = new StreamReader(ms);
+
+            var value = await reader.ReadToEndAsync();
+
+            return new ResourceBody { DavProperty = Property, IsFound = true, Value = value };
         }
 
         /// <summary>
@@ -58,15 +77,28 @@ namespace BrandUp.CardDav.Transport.Handling
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public Task<IResourceBody> HandleUserAsync(User user, CancellationToken cancellationToken)
+        public async Task<IResourceBody> HandleUserAsync(User user, CancellationToken cancellationToken)
         {
-            return Task.FromResult(new ResourceBody
+            using var ms = new MemoryStream();
+
+            using var writer = XmlWriter.Create(ms, new XmlWriterSettings { Async = true, ConformanceLevel = ConformanceLevel.Fragment, OmitXmlDeclaration = true });
+
+            writer.WriteStartElement("collection", "DAV:");
+            writer.WriteEndElement();
+
+            await writer.FlushAsync();
+            ms.Position = 0;
+
+            using var reader = new StreamReader(ms);
+
+            var value = await reader.ReadToEndAsync();
+
+            return new ResourceBody
             {
                 DavProperty = Property,
                 IsFound = true,
-                Value = "DAV:collection"
-            } as IResourceBody);
-
+                Value = value
+            };
         }
     }
 }
