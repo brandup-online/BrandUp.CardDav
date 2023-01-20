@@ -50,6 +50,11 @@ builder.Services.AddMongoDbContext<AppDocumentContext>(builder.Configuration.Get
 
 var app = builder.Build();
 
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHsts();
+}
+
 app.UseAuthentication();
 app.UseAuthorization();
 
