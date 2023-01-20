@@ -51,7 +51,7 @@ namespace BrandUp.CardDav.Transport.Models.Properties
         /// <summary>
         /// 
         /// </summary>
-        public static IDavProperty CurrentUserPrincipal => new DefaultProp("current-user-principal");
+        public static IDavProperty CurrentUserPrincipal => new HrefProp("current-user-principal");
 
         /// <summary>
         /// 
@@ -106,6 +106,11 @@ namespace BrandUp.CardDav.Transport.Models.Properties
         /// <returns></returns>
         public static IDavProperty Create(string name, string namespase)
         {
+            if (name == "resourcetype")
+                return ResourceType;
+            else if (name == "current-user-principal")
+                return CurrentUserPrincipal;
+
             return new DefaultProp(name, namespase);
         }
 

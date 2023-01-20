@@ -21,8 +21,13 @@ namespace BrandUp.CardDav.Transport.Models.Properties
 
         public void WriteXmlWithValue(XmlWriter writer, string value)
         {
-            using var reader = XmlReader.Create(new StringReader(value));
-            writer.WriteNode(reader, true);
+            writer.WriteStartElement(Name, Namespace);
+
+            var xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(value);
+            xmlDoc.WriteTo(writer);
+
+            writer.WriteEndElement();
         }
 
         #endregion

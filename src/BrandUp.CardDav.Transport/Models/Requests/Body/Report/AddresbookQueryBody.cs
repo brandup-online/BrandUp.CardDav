@@ -111,7 +111,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Report
                     }
                     else
                     {
-                        propList.Add(new DefaultProp(reader.LocalName, reader.NamespaceURI));
+                        propList.Add(Prop.Create(reader.LocalName, reader.NamespaceURI));
                     }
                 }
             }

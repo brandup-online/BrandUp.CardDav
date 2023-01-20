@@ -72,7 +72,7 @@ namespace BrandUp.CardDav.Transport.Models.Requests.Body.Propfind
                 {
                     if (Math.Abs(reader.Depth - baseDepth) > 1)
                     {
-                        props.Add(new DefaultProp(reader.LocalName, reader.NamespaceURI));
+                        props.Add(Prop.Create(reader.LocalName, reader.NamespaceURI));
                     }
                     else if (Math.Abs(reader.Depth - baseDepth) == 1)
                     {
